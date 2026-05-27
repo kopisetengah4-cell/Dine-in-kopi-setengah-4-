@@ -36,31 +36,21 @@
         .nav-tabs-bottom { display: flex; justify-content: space-around; border-top: 1px solid #e2e8f0; padding-top: 8px; margin-top: 5px; }
         .nav-btn { background: none; border: none; color: #64748b; font-size: 14px; font-weight: bold; width: 45%; padding: 8px; cursor: pointer; text-align: center; }
         .nav-btn.active { color: #0284c7; border-bottom: 3px solid #0284c7; }
+        
         .popup-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0, 0, 0, 0.6); backdrop-filter: blur(5px); z-index: 100; justify-content: center; align-items: center; padding: 20px; box-sizing: border-box; }
         .popup-content { background: white; padding: 25px; border-radius: 30px; text-align: center; max-width: 340px; width: 100%; box-shadow: 0 10px 25px rgba(0,0,0,0.2); }
         
-        /* PERBAIKAN UKURAN KOTAK: Dibuat pas tanpa memotong gambar asli */
-        .qris-img-container { 
-            width: 240px; 
-            height: 240px; 
-            margin: 10px auto; 
-            display: flex; 
-            align-items: center; 
-            justify-content: center; 
-            border: 1px solid #cbd5e1; 
-            border-radius: 14px; 
-            background: white; 
-            overflow: hidden; 
-        }
-        .qris-img-file { 
-            max-width: 100%; 
-            max-height: 100%; 
-            object-fit: contain; /* Memastikan gambar pas utuh dan tidak terpotong sama sekali */
-        }
+        .qris-img-container { width: 240px; height: 240px; margin: 10px auto; display: flex; align-items: center; justify-content: center; border: 1px solid #cbd5e1; border-radius: 14px; background: white; overflow: hidden; }
+        .qris-img-file { max-width: 100%; max-height: 100%; object-fit: contain; }
 
         .status-badge { display: inline-block; padding: 8px 20px; border-radius: 50px; font-weight: bold; font-size: 14px; margin-top: 12px; }
         .status-waiting { background: #fef3c7; color: #d97706; border: 1px solid #fde68a; }
-        .btn-close-popup { display: none; width: 100%; padding: 12px; background: #10b981; color: white; border: none; border-radius: 50px; font-size: 14px; font-weight: bold; margin-top: 15px; cursor: pointer; }
+        
+        /* CSS UNTUK GAYA TOMBOL BARU */
+        .btn-action-popup { width: 100%; padding: 12px; border: none; border-radius: 50px; font-size: 14px; font-weight: bold; margin-top: 12px; cursor: pointer; display: block; box-sizing: border-box; }
+        .btn-success { background: #10b981; color: white; display: none; }
+        .btn-cancel { background: #ef4444; color: white; }
+
         .floating-status-tracker { display: none; background: #1e293b; color: white; border-radius: 15px; padding: 10px 15px; margin-top: 10px; font-size: 12px; align-items: center; justify-content: space-between; box-shadow: 0 4px 12px rgba(0,0,0,0.15); }
         .track-dot { width: 8px; height: 8px; background: #f59e0b; border-radius: 50%; display: inline-block; margin-right: 5px; animation: kedip 1s infinite; }
         @keyframes kedip { 0%, 100% { opacity: 0.3; } 50% { opacity: 1; } }
@@ -118,13 +108,15 @@
         <div style="font-size: 13px; color: #64748b; margin-top: 10px;">Total Tagihan:</div>
         <div style="font-size: 22px; font-weight: bold; color: #10b981; margin-bottom: 5px;">Rp <span id="popTotalHarga">0</span></div>
         <div class="status-badge status-waiting" id="txtStatusBayar">Menunggu pembayaran diterima</div>
-        <button class="btn-close-popup" id="btnTutupPopup" onclick="tutupLayarPopup()">Pantau Pesanan</button>
+        
+        <button class="btn-action-popup btn-cancel" id="btnBatalPopup" onclick="batalDanEditPesanan()">Batal / Ubah Pesanan</button>
+        <button class="btn-action-popup btn-success" id="btnTutupPopup" onclick="tutupLayarPopup()">Pantau Pesanan</button>
     </div>
 </div>
 
 <script type="module">
   import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
-  import { getFirestore, collection, addDoc, doc, onSnapshot } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+  import { getFirestore, collection, addDoc, doc, onSnapshot, getDoc } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
 
   const firebaseConfig = {
     apiKey: "AIzaSyA-w5zgpdjze0gaqVINUbM9KECN0gujqSc",
@@ -168,7 +160,7 @@
     { kategori: "Tea", nama: "Teh Tarik", harga: 22000 },
     { kategori: "Tea", nama: "Teh Susu Legit", harga: 21000 },
     { kategori: "Tea", nama: "Teh Remon", harga: 20000 },
-    { kategori: "Tea", nama: "Lemon Tea", fontDepth: 1, harga: 20000 },
+    { kategori: "Tea", nama: "Lemon Tea", harga: 20000 },
     { kategori: "Tea", nama: "Sugar Cane Tea", harga: 15000 },
     { kategori: "Snack", nama: "Ropang Senja Bluberry", harga: 12000 },
     { kategori: "Snack", nama: "Ropang Senja Coklat", harga: 12000 },
@@ -261,73 +253,119 @@
           
           document.getElementById('popTotalHarga').innerText = totalHargaGlobal.toLocaleString('id-ID');
           document.getElementById('layarPopup').style.display = 'flex';
+          
+          // Reset tombol pop-up ke kondisi awal
+          document.getElementById('btnBatalPopup').style.display = 'block';
+          document.getElementById('btnTutupPopup').style.display = 'none';
+
           pantauStatusPembayaran(docRef.id);
       } catch (e) { alert("Gagal memproses pembayaran."); }
   }
+
+  // FUNGSI CEK MANUAL (Mencegah Stuck saat user balik ke Chrome)
+  async function cekStatusManual() {
+      const savedId = localStorage.getItem('id_pesanan_aktif');
+      if (savedId) {
+          try {
+              const docSnap = await getDoc(doc(db, "pesanan", savedId));
+              if (docSnap.exists()) {
+                  renderStatusUI(docSnap.data());
+              }
+          } catch (e) { console.log("Gagal cek manual:", e); }
+      }
+  }
+
+  // Monitor perpindahan tab / aplikasi (Deteksi ketika user kembali membuka Chrome)
+  document.addEventListener("visibilitychange", () => {
+      if (document.visibilityState === "visible") {
+          cekStatusManual();
+      }
+  });
 
   function pantauStatusPembayaran(documentId) {
       if(listenerStatus) listenerStatus();
 
       listenerStatus = onSnapshot(doc(db, "pesanan", documentId), (docSnapshot) => {
           if (docSnapshot.exists()) {
-              const data = docSnapshot.data();
-              const badgePopup = document.getElementById('txtStatusBayar');
-              const boxKosong = document.getElementById('boxStatusKosong');
-              const boxAktif = document.getElementById('boxStatusAktif');
-              const stTxt = document.getElementById('statusLiveTxt');
-              const stKode = document.getElementById('statusLiveKode');
-              const stDesc = document.getElementById('statusLiveDesc');
-              const trkBar = document.getElementById('trackerLive');
-              const trkTxt = document.getElementById('trackerTxt');
-              const trkKode = document.getElementById('trackerKode');
-              const trkDot = document.getElementById('trackerDot');
-
-              boxKosong.style.display = "none";
-              boxAktif.style.display = "block";
-              stKode.innerText = `KODE: ${data.kodeAntrean}`;
-              trkBar.style.display = "flex";
-              trkKode.innerText = `KODE: ${data.kodeAntrean}`;
-
-              if (data.status === "Menunggu Pembayaran") {
-                  badgePopup.innerText = "Menunggu pembayaran diterima";
-                  stTxt.innerText = "Menunggu Pembayaran"; stTxt.className = "status-main-badge bg-waiting";
-                  stDesc.innerText = "Mohon selesaikan pembayaran QRIS Anda agar kasir bisa segera mengonfirmasi pesanan.";
-                  trkTxt.innerText = "Menunggu Pembayaran..."; trkDot.style.backgroundColor = "#f59e0b";
-              }
-              else if (data.status === "Dibayar") {
-                  badgePopup.innerText = "Pembayaran Diterima";
-                  document.getElementById('btnTutupPopup').style.display = 'block';
-                  stTxt.innerText = "Sedang Dibuat"; stTxt.className = "status-main-badge bg-dibayar";
-                  stDesc.innerText = "Pembayaran sah! Barista sedang meracik menu pesanan Anda, mohon tunggu sebentar.";
-                  trkTxt.innerText = "Barista sedang membuat pesanan..."; trkDot.style.backgroundColor = "#0ea5e9";
-              }
-              else if (data.status === "Diproses") {
-                  stTxt.innerText = "Siap Diambil!"; stTxt.className = "status-main-badge bg-ready";
-                  stDesc.innerText = "Hore! Pesanan Anda telah selesai dibuat. Silakan tunjukkan KODE ANTREAN ke meja bar untuk mengambil item.";
-                  trkTxt.innerText = "PESANAN SIAP! Ambil di bar."; trkDot.style.backgroundColor = "#10b981";
-                  
-                  const btnClose = document.getElementById('btnTutupPopup');
-                  btnClose.innerText = "Selesai (Buat Pesanan Baru)";
-                  btnClose.onclick = function() {
-                      localStorage.removeItem('id_pesanan_aktif'); 
-                      trkBar.style.display = "none";
-                      tutupLayarPopup();
-                  };
-              }
-              else if (data.status === "Selesai") {
-                  localStorage.removeItem('id_pesanan_aktif');
-                  boxKosong.style.display = "block"; boxAktif.style.display = "none"; trkBar.style.display = "none";
-                  window.gantiDashboard('pesan'); inisialisasiAwal();
-              }
+              renderStatusUI(docSnapshot.data());
           } else {
               localStorage.removeItem('id_pesanan_aktif');
           }
       });
   }
 
+  // FUNGSI UNTUK MERENDER PERUBAHAN STATUS KE LAYAR
+  function renderStatusUI(data) {
+      const badgePopup = document.getElementById('txtStatusBayar');
+      const boxKosong = document.getElementById('boxStatusKosong');
+      const boxAktif = document.getElementById('boxStatusAktif');
+      const stTxt = document.getElementById('statusLiveTxt');
+      const stKode = document.getElementById('statusLiveKode');
+      const stDesc = document.getElementById('statusLiveDesc');
+      const trkBar = document.getElementById('trackerLive');
+      const trkTxt = document.getElementById('trackerTxt');
+      const trkKode = document.getElementById('trackerKode');
+      const trkDot = document.getElementById('trackerDot');
+
+      boxKosong.style.display = "none";
+      boxAktif.style.display = "block";
+      stKode.innerText = `KODE: ${data.kodeAntrean}`;
+      trkBar.style.display = "flex";
+      trkKode.innerText = `KODE: ${data.kodeAntrean}`;
+
+      if (data.status === "Menunggu Pembayaran") {
+          badgePopup.innerText = "Menunggu pembayaran diterima";
+          stTxt.innerText = "Menunggu Pembayaran"; stTxt.className = "status-main-badge bg-waiting";
+          stDesc.innerText = "Mohon selesaikan pembayaran QRIS Anda agar kasir bisa segera mengonfirmasi pesanan.";
+          trkTxt.innerText = "Menunggu Pembayaran..."; trkDot.style.backgroundColor = "#f59e0b";
+      }
+      else if (data.status === "Dibayar") {
+          badgePopup.innerText = "Pembayaran Diterima";
+          
+          // Sembunyikan tombol batal, munculkan tombol pantau pesanan
+          document.getElementById('btnBatalPopup').style.display = 'none';
+          document.getElementById('btnTutupPopup').style.display = 'block';
+          document.getElementById('btnTutupPopup').innerText = "Pantau Pesanan";
+          
+          stTxt.innerText = "Sedang Dibuat"; stTxt.className = "status-main-badge bg-dibayar";
+          stDesc.innerText = "Pembayaran sah! Barista sedang meracik menu pesanan Anda, mohon tunggu sebentar.";
+          trkTxt.innerText = "Barista sedang membuat pesanan..."; trkDot.style.backgroundColor = "#0ea5e9";
+      }
+      else if (data.status === "Diproses") {
+          stTxt.innerText = "Siap Diambil!"; stTxt.className = "status-main-badge bg-ready";
+          stDesc.innerText = "Hore! Pesanan Anda telah selesai dibuat. Silakan tunjukkan KODE ANTREAN ke meja bar untuk mengambil item.";
+          trkTxt.innerText = "PESANAN SIAP! Ambil di bar."; trkDot.style.backgroundColor = "#10b981";
+          
+          document.getElementById('btnBatalPopup').style.display = 'none';
+          const btnClose = document.getElementById('btnTutupPopup');
+          btnClose.style.display = 'block';
+          btnClose.innerText = "Selesai (Buat Pesanan Baru)";
+          btnClose.onclick = function() {
+              localStorage.removeItem('id_pesanan_aktif'); 
+              trkBar.style.display = "none";
+              tutupLayarPopup();
+          };
+      }
+      else if (data.status === "Selesai") {
+          localStorage.removeItem('id_pesanan_aktif');
+          boxKosong.style.display = "block"; boxAktif.style.display = "none"; trkBar.style.display = "none";
+          window.gantiDashboard('pesan'); inisialisasiAwal();
+      }
+  }
+
+  // FUNGSI TOMBOL BATAL KEMBALI SEBELUM BAYAR
+  window.batalDanEditPesanan = function() {
+      if (confirm("Ingin kembali untuk mengubah atau menambahkan menu pesanan Anda?")) {
+          localStorage.removeItem('id_pesanan_aktif'); // Hapus sesi pesanan yang belum dibayar ini
+          if(listenerStatus) listenerStatus(); // Matikan pemantauan database sementara
+          document.getElementById('layarPopup').style.display = 'none';
+          document.getElementById('trackerLive').style.display = 'none';
+          window.gantiDashboard('pesan'); // Kembalikan ke halaman menu utama
+      }
+  }
+
   window.tutupLayarPopup = function() {
       document.getElementById('layarPopup').style.display = 'none';
-      document.getElementById('btnTutupPopup').style.display = 'none';
       window.gantiDashboard('status');
   }
 
@@ -342,6 +380,7 @@
   if (idPesananTersimpan) {
       tampilkanMenu(); updateUI();
       pantauStatusPembayaran(idPesananTersimpan);
+      cekStatusManual(); // Langsung cek status saat pertama kali load halaman
   } else {
       inisialisasiAwal();
   }
