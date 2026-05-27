@@ -35,37 +35,26 @@
 </head>
 <body>
 
-<div class="header-fixed">
-    <h2>Kopi Setengah Empat</h2>
-</div>
+<div class="header-fixed"><h2>Kopi Setengah Empat</h2></div>
 
 <div class="content-scrollable">
     <div id="tab-baru" class="tab-panel active"><div id="list-baru"></div></div>
     <div id="tab-siap" class="tab-panel"><div id="list-siap"></div></div>
     <div id="tab-selesai" class="tab-panel"><div id="list-selesai"></div></div>
     <div id="tab-omset" class="tab-panel">
-        <div class="omset-box">
-            <div style="font-size: 14px; opacity: 0.9;">Total Omset Hari Ini</div>
-            <h1 id="omset-total">Rp 0</h1>
-        </div>
+        <div class="omset-box"><div style="font-size: 14px; opacity: 0.9;">Total Omset Hari Ini</div><h1 id="omset-total">Rp 0</h1></div>
         <div class="stat-grid">
-            <div class="stat-card">
-                <div style="font-size: 12px; color: #64748b;">Cup Terjual</div>
-                <div class="stat-num" id="omset-cup">0 Cup</div>
-            </div>
-            <div class="stat-card">
-                <div style="font-size: 12px; color: #64748b;">Transaksi Sukses</div>
-                <div class="stat-num" id="omset-transaksi">0 Nota</div>
-            </div>
+            <div class="stat-card"><div style="font-size: 12px; color: #64748b;">Cup Terjual</div><div class="stat-num" id="omset-cup">0 Cup</div></div>
+            <div class="stat-card"><div style="font-size: 12px; color: #64748b;">Transaksi Sukses</div><div class="stat-num" id="omset-transaksi">0 Nota</div></div>
         </div>
     </div>
 </div>
 
 <div class="nav-fixed-bottom">
-    <button class="nav-item active" onclick="gantiTab('baru', this)"><span class="badge-count" id="notif-baru-badge">0</span><span>Pesanan Baru</span></button>
-    <button class="nav-item" onclick="gantiTab('siap', this)"><span>Siap Diambil</span></button>
-    <button class="nav-item" onclick="gantiTab('selesai', this)"><span>Selesai</span></button>
-    <button class="nav-item" onclick="gantiTab('omset', this)"><span>Omset</span></button>
+    <button class="nav-item active" id="btn-tab-baru" onclick="gantiTab('baru', this)"><span class="badge-count" id="notif-baru-badge">0</span><span>Pesanan Baru</span></button>
+    <button class="nav-item" id="btn-tab-siap" onclick="gantiTab('siap', this)"><span>Siap Diambil</span></button>
+    <button class="nav-item" id="btn-tab-selesai" onclick="gantiTab('selesai', this)"><span>Selesai</span></button>
+    <button class="nav-item" id="btn-tab-omset" onclick="gantiTab('omset', this)"><span>Omset</span></button>
 </div>
 
 <script type="module">
@@ -105,43 +94,24 @@
                   totalCupDiNotaIni += item.qty;
               });
           }
+          let htmlCatatan = ""; if (data.catatan && data.catatan.trim() !== "") { htmlCatatan = `<div class="order-note"><b>Catatan:</b> "${data.catatan}"</div>`; }
+          let formatWaktu = "..."; if (data.waktuLokal) { formatWaktu = new Date(data.waktuLokal).toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' }); }
 
-          let htmlCatatan = "";
-          if (data.catatan && data.catatan.trim() !== "") {
-              htmlCatatan = `<div class="order-note"><b>Catatan:</b> "${data.catatan}"</div>`;
-          }
-
-          let formatWaktu = "...";
-          if (data.waktuLokal) {
-              formatWaktu = new Date(data.waktuLokal).toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' });
-          }
-
-          // KONDISI TAB 1: PESANAN BARU (Bisa "Menunggu Pembayaran" ATAU "Dibayar")
           if (data.status === "Menunggu Pembayaran" || data.status === "Dibayar") {
               countBaru++;
-              
-              let htmlTombolAksi = "";
-              if (data.status === "Menunggu Pembayaran") {
-                  htmlTombolAksi = `<button class="btn-action btn-orange" onclick="ubahStatusPesanan('${data.id}', 'Dibayar')">Konfirmasi Pembayaran</button>`;
-              } else {
-                  htmlTombolAksi = `<button class="btn-action btn-blue-action" onclick="ubahStatusPesanan('${data.id}', 'Diproses')">Pesanan Siap</button>`;
-              }
+              let htmlTombolAksi = data.status === "Menunggu Pembayaran" ? 
+                  `<button class="btn-action btn-orange" onclick="ubahStatusPesanan('${data.id}', 'Dibayar')">Konfirmasi Pembayaran</button>` : 
+                  `<button class="btn-action btn-blue-action" onclick="ubahStatusPesanan('${data.id}', 'Diproses')">Pesanan Siap</button>`;
 
               containerBaru.innerHTML += `
                   <div class="order-card">
-                      <div class="order-header">
-                          <span class="kode-antrean" style="${data.status === 'Dibayar' ? 'background:#3b82f6;' : ''}">Kode: ${data.kodeAntrean}</span>
-                          <span style="font-size: 12px; color: #94a3b8;">🕒 ${formatWaktu}</span>
-                      </div>
+                      <div class="order-header"><span class="kode-antrean" style="${data.status === 'Dibayar' ? 'background:#3b82f6;' : ''}">Kode: ${data.kodeAntrean}</span><span style="font-size: 12px; color: #94a3b8;">🕒 ${formatWaktu}</span></div>
                       <div class="order-items">${htmlMenuRows}</div>
                       ${htmlCatatan}
                       <div class="order-total">Total: Rp ${(data.totalBayar || 0).toLocaleString('id-ID')}</div>
                       ${htmlTombolAksi}
                   </div>`;
-          } 
-          
-          // KONDISI TAB 2: SIAP DIAMBIL (Setelah tombol "Pesanan Siap" diklik)
-          else if (data.status === "Diproses") {
+          } else if (data.status === "Diproses") {
               totalOmsetHariIni += (data.totalBayar || 0); totalCupTerjual += totalCupDiNotaIni; totalTransaksiSukses++;
               containerSiap.innerHTML += `
                   <div class="order-card">
@@ -150,10 +120,7 @@
                       ${htmlCatatan}
                       <button class="btn-action btn-green" onclick="ubahStatusPesanan('${data.id}', 'Selesai')">Selesai (Diambil)</button>
                   </div>`;
-          } 
-          
-          // KONDISI TAB 3: SELESAI
-          else if (data.status === "Selesai") {
+          } else if (data.status === "Selesai") {
               totalOmsetHariIni += (data.totalBayar || 0); totalCupTerjual += totalCupDiNotaIni; totalTransaksiSukses++;
               containerSelesai.innerHTML += `
                   <div class="order-card" style="opacity: 0.7;">
@@ -173,20 +140,24 @@
   });
 
   window.ubahStatusPesanan = async function(idDokumen, statusBaru) {
-      try {
-          await updateDoc(doc(db, "pesanan", idDokumen), { status: statusBaru });
-      } catch (e) {
-          alert("Gagal memperbarui status.");
-      }
+      try { await updateDoc(doc(db, "pesanan", idDokumen), { status: statusBaru }); } catch (e) { alert("Gagal."); }
   }
 </script>
+
 <script>
     function gantiTab(tabId, tombol) {
         document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
         document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
         document.getElementById('tab-' + tabId).classList.add('active');
         tombol.classList.add('active');
+        // SIMPAN TAB TERAKHIR DI KASIR BIAR KALAU DIREFRESH TIDAK BALIK LAGI
+        localStorage.setItem('tab_kasir_aktif', tabId);
     }
+
+    // LOAD TAB KASIR SAAT REFRESH
+    const tabTersimpan = localStorage.getItem('tab_kasir_aktif') || 'baru';
+    const btnTarget = document.getElementById('btn-tab-' + tabTersimpan);
+    gantiTab(tabTersimpan, btnTarget);
 </script>
 </body>
 </html>
