@@ -235,7 +235,6 @@
               waktuLokal: Date.now() 
           });
           
-          // INGAT TRANSKASI AKTIF DI MEMORI LOKAL HP KUSTOMER
           localStorage.setItem('id_pesanan_aktif', docRef.id);
           
           document.getElementById('popTotalHarga').innerText = totalHargaGlobal.toLocaleString('id-ID');
@@ -288,7 +287,7 @@
                   const btnClose = document.getElementById('btnTutupPopup');
                   btnClose.innerText = "Selesai (Buat Pesanan Baru)";
                   btnClose.onclick = function() {
-                      localStorage.removeItem('id_pesanan_aktif'); // Hapus ingatan lunas
+                      localStorage.removeItem('id_pesanan_aktif'); 
                       trkBar.style.display = "none";
                       tutupLayarPopup();
                   };
@@ -317,13 +316,12 @@
       tampilkanMenu(); updateUI();
   }
 
-  // AMBIL CHECKING APAKAH ADA TRANSAKSI YANG BELUM SELESAI SAAT REFRESH
   const idPesananTersimpan = localStorage.getItem('id_pesanan_aktif');
   if (idPesananTersimpan) {
       tampilkanMenu(); updateUI();
       pantauStatusPembayaran(idPesananTersimpan);
   } else {
-       JanisialisasiAwal();
+      inisialisasiAwal();
   }
 </script>
 
