@@ -57,13 +57,6 @@
         .table-laporan { width: 100%; border-collapse: collapse; background: white; border-radius: 14px; overflow: hidden; border: 1px solid #e2e8f0; }
         .table-laporan th, .table-laporan td { padding: 12px 15px; text-align: left; border-bottom: 1px solid #e2e8f0; }
         .table-laporan th { background: #f8fafc; color: #475569; }
-        
-        .btn-danger-clear { background: #ef4444; color: white; border: none; padding: 12px 24px; border-radius: 8px; font-weight: bold; font-size: 14px; cursor: pointer; box-shadow: 0 4px 12px rgba(239,68,68,0.2); transition: background 0.2s; margin-top: 25px; display: inline-block; }
-        .btn-danger-clear:hover { background: #dc2626; }
-
-        /* ULASAN STYLE */
-        .ulasan-card { background: white; padding: 15px 20px; border-radius: 12px; border: 1px solid #e2e8f0; margin-bottom: 15px; box-shadow: 0 2px 6px rgba(0,0,0,0.01); }
-        .ulasan-stars { color: #f59e0b; font-size: 18px; font-weight: bold; margin-bottom: 5px; }
     </style>
 </head>
 <body>
@@ -77,7 +70,6 @@
     <div class="sidebar-menu">
         <button class="menu-tab-btn active" id="tab-btn-antrean" onclick="pindahTab('antrean')">Daftar Antrean</button>
         <button class="menu-tab-btn" id="tab-btn-status" onclick="pindahTab('status')">Riwayat Selesai</button>
-        <button class="menu-tab-btn" id="tab-btn-ulasan" onclick="pindahTab('ulasan')">Ulasan Customer</button>
         <button class="menu-tab-btn" id="tab-btn-chat" onclick="pindahTab('chat')">Live Chat</button>
         <button class="menu-tab-btn" id="tab-btn-omset" onclick="pindahTab('omset')">Laporan Omset</button>
     </div>
@@ -91,13 +83,6 @@
         <div id="panel-status" class="panel-view">
             <div class="section-title">Riwayat Transaksi Sukses</div>
             <div class="grid-orders" id="wadah-pesanan-selesai"></div>
-        </div>
-
-        <div id="panel-ulasan" class="panel-view">
-            <div class="section-title">Ulasan & Rating Dari Customer</div>
-            <div id="wadah-ulasan-list">
-                <p style="color:#94a3b8; font-size:14px;">Belum ada ulasan masuk dari pelanggan.</p>
-            </div>
         </div>
 
         <div id="panel-chat" class="panel-view">
@@ -130,16 +115,13 @@
                 </thead>
                 <tbody id="body-tabel-omset"></tbody>
             </table>
-
-            <br>
-            <button class="btn-danger-clear" onclick="hapusSemuaDataOmsetDanTransaksi()">⚠️ Hapus Semua Omset & Riwayat Selesai</button>
         </div>
     </div>
 </div>
 
 <script type="module">
   import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
-  import { getFirestore, collection, onSnapshot, doc, updateDoc, deleteDoc, addDoc, query, orderBy, writeBatch, getDocs } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+  import { getFirestore, collection, onSnapshot, doc, updateDoc, query, orderBy, addDoc } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
 
   const firebaseConfig = {
     apiKey: "AIzaSyA-w5zgpdjze0gaqVINUbM9KECN0gujqSc",
@@ -169,27 +151,15 @@
   function renderDashboardKasir() {
       const wadahAktif = document.getElementById('wadah-pesanan-aktif');
       const wadahSelesai = document.getElementById('wadah-pesanan-selesai');
-      const wadahUlasan = document.getElementById('wadah-ulasan-list');
       
-      wadahAktif.innerHTML = ""; wadahSelesai.innerHTML = ""; wadahUlasan.innerHTML = "";
+      wadahAktif.innerHTML = ""; wadahSelesai.innerHTML = "";
 
       let hitungOmset = 0;
       let rekapMenu = {};
-      let adaUlasan = false;
 
-      // Filter Chat: Hilangkan yang berstatus Selesai lebih dari 5 menit
-      const listPesananBisaChat = dataSemuaPesanan.filter(item => {
-          if (item.status === "Selesai") {
-              const batasWaktu = item.waktuLokal + (5 * 60 * 1000); 
-              if (Date.now() >= batasWaktu) return false;
-          }
-          return true;
-      });
-
-      renderSidebarKamarChatKasir(listPesananBisaChat);
+      renderSidebarKamarChatKasir(dataSemuaPesanan);
 
       dataSemuaPesanan.forEach(item => {
-          // HITUNG LAPORAN FINANSIAL
           if (item.status === "Selesai") {
               hitungOmset += item.totalBayar;
               item.daftarMenu.forEach(m => {
@@ -197,23 +167,8 @@
                   rekapMenu[m.nama].qty += m.qty;
                   rekapMenu[m.nama].subtotal += (m.qty * m.harga);
               });
-
-              // RENDER TAB ULASAN JIKA ADA DATA RATINGS
-              if (item.rating) {
-                  adaUlasan = true;
-                  const ulasanDiv = document.createElement('div');
-                  ulasanDiv.className = "ulasan-card";
-                  let strBintang = "★".repeat(item.rating) + "☆".repeat(5 - item.rating);
-                  ulasanDiv.innerHTML = `
-                      <div class="ulasan-stars">${strBintang} (${item.rating}/5)</div>
-                      <div style="font-size:12px; color:#64748b; font-weight:bold;">Kode Antrean: ${item.kodeAntrean}</div>
-                      <div style="font-size:14px; color:#1e293b; margin-top:5px;">"${item.ulasan}"</div>
-                  `;
-                  wadahUlasan.appendChild(ulasanDiv);
-              }
           }
 
-          // RENDER KARTU PROSES PRODUKSI
           const card = document.createElement('div');
           card.className = "order-card";
           
@@ -245,13 +200,11 @@
           `;
 
           if(item.status === "Selesai") {
-              // Jika sudah selesai masuk ke panel status riwayat
               card.innerHTML = `
                   <span class="badge-status badge-ready">SELESAI</span>
                   <div style="font-size: 12px; color: #64748b; font-weight: bold;">ANTREAN: ${item.kodeAntrean}</div>
                   <ul style="padding-left:18px; margin: 10px 0; font-size:13px; color:#475569;">${listMenuHTML}</ul>
                   <div style="font-size:13px; font-weight:bold; color:#10b981;">Lunas: Rp ${item.totalBayar.toLocaleString('id-ID')}</div>
-                  ${item.rating ? `<div style="font-size:12px; color:#f59e0b; margin-top:8px; font-weight:bold;">Rating: ${"★".repeat(item.rating)}</div>` : ''}
               `;
               wadahSelesai.appendChild(card);
           } else {
@@ -259,9 +212,6 @@
           }
       });
 
-      if(!adaUlasan) { wadahUlasan.innerHTML = `<p style="color:#94a3b8; font-size:14px;">Belum ada ulasan masuk dari pelanggan.</p>`; }
-
-      // UPDATE UI TAB OMSET
       document.getElementById('label-total-omset').innerText = hitungOmset.toLocaleString('id-ID');
       const bodyTabel = document.getElementById('body-tabel-omset');
       bodyTabel.innerHTML = "";
@@ -274,16 +224,10 @@
 
   window.gantiStatusPesanan = async function(idDoc, statusBaru) {
       try {
-          // Bila status disetel ke selesai, tandai cap waktu selesainya untuk perhitungan 5 menit chat
-          if(statusBaru === "Selesai") {
-              await updateDoc(doc(db, "pesanan", idDoc), { status: statusBaru, waktuLokal: Date.now() });
-          } else {
-              await updateDoc(doc(db, "pesanan", idDoc), { status: statusBaru });
-          }
+          await updateDoc(doc(db, "pesanan", idDoc), { status: statusBaru });
       } catch(e) { console.error(e); }
   }
 
-  // RENDER LIVE ROOM CHAT SIDEBAR KASIR
   function renderSidebarKamarChatKasir(arrayValidChat) {
       const wadahKamar = document.getElementById('wadah-list-kamar-chat');
       wadahKamar.innerHTML = "";
@@ -341,40 +285,6 @@
           inp.value = ""; inp.focus();
       } catch(e) { console.error(e); }
   }
-
-  // FUNGSI UTAMA TOMBOL DANGER: HAPUS SEMUA OMSET & TRANSAKSI YANG SELESAI
-  window.hapusSemuaDataOmsetDanTransaksi = async function() {
-      if(confirm("PERINGATAN KRITIKAL!\n\nApakah Anda yakin ingin menghapus TOTAL SELURUH DATA laporan omset, ulasan, serta semua riwayat transaksi yang sudah BERSTATUS SELESAI di Firebase?")) {
-          try {
-              const targetHapusQuery = await getDocs(collection(db, "pesanan"));
-              const batch = writeBatch(db);
-              let totalTerhapus = 0;
-
-              targetHapusQuery.forEach((docObj) => {
-                  const data = docObj.data();
-                  if(data.status === "Selesai") {
-                      batch.delete(docObj.ref);
-                      totalTerhapus++;
-                  }
-              });
-
-              if(totalTerhapus > 0) {
-                  await batch.commit();
-                  alert(`Pembersihan sukses! ${totalTerhapus} riwayat transaksi selesai dan laporan omset telah dikosongkan.`);
-                  roomChatAktifId = "";
-                  document.getElementById('box-percakapan-chat').innerHTML = `<div style="color: #94a3b8; text-align: center; margin-top: 150px; font-size:14px;">Silakan pilih nomor antrean pelanggan untuk membuka chat</div>`;
-              } else {
-                  alert("Tidak ditemukan data pesanan berstatus 'Selesai' untuk dihapus.");
-              }
-          } catch (error) {
-              alert("Terjadi kesalahan sistem saat mencoba menghapus database.");
-              console.error(error);
-          }
-      }
-  }
-
-  // Interval checker pembersih live chat kasir real-time tiap 10 detik
-  setInterval(() => { renderDashboardKasir(); }, 10000);
 </script>
 
 <script>
