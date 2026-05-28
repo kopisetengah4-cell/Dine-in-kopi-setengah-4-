@@ -22,7 +22,6 @@
         .btn-bubble { width: 24px; height: 24px; border-radius: 50%; border: none; background: white; color: #0284c7; font-size: 13px; font-weight: bold; cursor: pointer; display: flex; align-items: center; justify-content: center; box-shadow: 0 1px 3px rgba(0,0,0,0.1); }
         .qty-value { font-weight: bold; font-size: 11px; color: #1e293b; }
         
-        /* Modifikasi Card Status Agar Bisa Berjejer ke Bawah jika Multi-Order */
         .status-card-full { background: white; border: 1px solid #e2e8f0; border-radius: 20px; padding: 20px; text-align: center; box-shadow: 0 4px 12px rgba(0,0,0,0.03); margin-top: 15px; position: relative; }
         .status-main-badge { display: inline-block; padding: 10px 25px; border-radius: 50px; font-weight: bold; font-size: 16px; margin-top: 12px; margin-bottom: 12px; }
         .bg-waiting { background: #fef3c7; color: #d97706; border: 1px solid #fde68a; }
@@ -185,7 +184,7 @@
     { kategori: "Milk", nama: "Matcha Latte", harga: 27000 },
     { kategori: "Milk", nama: "Creamy Latte", harga: 22000 },
     { kategori: "Tea", nama: "Teh Tarik", harga: 22000 },
-    { kategori: "Tea", nama: "Teh Susu Legit", fontDepth: 1, harga: 21000 },
+    { kategori: "Tea", nama: "Teh Susu Legit", harga: 21000 },
     { kategori: "Tea", nama: "Teh Remon", harga: 20000 },
     { kategori: "Tea", nama: "Lemon Tea", harga: 20000 },
     { kategori: "Tea", nama: "Sugar Cane Tea", harga: 15000 },
@@ -211,7 +210,6 @@
   let keranjangPesanan = {};
   let totalHargaGlobal = 0;
   
-  // Penyimpanan Multi-Order dalam bentuk Array Objek Penampung Realtime
   let listPesananAktifArray = [];
   let currentSelectedChatId = "";
   let mapListenerStatus = {};
@@ -224,15 +222,20 @@
       const savedCart = localStorage.getItem('local_keranjang_customer');
       if(savedCart) { keranjangPesanan = JSON.parse(savedCart); }
 
+      let kategoriSekarang = ""; 
+      let gridElement = null;
+
       databaseMenu.forEach((menu, index) => {
           const idMenu = `menu_${index}`;
           if(!keranjangPesanan[idMenu]) { keranjangPesanan[idMenu] = { nama: menu.nama, harga: menu.harga, qty: 0 }; }
+          
+          // PERBAIKAN: Menghapus kata 'var' agar kategori tidak ter-reset ditengah jalan
           if (menu.kategori !== kategoriSekarang) {
-              var kategoriSekarang = menu.kategori;
+              kategoriSekarang = menu.kategori;
               const sec = document.createElement('div'); sec.className = "category-section";
               const title = document.createElement('div'); title.className = "category-title"; title.innerText = kategoriSekarang;
               sec.appendChild(title);
-              var gridElement = document.createElement('div'); gridElement.className = "menu-grid";
+              gridElement = document.createElement('div'); gridElement.className = "menu-grid";
               sec.appendChild(gridElement); kontener.appendChild(sec);
           }
           const card = document.createElement('div'); card.className = "menu-card-bubble";
@@ -278,7 +281,6 @@
       if (!adaItem) { kotakRincian.innerHTML = `<div style="color: #94a3b8; text-align: center; padding-top: 5px;">Belum ada menu terpilih</div>`; }
   }
 
-  // KEPASTIAN LOGIKA AMAN: POP UP MUNCUL HANYA SAAT FIRESTORE SUCCESS
   window.prosesBayarQRIS = async function() {
       const listOrder = [];
       for (const id in keranjangPesanan) {
@@ -297,7 +299,6 @@
               waktuLokal: Date.now() 
           });
           
-          // Masukkan id baru ke daftar transaksi aktif multi-order di local storage
           simpanIdKeDaftarSesiLokal(docRef.id);
           
           document.getElementById('popTotalHarga').innerText = totalHargaGlobal.toLocaleString('id-ID');
@@ -326,13 +327,11 @@
       }
   }
 
-  // FUNGSI UTAMA: MEMELIHARA RIWAYAT MULTI PESANAN AGAR TIDAK HILANG SAAT REFRESH
   window.mulaiPemantauanMultiOrder = function() {
       const savedSesi = localStorage.getItem('multi_id_pesanan_customer');
       if(!savedSesi) return;
       const arraySesi = JSON.parse(savedSesi);
 
-      // Matikan listener lama untuk mencegah kebocoran memori
       for (const key in mapListenerStatus) { mapListenerStatus[key](); }
       mapListenerStatus = {};
       listPesananAktifArray = [];
@@ -352,7 +351,6 @@
               if (snapshot.exists()) {
                   const data = snapshot.data();
                   
-                  // Simpan ke array memori lokal
                   const indeks = listPesananAktifArray.findIndex(item => item.id === documentId);
                   if(indeks !== -1) listPesananAktifArray[indeks].data = data;
                   else listPesananAktifArray.push({ id: documentId, data: data });
@@ -360,7 +358,6 @@
                   renderUIRiwayatKartuStatus();
                   perbaruiSidebarKamarChat();
                   
-                  // Cek status Lunas untuk mengacak kode antrean baru otomatis
                   if (data.status === "Dibayar") {
                       const currentActiveCode = localStorage.getItem('kode_antrean_aktif_saat_ini');
                       if (currentActiveCode === data.kodeAntrean) {
@@ -369,7 +366,6 @@
                           localStorage.setItem('kode_antrean_aktif_saat_ini', kodeBaruLagi);
                           document.getElementById('kodePesananTampil').innerText = kodeBaruLagi;
                           
-                          // Bersihkan form pemesanan
                           keranjangPesanan = {};
                           localStorage.removeItem('local_keranjang_customer');
                           document.getElementById('catatanPesanan').value = "";
@@ -377,7 +373,6 @@
                       }
                   }
               } else {
-                  // Jika dokumen dihapus kasir (ditolak/selesai), bersihkan dari riwayat multi-order
                   hapusIdDariSesiLokal(documentId);
                   if(mapListenerStatus[documentId]) mapListenerStatus[documentId]();
                   mulaiPemantauanMultiOrder();
@@ -390,7 +385,6 @@
       const wadahListHTML = document.getElementById('status-list-container');
       wadahListHTML.innerHTML = "";
 
-      // Urutkan pesanan dari yang paling baru di posisi atas
       listPesananAktifArray.sort((a,b) => b.data.waktuLokal - a.data.waktuLokal);
 
       listPesananAktifArray.forEach((item, index) => {
@@ -413,7 +407,6 @@
           `;
           wadahListHTML.appendChild(itemCard);
 
-          // Update data bar navigasi bawah terapung untuk pesanan teratas saja
           if(index === 0) {
               const trkBar = document.getElementById('trackerLive');
               trkBar.style.display = "flex";
@@ -456,7 +449,6 @@
           barKamar.appendChild(badge);
       });
 
-      // Jika sesi terpilih hilang atau belum dipilih, ambil index pertama otomatis
       if(currentSelectedChatId === "" || !listPesananAktifArray.some(i => i.id === currentSelectedChatId)) {
           currentSelectedChatId = listPesananAktifArray[0].id;
           perbaruiSidebarKamarChat();
@@ -464,7 +456,6 @@
       }
   }
 
-  // SOLUSI UTAMA CHAT TERIKAT MODUL: Event listener internal agar tombol bisa mengirim data
   function sambungkanObrolanChatMasingMasing(idDoc) {
       if(unregisterChatMessages) unregisterChatMessages();
 
@@ -492,7 +483,7 @@
       });
   }
 
-  // Penanganan klik tombol kirim menggunakan Event Listener Modul terisolasi penuh
+  // EVENT LISTENER INTERNAL (MENCEGAH ERROR UNDEFINED SAAT KIRIM CHAT)
   document.getElementById('chatSendButton').addEventListener('click', eksekusiKirimPesan);
   document.getElementById('chatMessageInput').addEventListener('keypress', (e) => {
       if(e.key === 'Enter') eksekusiKirimPesan();
