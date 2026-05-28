@@ -362,6 +362,60 @@
             color: white;
         }
 
+        .date-filter-box {
+            background: white;
+            border: 1px solid #e2e8f0;
+            border-radius: 20px;
+            padding: 12px;
+            margin-bottom: 15px;
+            display: flex;
+            gap: 10px;
+            align-items: end;
+            justify-content: space-between;
+        }
+
+        .filter-label {
+            font-size: 12px;
+            color: #64748b;
+            font-weight: bold;
+            margin-bottom: 6px;
+        }
+
+        .date-input {
+            border: 1px solid #cbd5e1;
+            border-radius: 50px;
+            padding: 10px 14px;
+            font-size: 13px;
+            color: #334155;
+            outline: none;
+            background: #f8fafc;
+        }
+
+        .btn-today {
+            border: none;
+            background: #0ea5e9;
+            color: white;
+            padding: 10px 14px;
+            border-radius: 50px;
+            font-size: 12px;
+            font-weight: bold;
+            cursor: pointer;
+            white-space: nowrap;
+        }
+
+        .btn-reset-ulasan {
+            width: 100%;
+            border: none;
+            background: #64748b;
+            color: white;
+            padding: 11px;
+            border-radius: 50px;
+            font-size: 13px;
+            font-weight: bold;
+            cursor: pointer;
+            margin-bottom: 12px;
+        }
+
         .nav-fixed-bottom {
             position: fixed;
             bottom: 0;
@@ -427,6 +481,13 @@
     </div>
 
     <div id="tab-selesai" class="tab-panel">
+        <div class="date-filter-box">
+            <div>
+                <div class="filter-label">Lihat transaksi selesai tanggal:</div>
+                <input type="date" id="filterTanggalSelesai" class="date-input" onchange="renderUlangDashboardSelesai()">
+            </div>
+            <button class="btn-today" onclick="setTanggalSelesaiHariIni()">Hari Ini</button>
+        </div>
         <div id="list-selesai"></div>
     </div>
 
@@ -448,6 +509,8 @@
             <button class="review-filter-btn" onclick="filterUlasan('2', this)">2 ★</button>
             <button class="review-filter-btn" onclick="filterUlasan('1', this)">1 ★</button>
         </div>
+
+        <button class="btn-reset-ulasan" onclick="resetTampilanUlasan()">Reset Tampilan Ulasan</button>
 
         <div id="list-ulasan"></div>
     </div>
@@ -488,6 +551,7 @@
     </button>
 
     <button class="nav-item" onclick="gantiTab('chat', this)">
+        <span class="badge-count" id="notif-chat-badge">0</span>
         <span>Chat</span>
     </button>
 </div>
@@ -513,8 +577,14 @@
   let unregisterChatListener = null;
   let semuaDataUlasan = [];
   let filterRatingAktif = "semua";
+  let semuaPesananSelesai = [];
+  let jumlahChatBelumDibaca = 0;
+  let unsubscribeNotifChat = {};
+  let jumlahPesanCustomerPerRoom = {};
 
   const q = query(collection(db, "pesanan"), orderBy("waktuLokal", "desc"));
+
+  setTanggalSelesaiHariIni();
 
   onSnapshot(q, (snapshot) => {
       const containerBaru = document.getElementById('list-baru');
@@ -526,6 +596,7 @@
       containerSiap.innerHTML = "";
       containerSelesai.innerHTML = "";
       semuaDataUlasan = [];
+      semuaPesananSelesai = [];
 
       let countBaru = 0;
       let htmlSidebar = "";
@@ -536,6 +607,13 @@
 
           if (data.status === "Menunggu Pembayaran") {
               countBaru++;
+          }
+
+          if (data.status === "Selesai") {
+              semuaPesananSelesai.push({
+                  id: idDoc,
+                  data: data
+              });
           }
 
           if (data.rating && data.ulasan) {
@@ -549,6 +627,8 @@
               const kelasAktif = idDoc === activeChatOrderId ? "active" : "";
               htmlSidebar += `<div class="chat-user-badge ${kelasAktif}" onclick="bukaKamarObrolan('${idDoc}', '${escapeHTML(data.kodeAntrean)}')">Kode: ${escapeHTML(data.kodeAntrean)}</div>`;
           }
+
+          pasangListenerNotifChat(idDoc, data);
 
           renderKartuKeHTML(idDoc, data);
       });
@@ -569,7 +649,9 @@
       }
 
       renderDashboardUlasan();
+      renderDashboardSelesaiBerdasarkanTanggal();
       tampilkanEmptyJikaKosong();
+      bersihkanListenerChatYangTidakAktif(snapshot.docs.map(d => d.id));
   });
 
   function tampilkanEmptyJikaKosong() {
@@ -671,6 +753,73 @@
           document.getElementById('list-siap').appendChild(card);
       } 
       else if (data.status === "Selesai") {
+          return;
+      }
+  }
+
+
+  function formatTanggalInput(timestamp) {
+      const d = new Date(timestamp);
+      const yyyy = d.getFullYear();
+      const mm = String(d.getMonth() + 1).padStart(2, '0');
+      const dd = String(d.getDate()).padStart(2, '0');
+      return `${yyyy}-${mm}-${dd}`;
+  }
+
+  window.setTanggalSelesaiHariIni = function() {
+      const input = document.getElementById('filterTanggalSelesai');
+      if (!input) return;
+      input.value = formatTanggalInput(Date.now());
+      renderDashboardSelesaiBerdasarkanTanggal();
+  }
+
+  window.renderUlangDashboardSelesai = function() {
+      renderDashboardSelesaiBerdasarkanTanggal();
+  }
+
+  function renderDashboardSelesaiBerdasarkanTanggal() {
+      const wadah = document.getElementById('list-selesai');
+      const inputTanggal = document.getElementById('filterTanggalSelesai');
+
+      if (!wadah || !inputTanggal) return;
+
+      const tanggalDipilih = inputTanggal.value || formatTanggalInput(Date.now());
+      wadah.innerHTML = "";
+
+      const dataTampil = semuaPesananSelesai.filter(item => {
+          const waktuAcuan = item.data.waktuSelesai || item.data.waktuLokal || 0;
+          return formatTanggalInput(waktuAcuan) === tanggalDipilih;
+      });
+
+      if (dataTampil.length === 0) {
+          wadah.innerHTML = `<div class="empty-state">Belum ada pesanan selesai pada tanggal ini.</div>`;
+          return;
+      }
+
+      dataTampil.forEach(item => {
+          const data = item.data;
+          const idDokumen = item.id;
+
+          let htmlMenuRows = "";
+          if(data.daftarMenu && Array.isArray(data.daftarMenu)) {
+              data.daftarMenu.forEach(menu => {
+                  htmlMenuRows += `<div class="order-item-row"><span>${escapeHTML(menu.nama)}</span><span>x${menu.qty}</span></div>`;
+              });
+          }
+
+          let formatWaktu = "...";
+          const waktuAcuan = data.waktuSelesai || data.waktuLokal;
+
+          if (waktuAcuan) {
+              formatWaktu = new Date(waktuAcuan).toLocaleTimeString('id-ID', {
+                  hour: '2-digit',
+                  minute: '2-digit'
+              });
+          }
+
+          const card = document.createElement('div');
+          card.className = "order-card";
+          card.id = `card_selesai_${idDokumen}`;
           card.innerHTML = `
               <div class="order-header">
                   <span class="kode-antrean" style="background:#64748b;">Kode: ${escapeHTML(data.kodeAntrean)}</span>
@@ -684,8 +833,62 @@
               </div>
           `;
 
-          document.getElementById('list-selesai').appendChild(card);
+          wadah.appendChild(card);
+      });
+  }
+
+  function pasangListenerNotifChat(idDoc, data) {
+      if (!idDoc || unsubscribeNotifChat[idDoc]) return;
+
+      const chatQuery = query(collection(db, "pesanan", idDoc, "percakapan"), orderBy("timestamp", "asc"));
+
+      unsubscribeNotifChat[idDoc] = onSnapshot(chatQuery, (chatSnapshot) => {
+          let totalPesanCustomer = 0;
+
+          chatSnapshot.forEach(msgDoc => {
+              const msgData = msgDoc.data();
+
+              if (msgData.pengirim === "customer") {
+                  totalPesanCustomer++;
+              }
+          });
+
+          jumlahPesanCustomerPerRoom[idDoc] = totalPesanCustomer;
+          hitungTotalNotifChat();
+      });
+  }
+
+  function hitungTotalNotifChat() {
+      let total = 0;
+
+      Object.keys(jumlahPesanCustomerPerRoom).forEach(id => {
+          if (id !== activeChatOrderId && jumlahPesanCustomerPerRoom[id] > 0) {
+              total += jumlahPesanCustomerPerRoom[id];
+          }
+      });
+
+      const badge = document.getElementById('notif-chat-badge');
+
+      if (!badge) return;
+
+      if (total > 0) {
+          badge.innerText = total;
+          badge.style.display = "block";
+      } else {
+          badge.style.display = "none";
       }
+  }
+
+  function bersihkanListenerChatYangTidakAktif(listIdAktif) {
+      Object.keys(unsubscribeNotifChat).forEach(id => {
+          if (!listIdAktif.includes(id)) {
+              unsubscribeNotifChat[id]();
+              delete unsubscribeNotifChat[id];
+              delete jumlahPesanCustomerPerRoom[id];
+          }
+      });
+
+      hitungTotalNotifChat();
   }
 
   function renderDashboardUlasan() {
@@ -770,6 +973,17 @@
       wadahUlasan.innerHTML = html;
   }
 
+  window.resetTampilanUlasan = function() {
+      filterRatingAktif = "semua";
+
+      document.querySelectorAll('.review-filter-btn').forEach(btn => btn.classList.remove('active'));
+
+      const tombolSemua = document.querySelector('.review-filter-btn');
+      if (tombolSemua) tombolSemua.classList.add('active');
+
+      renderDashboardUlasan();
+  }
+
   window.filterUlasan = function(nilai, tombol) {
       filterRatingAktif = nilai;
 
@@ -799,7 +1013,15 @@
   window.ubahStatusPesanan = async function(idDokumen, statusBaru) {
       try {
           const docRef = doc(db, "pesanan", idDokumen);
-          await updateDoc(docRef, { status: statusBaru });
+
+          if (statusBaru === "Selesai") {
+              await updateDoc(docRef, {
+                  status: statusBaru,
+                  waktuSelesai: Date.now()
+              });
+          } else {
+              await updateDoc(docRef, { status: statusBaru });
+          }
       } catch (e) {
           alert("Gagal memperbarui status.");
       }
