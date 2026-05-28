@@ -229,7 +229,6 @@
           const idMenu = `menu_${index}`;
           if(!keranjangPesanan[idMenu]) { keranjangPesanan[idMenu] = { nama: menu.nama, harga: menu.harga, qty: 0 }; }
           
-          // PERBAIKAN: Menghapus kata 'var' agar kategori tidak ter-reset ditengah jalan
           if (menu.kategori !== kategoriSekarang) {
               kategoriSekarang = menu.kategori;
               const sec = document.createElement('div'); sec.className = "category-section";
@@ -358,7 +357,14 @@
                   renderUIRiwayatKartuStatus();
                   perbaruiSidebarKamarChat();
                   
+                  // FITUR SINKRONISASI: KETIKA KASIR TERIMA PEMBAYARAN, POP-UP QRIS OTOMATIS TUTUP
                   if (data.status === "Dibayar") {
+                      // 1. Tutup pop-up overlay QRIS secara otomatis
+                      document.getElementById('layarPopup').style.display = 'none';
+                      
+                      // 2. Alihkan halaman dashboard customer ke tab 'Status'
+                      window.gantiDashboard('status');
+
                       const currentActiveCode = localStorage.getItem('kode_antrean_aktif_saat_ini');
                       if (currentActiveCode === data.kodeAntrean) {
                           const kodeBaruLagi = buatKodeAcak();
@@ -483,7 +489,6 @@
       });
   }
 
-  // EVENT LISTENER INTERNAL (MENCEGAH ERROR UNDEFINED SAAT KIRIM CHAT)
   document.getElementById('chatSendButton').addEventListener('click', eksekusiKirimPesan);
   document.getElementById('chatMessageInput').addEventListener('keypress', (e) => {
       if(e.key === 'Enter') eksekusiKirimPesan();
