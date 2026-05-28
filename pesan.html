@@ -176,7 +176,7 @@
     { kategori: "Flavored Coffee", nama: "Kurma", harga: 26000 },
     { kategori: "Flavored Coffee", nama: "Hazelnut", harga: 26000 },
     { kategori: "Hot", nama: "Setengah Empat (Hot)", harga: 25000 },
-    { kategori: "Hot", nama: "Cappuccino (Hot)", harga: 28000 },
+    { kategori: "Hot", nama: "Cappuccino (Hot)", fontDepth: 1, harga: 28000 },
     { kategori: "Hot", nama: "Matcha Latte (Hot)", harga: 27000 },
     { kategori: "Hot", nama: "Belgian Coklat (Hot)", harga: 25000 },
     { kategori: "Hot", nama: "Americano (Hot)", harga: 24000 },
@@ -357,12 +357,8 @@
                   renderUIRiwayatKartuStatus();
                   perbaruiSidebarKamarChat();
                   
-                  // FITUR SINKRONISASI: KETIKA KASIR TERIMA PEMBAYARAN, POP-UP QRIS OTOMATIS TUTUP
                   if (data.status === "Dibayar") {
-                      // 1. Tutup pop-up overlay QRIS secara otomatis
                       document.getElementById('layarPopup').style.display = 'none';
-                      
-                      // 2. Alihkan halaman dashboard customer ke tab 'Status'
                       window.gantiDashboard('status');
 
                       const currentActiveCode = localStorage.getItem('kode_antrean_aktif_saat_ini');
@@ -428,6 +424,7 @@
   window.bukaChatRoomSpesifik = function(idDoc) {
       currentSelectedChatId = idDoc;
       window.gantiDashboard('chat');
+      perbaruiSidebarKamarChat(); // Refresh status active badge agar warna biru berpindah
       sambungkanObrolanChatMasingMasing(idDoc);
   }
 
@@ -489,6 +486,7 @@
       });
   }
 
+  // LOGIKA AMAN: MENGGUNAKAN VARIABEL KAMAR YANG SEDANG AKTIF SAAT INI (Pasti Muncul)
   document.getElementById('chatSendButton').addEventListener('click', eksekusiKirimPesan);
   document.getElementById('chatMessageInput').addEventListener('keypress', (e) => {
       if(e.key === 'Enter') eksekusiKirimPesan();
@@ -497,6 +495,8 @@
   async function eksekusiKirimPesan() {
       const inputFld = document.getElementById('chatMessageInput');
       const valTxt = inputFld.value.trim();
+      
+      // Mengikat langsung id chat room yang sedang terbuka di layar customer saat tombol kirim ditekan
       if(!valTxt || !currentSelectedChatId) return;
 
       try {
@@ -507,7 +507,7 @@
           });
           inputFld.value = "";
           inputFld.focus();
-      } catch(e) { console.error(e); }
+      } catch(e) { console.error("Gagal mengirim pesan chat:", e); }
   }
 
   window.batalDanEditPesanan = async function() {
