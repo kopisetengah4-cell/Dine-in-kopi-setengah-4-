@@ -108,7 +108,7 @@
         .stat-card { background: white; padding: 15px; border-radius: 18px; text-align: center; border: 1px solid #e2e8f0; }
         .stat-num { font-size: 18px; font-weight: bold; color: #1e293b; }
 
-        /* MENU NAVIGASI DASHBOARD BAWAH (Terkunci / No Emoji) */
+        /* MENU NAVIGASI DASHBOARD BAWAH */
         .nav-fixed-bottom {
             position: fixed;
             bottom: 0;
@@ -138,7 +138,6 @@
         }
         .nav-item.active { color: #0284c7; }
         
-        /* Badge merah indikator notifikasi jumlah pesanan baru */
         .badge-count {
             position: absolute;
             top: -8px;
@@ -226,9 +225,9 @@
   const app = initializeApp(firebaseConfig);
   const db = getFirestore(app);
 
-  const q = query(collection(db, "pesanan"), orderBy("waktu", "desc"));
+  // PERBAIKAN UTAMA: Mengurutkan menggunakan "waktuLokal" sesuai data yang dikirim Website 1
+  const q = query(collection(db, "pesanan"), orderBy("waktuLokal", "desc"));
   
-  // PEMANTAUAN REAL-TIME DENGAN DOC CHANGES AGAR SYNC PEMBATALAN BERJALAN INSTAN
   onSnapshot(q, (snapshot) => {
       const containerBaru = document.getElementById('list-baru');
       const containerSiap = document.getElementById('list-siap');
@@ -239,7 +238,7 @@
       let totalCupTerjual = 0;
       let totalTransaksiSukses = 0;
 
-      // Objek pembantu untuk menampung data kalkulasi omset & counter dari seluruh dokumen
+      // Kalkulasi nilai akumulasi omset
       snapshot.docs.forEach((docSnapshot) => {
           const data = docSnapshot.data();
           let totalCupDiNotaIni = 0;
@@ -258,39 +257,34 @@
           }
       });
 
-      // Proses render dinamis menggunakan manipulasi elemen ID unik dokumen agar tidak mengedip (flicker)
+      // Sinkronisasi docChanges untuk pemrosesan tambah, ubah, dan hapus real-time
       snapshot.docChanges().forEach((change) => {
           const idDokumen = change.doc.id;
           const data = change.doc.data();
 
-          // 1. DATA MASUK / AWAL LOADING
           if (change.type === "added") {
               renderKartuKeHTML(idDokumen, data);
           } 
-          
-          // 2. DATA DIUBAH STATUS OLEH KASIR
           else if (change.type === "modified") {
               const elemenLama = document.getElementById(`card_${idDokumen}`);
               if (elemenLama) elemenLama.remove();
               
               renderKartuKeHTML(idDokumen, data);
           } 
-          
-          // 3. DATA DIHAPUS OLEH CUSTOMER (FITUR SINKRONISASI PEMBATALAN)
           else if (change.type === "removed") {
               const elemenKotak = document.getElementById(`card_${idDokumen}`);
               if (elemenKotak) {
-                  elemenKotak.remove(); // Pesanan langsung lenyap seketika dari tab kasir
+                  elemenKotak.remove(); // Otomatis hilang saat Website 1 membatalkan pesanan
               }
           }
       });
 
-      // Update nilai akumulasi pada tab Omset
+      // Render info ke panel omset
       document.getElementById('omset-total').innerText = "Rp " + totalOmsetHariIni.toLocaleString('id-ID');
       document.getElementById('omset-cup').innerText = totalCupTerjual + " Cup";
       document.getElementById('omset-transaksi').innerText = totalTransaksiSukses + " Nota";
 
-      // Update badge jumlah pesanan baru masuk
+      // Atur notifikasi badge pesanan baru
       const badgeBaru = document.getElementById('notif-baru-badge');
       if (countBaru > 0) {
           badgeBaru.innerText = countBaru;
@@ -300,7 +294,6 @@
       }
   });
 
-  // Fungsi khusus untuk membangun ulang struktur kartu pesanan persis dengan kode lama Anda
   function renderKartuKeHTML(idDokumen, data) {
       if (document.getElementById(`card_${idDokumen}`)) return;
 
@@ -316,16 +309,16 @@
           htmlCatatan = `<div class="order-note"><b>Catatan:</b> "${data.catatan}"</div>`;
       }
 
+      // Format waktu berbasis milidetik waktuLokal
       let formatWaktu = "...";
-      if (data.waktu) {
-          formatWaktu = data.waktu.toDate().toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' });
+      if (data.waktuLokal) {
+          formatWaktu = new Date(data.waktuLokal).toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' });
       }
 
       const card = document.createElement('div');
       card.className = "order-card";
-      card.id = `card_${idDokumen}`; // ID krusial untuk menangkap sinyal 'removed' pembatalan
+      card.id = `card_${idDokumen}`;
 
-      // MENUNGGU PEMBAYARAN
       if (data.status === "Menunggu Pembayaran") {
           card.innerHTML = `
               <div class="order-header">
@@ -338,8 +331,6 @@
               <button class="btn-action btn-orange" onclick="ubahStatusPesanan('${idDokumen}', 'Diproses')">Konfirmasi Pembayaran</button>`;
           document.getElementById('list-baru').appendChild(card);
       } 
-      
-      // DIPROSES
       else if (data.status === "Diproses") {
           card.innerHTML = `
               <div class="order-header">
@@ -351,8 +342,6 @@
               <button class="btn-action btn-green" onclick="ubahStatusPesanan('${idDokumen}', 'Selesai')">Siap Diambil</button>`;
           document.getElementById('list-siap').appendChild(card);
       } 
-      
-      // SELESAI
       else if (data.status === "Selesai") {
           card.innerHTML = `
               <div class="order-header">
