@@ -57,16 +57,19 @@
         .track-dot { width: 8px; height: 8px; background: #f59e0b; border-radius: 50%; display: inline-block; margin-right: 5px; animation: kedip 1s infinite; }
         @keyframes kedip { 0%, 100% { opacity: 0.3; } 50% { opacity: 1; } }
 
-        /* ARSITEKTUR PANEL CHAT FULLSCREEN */
-        .full-chat-panel { background: white; border-radius: 0px; display: flex; flex-direction: column; overflow: hidden; height: 72vh; margin-top: -15px; margin-left: -15px; margin-right: -15px; }
-        .chat-room-selector { display: flex; gap: 8px; padding: 12px; background: #f1f5f9; border-bottom: 1px solid #e2e8f0; overflow-x: auto; white-space: nowrap; min-height: 25px; }
+        /* PERBAIKAN STABILITAS TAMPILAN LOCK CHAT PANEL */
+        .full-chat-panel { background: white; border-radius: 0px; display: flex; flex-direction: column; overflow: hidden; height: 75vh; margin-top: -15px; margin-left: -15px; margin-right: -15px; position: relative; }
+        .chat-room-selector { display: flex; gap: 8px; padding: 12px; background: #f1f5f9; border-bottom: 1px solid #e2e8f0; overflow-x: auto; white-space: nowrap; min-height: 38px; flex-shrink: 0; }
         .chat-token-badge { background: #e2e8f0; color: #64748b; padding: 8px 16px; border-radius: 50px; font-size: 12px; font-weight: bold; cursor: pointer; }
         .chat-token-badge.active { background: #0ea5e9; color: white; }
-        .chat-body-scroller { flex: 1; padding: 15px; overflow-y: auto; background: #f8fafc; display: flex; flex-direction: column; gap: 10px; }
-        .chat-bubble { max-width: 78%; padding: 10px 14px; border-radius: 16px; font-size: 13.5px; line-height: 1.4; word-wrap: break-word; }
+        
+        /* LOCK SCROLL LOGIC: Hanya scroll otomatis saat penuh meluap */
+        .chat-body-scroller { flex: 1; padding: 15px; overflow-y: auto; background: #f8fafc; display: flex; flex-direction: column; gap: 10px; box-sizing: border-box; scroll-behavior: smooth; }
+        
+        .chat-bubble { max-width: 78%; padding: 10px 14px; border-radius: 16px; font-size: 13.5px; line-height: 1.4; word-wrap: break-word; flex-shrink: 0; }
         .chat-bubble.me { background: #0ea5e9; color: white; align-self: flex-end; border-top-right-radius: 4px; box-shadow: 0 2px 5px rgba(14,165,233,0.2); }
         .chat-bubble.staff { background: white; color: #1e293b; align-self: flex-start; border: 1px solid #e2e8f0; border-top-left-radius: 4px; box-shadow: 0 2px 5px rgba(0,0,0,0.02); }
-        .chat-footer-sender { display: flex; padding: 12px; background: white; border-top: 1px solid #e2e8f0; gap: 8px; box-sizing: border-box; }
+        .chat-footer-sender { display: flex; padding: 12px; background: white; border-top: 1px solid #e2e8f0; gap: 8px; box-sizing: border-box; flex-shrink: 0; position: sticky; bottom: 0; }
         .chat-input-field { flex: 1; padding: 12px 18px; border-radius: 50px; border: 1px solid #cbd5e1; outline: none; font-size: 13.5px; }
         .chat-send-btn { background: #0ea5e9; color: white; border: none; padding: 0 22px; border-radius: 50px; font-weight: bold; font-size: 13.5px; cursor: pointer; }
     </style>
@@ -78,7 +81,7 @@
     <div class="info-bubble">KODE ANTREAN: <span id="kodePesananTampil">...</span></div>
 </div>
 
-<div class="content-scrollable">
+<div class="content-scrollable" id="mainLayarContent">
     <div id="panel-pesan" class="tab-content active"><div id="konten-menu"></div></div>
     
     <div id="panel-status" class="tab-content">
@@ -307,14 +310,9 @@
                   if(indeks !== -1) listPesananAktifArray[indeks].data = data;
                   else listPesananAktifArray.push({ id: documentId, data: data });
 
-                  // OTOMATIS TUTUP QRIS BEGITU KASIR KLIK TERIMA (STATUS BERUBAH MENJADI DIPROSES)
                   if (data.status === "Diproses") {
-                      const idPopupAktif = localStorage.getItem('id_popup_menunggu_bayar') || document.getElementById('currentPopupDocId').value;
-                      if (idPopupAktif === documentId) {
-                          document.getElementById('layarPopup').style.display = 'none';
-                          localStorage.removeItem('id_popup_menunggu_bayar');
-                          document.getElementById('currentPopupDocId').value = "";
-                      }
+                      document.getElementById('layarPopup').style.display = 'none';
+                      localStorage.removeItem('id_popup_menunggu_bayar');
                       
                       window.gantiDashboard('status');
 
@@ -332,13 +330,12 @@
                       }
                   }
 
-                  // NOTIFIKASI TRACKER DI BAWAH OTOMATIS HILANG KETIKA KASIR KLIK SELESAI
                   if (data.status === "Selesai") {
                       document.getElementById('trackerLive').style.display = "none";
 
                       let limitWaktuSelesai = localStorage.getItem(`timer_clear_${documentId}`);
                       if (!limitWaktuSelesai) {
-                          limitWaktuSelesai = Date.now() + (5 * 60 * 1000); // 5 Menit di Tab Status
+                          limitWaktuSelesai = Date.now() + (5 * 60 * 1000);
                           localStorage.setItem(`timer_clear_${documentId}`, limitWaktuSelesai);
                       }
 
@@ -483,7 +480,11 @@
               bbl.innerText = msgData.teks;
               scroller.appendChild(bbl);
           });
-          scroller.scrollTop = scroller.scrollHeight;
+          
+          // SINKRONISASI INSTAN: Paksa scroll box langsung meluncur ke bawah begitu data dirender browser
+          setTimeout(() => {
+              scroller.scrollTop = scroller.scrollHeight;
+          }, 50);
       });
   }
 
@@ -500,6 +501,7 @@
       if(!valTxt || !targetIdRoom) return;
 
       try {
+          // Kirim ke database sub-collection Firebase
           await addDoc(collection(db, "pesanan", targetIdRoom, "percakapan"), {
               pengirim: "customer",
               teks: valTxt,
@@ -605,8 +607,20 @@
         document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
         document.getElementById('panel-' + tabId).classList.add('active');
         document.getElementById('btn-tab-' + tabId).classList.add('active');
+        
         const orderMetaBox = document.getElementById('footer-order-meta');
-        if (tabId === 'pesan') { orderMetaBox.style.display = "block"; } else { orderMetaBox.style.display = "none"; }
+        const mainBox = document.getElementById('mainLayarContent');
+        
+        if (tabId === 'pesan') { 
+            orderMetaBox.style.display = "block"; 
+            mainBox.style.overflowY = "auto";
+        } else if (tabId === 'chat') {
+            orderMetaBox.style.display = "none";
+            mainBox.style.overflowY = "hidden"; // Kunci scroll konten utama saat berada di panel chat fullscreen
+        } else { 
+            orderMetaBox.style.display = "none"; 
+            mainBox.style.overflowY = "auto";
+        }
     }
 </script>
 </body>
