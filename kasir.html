@@ -5,173 +5,128 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Sistem Kasir - Kopi Setengah Empat</title>
     <style>
-        /* Menggunakan Tema Visual yang Sama dengan Website 1 */
-        body { 
-            font-family: 'Segoe UI', Roboto, sans-serif; 
-            margin: 0; 
-            padding: 20px; 
-            background: linear-gradient(135deg, #e0f2fe 0%, #f0fdf4 100%); 
-            color: #334155; 
-            min-height: 100vh;
+        /* KEMBALI KE TAMPILAN GELAP SEMULA */
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #202124;
+            color: #ffffff;
+            margin: 0;
+            padding: 20px;
         }
-        
-        h1 { 
-            text-align: center; 
-            color: #0284c7; 
-            margin-bottom: 25px; 
-            font-size: 22px;
-            font-weight: bold;
+        h1 {
+            text-align: center;
+            color: #ffffff;
+            margin-bottom: 20px;
         }
-
-        /* Struktur Tiga Kolom Dashboard */
         .dashboard {
             display: flex;
-            gap: 15px;
+            gap: 20px;
             justify-content: space-between;
         }
-        
         .column {
             flex: 1;
-            background: rgba(255, 255, 255, 0.6); 
-            backdrop-filter: blur(10px);
-            border: 1px solid rgba(14, 165, 233, 0.15);
-            border-radius: 20px;
+            background-color: #2c2c2c;
+            border-radius: 8px;
             padding: 15px;
-            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.02);
-            min-height: 550px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
+            min-height: 500px;
         }
-        
         .column h2 {
-            font-size: 15px;
-            font-weight: bold;
             text-align: center;
+            border-bottom: 2px solid #444;
+            padding-bottom: 10px;
             margin-top: 0;
-            margin-bottom: 15px;
-            padding-bottom: 8px;
-            border-bottom: 2px dotted #0ea5e9;
-            text-transform: uppercase;
+            font-size: 18px;
         }
         
-        /* Pewarnaan Judul Kolom Kasir */
-        .column:nth-child(1) h2 { color: #d97706; } /* Pesanan Baru */
-        .column:nth-child(2) h2 { color: #0284c7; } /* Proses Masak */
-        .column:nth-child(3) h2 { color: #059669; } /* Pesanan Selesai */
+        /* Warna Header Kolom Sesuai Kode Asli Anda */
+        .column:nth-child(1) h2 { color: #f2a900; } /* Pesanan Baru */
+        .column:nth-child(2) h2 { color: #3498db; } /* Proses Masak */
+        .column:nth-child(3) h2 { color: #2ecc71; } /* Pesanan Selesai */
 
-        /* Gaya Kartu Pesanan Berbentuk Bubble (Sama dengan Web 1) */
-        .order-card-bubble {
-            background: white;
-            border: 1px solid #e2e8f0;
-            border-radius: 16px;
+        /* Gaya Kartu Pesanan Sesuai Kode Asli Anda */
+        .order-card {
+            background-color: #3a3a3a;
+            border-radius: 6px;
             padding: 12px;
-            margin-bottom: 12px;
-            box-shadow: 0 3px 6px rgba(0,0,0,0.03);
+            margin-bottom: 15px;
+            border: 1px solid #555;
         }
-        
         .order-header {
             display: flex;
             justify-content: space-between;
-            align-items: center;
             font-weight: bold;
             margin-bottom: 8px;
-            font-size: 13px;
-        }
-        
-        .order-header .kode-antrean {
-            color: #0284c7;
+            border-bottom: 1px solid #555;
+            padding-bottom: 4px;
             font-size: 14px;
         }
-        
-        .order-header .status-badge-mini {
-            font-size: 10px;
-            padding: 2px 8px;
-            border-radius: 50px;
-            font-weight: bold;
+        .order-header .kode {
+            color: #f2a900;
         }
-        
-        /* Warna Badge Sesuai Status Web 1 */
-        .bg-waiting { background: #fef3c7; color: #d97706; border: 1px solid #fde68a; }
-        .bg-dibayar { background: #e0f2fe; color: #0284c7; border: 1px solid #bae6fd; }
-        .bg-ready { background: #d1fae5; color: #059669; border: 1px solid #a7f3d0; }
-
         .order-items {
-            font-size: 12.5px;
-            color: #475569;
-            margin-bottom: 6px;
+            font-size: 13px;
+            margin-bottom: 8px;
         }
-        
-        .order-item-row {
+        .order-item {
             display: flex;
             justify-content: space-between;
-            margin-bottom: 3px;
+            margin-bottom: 4px;
         }
-        
-        /* Kotak Catatan Sesuai Rincian Bubble Web 1 */
-        .order-note-bubble {
-            font-size: 11px;
-            background: #f8fafc;
-            padding: 6px 10px;
-            border-radius: 10px;
+        .order-note {
+            font-size: 12px;
+            background-color: #4a4a4a;
+            padding: 6px;
+            border-radius: 4px;
             margin-top: 6px;
-            color: #64748b;
+            color: #ccc;
             font-style: italic;
-            border: 1px solid #e2e8f0;
         }
-        
-        .order-total-price {
+        .order-total {
             font-weight: bold;
             text-align: right;
             margin-top: 8px;
-            font-size: 13.5px;
-            color: #10b981;
-            padding-top: 6px;
-            border-top: 1px dashed #e2e8f0;
+            font-size: 14px;
+            color: #2ecc71;
         }
-        
         .order-actions {
             margin-top: 10px;
         }
-        
-        /* Tombol Bubble Khas Website 1 */
-        .btn-submit-bubble {
+        .btn-action {
             width: 100%;
             padding: 8px;
-            color: white;
             border: none;
-            border-radius: 50px;
-            font-size: 12px;
+            border-radius: 4px;
             font-weight: bold;
             cursor: pointer;
-            text-align: center;
-            box-shadow: 0 2px 6px rgba(0,0,0,0.08);
-            transition: transform 0.1s;
+            font-size: 13px;
+            transition: background 0.2s;
         }
-        .btn-submit-bubble:active {
-            transform: scale(0.98);
-        }
-        
-        /* Variasi Warna Tombol Sesuai Alur */
-        .btn-orange { background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%); }
-        .btn-blue { background: linear-gradient(135deg, #0ea5e9 0%, #0284c7 100%); }
-        .btn-green { background: linear-gradient(135deg, #10b981 0%, #059669 100%); }
+        .btn-blue { background-color: #3498db; color: white; }
+        .btn-blue:hover { background-color: #2980b9; }
+        .btn-green { background-color: #2ecc71; color: white; }
+        .btn-green:hover { background-color: #27ae60; }
+        .btn-grey { background-color: #7f8c8d; color: white; }
+        .btn-grey:hover { background-color: #95a5a6; }
     </style>
 </head>
 <body>
 
-    <h1>Kopi Setengah Empat - Dashboard Monitoring Kasir</h1>
+    <h1>Kopi Setengah Empat - Dashboard Kasir</h1>
     
     <div class="dashboard">
         <div class="column">
-            <h2>Pesanan Baru</h2>
+            <h2>Pesanan Baru (Menunggu Pembayaran)</h2>
             <div id="pesanan-baru-container"></div>
         </div>
 
         <div class="column">
-            <h2>Proses Masak</h2>
+            <h2>Proses Masak (Dibayar)</h2>
             <div id="proses-container"></div>
         </div>
 
         <div class="column">
-            <h2>Pesanan Selesai</h2>
+            <h2>Pesanan Selesai (Siap Diambil)</h2>
             <div id="selesai-container"></div>
         </div>
     </div>
@@ -195,68 +150,68 @@
 
     const q = query(collection(db, "pesanan"), orderBy("waktuLokal", "asc"));
     
-    // LOGIKA UTAMA SINKRONISASI PEMBATALAN REAL-TIME
+    // SISTEM PENGHAPUSAN REAL-TIME DENGAN DOC CHANGES
     onSnapshot(q, (snapshot) => {
         snapshot.docChanges().forEach((change) => {
             const idDokumen = change.doc.id;
             const data = change.doc.data();
 
-            // 1. DATA BARU MASUK
+            // 1. KETIKA PESANAN BARU MASUK
             if (change.type === "added") {
-                renderCardPesananKasir(idDokumen, data);
+                renderCardPesananLama(idDokumen, data);
             } 
             
-            // 2. DATA DIUBAH STATUS OLEH KASIR (PINDAH CONTAINER)
+            // 2. KETIKA KASIR KLIK TOMBOL PROSES (PINDAH KOLOM)
             else if (change.type === "modified") {
                 const elemenLama = document.getElementById(`kotak_pesanan_${idDokumen}`);
                 if (elemenLama) elemenLama.remove();
                 
-                renderCardPesananKasir(idDokumen, data);
+                renderCardPesananLama(idDokumen, data);
             } 
             
-            // 3. DATA DIHAPUS OLEH CUSTOMER (SINKRONISASI WEB 1)
+            // 3. FITUR TOTAL SINKRONISASI: OTOMATIS HILANG JIKA DI-CANCEL DARI WEBSITE 1
             else if (change.type === "removed") {
                 const elemenKotak = document.getElementById(`kotak_pesanan_${idDokumen}`);
                 if (elemenKotak) {
-                    elemenKotak.remove(); // Pesanan langsung lenyap dari layar kasir tanpa refresh!
+                    elemenKotak.remove(); // Pesanan langsung lenyap dari layar monitor kasir seketika!
                 }
             }
         });
     });
 
-    // FUNGSI RENDER DENGAN STYLE THEME WEBSITE 1
-    function renderCardPesananKasir(id, data) {
+    // RENDER KARTU PESANAN DENGAN STYLE ASLI SEMULA
+    function renderCardPesananLama(id, data) {
         if (document.getElementById(`kotak_pesanan_${id}`)) return;
 
         let itemsHTML = "";
         data.daftarMenu.forEach(menu => {
             itemsHTML += `
-                <div class="order-item-row">
+                <div class="order-item">
                     <span>${menu.nama} (x${menu.qty})</span>
                     <span>Rp ${(menu.qty * menu.harga).toLocaleString('id-ID')}</span>
                 </div>`;
         });
 
-        let catatanHTML = data.catatan ? `<div class="order-note-bubble"><b>Catatan:</b> ${data.catatan}</div>` : "";
+        let catatanHTML = data.catatan ? `<div class="order-note"><b>Catatan:</b> ${data.catatan}</div>` : "";
 
         const card = document.createElement('div');
-        card.className = "order-card-bubble";
-        card.id = `kotak_pesanan_${id}`; // ID penanda wajib untuk fungsi .remove()
+        card.className = "order-card";
+        card.id = `kotak_pesanan_${id}`; // ID Penanda wajib fitur pembatalan otomatis
 
         card.innerHTML = `
             <div class="order-header">
-                <span class="kode-antrean">KODE: ${data.kodeAntrean}</span>
-                <span class="status-badge-mini ${ambilKelasBadge(data.status)}">${data.status}</span>
+                <span class="kode">ANTREAN: ${data.kodeAntrean}</span>
+                <span style="color: #aaa; font-size: 11px;">${data.status}</span>
             </div>
             <div class="order-items">${itemsHTML}</div>
             ${catatanHTML}
-            <div class="order-total-price">Total: Rp ${data.totalBayar.toLocaleString('id-ID')}</div>
+            <div class="order-total">Total: Rp ${data.totalBayar.toLocaleString('id-ID')}</div>
             <div class="order-actions">
-                ${buatTombolAksi(id, data.status)}
+                ${buatTombolAksiLama(id, data.status)}
             </div>
         `;
 
-        // MEMBAGI KARTU PESANAN KE MASING-MASING WADAH CONTAINER
+        // MASUKKAN DATA KE CONTAINER KOLOM MASING-MASING
         if (data.status === "Menunggu Pembayaran") {
             document.getElementById('pesanan-baru-container').appendChild(card);
         } else if (data.status === "Dibayar") {
@@ -266,31 +221,25 @@
         }
     }
 
-    function ambilKelasBadge(status) {
-        if (status === "Menunggu Pembayaran") return "bg-waiting";
-        if (status === "Dibayar") return "bg-dibayar";
-        if (status === "Diproses") return "bg-ready";
-        return "";
-    }
-
-    function buatTombolAksi(id, status) {
+    // SUSUNAN TOMBOL AKSI ASLI SEMULA
+    function buatTombolAksiLama(id, status) {
         if (status === "Menunggu Pembayaran") {
-            return `<button class="btn-submit-bubble btn-orange" onclick="updateStatusKasir('${id}', 'Dibayar')">Konfirmasi Pembayaran</button>`;
+            return `<button class="btn-action btn-blue" onclick="ubahStatusKasir('${id}', 'Dibayar')">Konfirmasi Pembayaran</button>`;
         }
         if (status === "Dibayar") {
-            return `<button class="btn-submit-bubble btn-blue" onclick="updateStatusKasir('${id}', 'Diproses')">Pesanan Siap / Selesai</button>`;
+            return `<button class="btn-action btn-green" onclick="ubahStatusKasir('${id}', 'Diproses')">Pesanan Siap / Selesai</button>`;
         }
         if (status === "Diproses") {
-            return `<button class="btn-submit-bubble btn-green" onclick="updateStatusKasir('${id}', 'Selesai')">Selesai Diambil (Arsip)</button>`;
+            return `<button class="btn-action btn-grey" onclick="ubahStatusKasir('${id}', 'Selesai')">Selesai Diambil (Arsip)</button>`;
         }
         return "";
     }
 
-    window.updateStatusKasir = async function(id, statusBaru) {
+    window.ubahStatusKasir = async function(id, statusBaru) {
         try {
             await updateDoc(doc(db, "pesanan", id), { status: statusBaru });
         } catch (e) {
-            alert("Gagal merubah status pesanan.");
+            alert("Gagal memperbarui status transaksi.");
         }
     }
 </script>
