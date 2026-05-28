@@ -53,7 +53,7 @@
 <body>
 
 <div class="header-fixed">
-    <h2>Kopi Setengah Empat</h2>
+    <h2>Kopi Setengah Empat - Kasir</h2>
 </div>
 
 <div class="content-scrollable">
@@ -183,7 +183,6 @@
       card.className = "order-card";
       card.id = `card_${idDokumen}`;
 
-      // PENYESUAIAN STRUKTUR ALUR STATUS DASHBOARD TERBARU KASIR
       if (data.status === "Menunggu Pembayaran") {
           card.innerHTML = `
               <div class="order-header"><span class="kode-antrean">Kode: ${data.kodeAntrean}</span><span style="font-size:12px; color:#94a3b8;">🕒 ${formatWaktu}</span></div>
