@@ -53,6 +53,81 @@
         .floating-status-tracker { display: none; background: #1e293b; color: white; border-radius: 15px; padding: 10px 15px; margin-top: 10px; font-size: 12px; align-items: center; justify-content: space-between; box-shadow: 0 4px 12px rgba(0,0,0,0.15); }
         .track-dot { width: 8px; height: 8px; background: #f59e0b; border-radius: 50%; display: inline-block; margin-right: 5px; animation: kedip 1s infinite; }
         @keyframes kedip { 0%, 100% { opacity: 0.3; } 50% { opacity: 1; } }
+
+        /* GAYA ELEMEN KOTAK CHAT CUSTOMER BARU */
+        .customer-chat-box {
+            margin-top: 15px;
+            background: white;
+            border: 1px solid #e2e8f0;
+            border-radius: 20px;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            text-align: left;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.02);
+        }
+        .chat-box-header {
+            background: #0ea5e9;
+            color: white;
+            padding: 10px 15px;
+            font-size: 13px;
+            font-weight: bold;
+        }
+        .chat-box-body {
+            height: 160px;
+            overflow-y: auto;
+            padding: 12px;
+            background: #f8fafc;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+        .msg-bubble {
+            max-width: 80%;
+            padding: 8px 12px;
+            border-radius: 14px;
+            font-size: 12.5px;
+            line-height: 1.4;
+            word-wrap: break-word;
+        }
+        .msg-customer {
+            background: #0ea5e9;
+            color: white;
+            align-self: flex-end;
+            border-top-right-radius: 4px;
+        }
+        .msg-kasir {
+            background: white;
+            color: #1e293b;
+            align-self: flex-start;
+            border: 1px solid #e2e8f0;
+            border-top-left-radius: 4px;
+        }
+        .chat-box-footer {
+            display: flex;
+            padding: 8px;
+            background: white;
+            border-top: 1px solid #e2e8f0;
+            gap: 6px;
+        }
+        .chat-input-text {
+            flex: 1;
+            padding: 8px 14px;
+            border-radius: 50px;
+            border: 1px solid #cbd5e1;
+            outline: none;
+            font-size: 12.5px;
+        }
+        .chat-btn-send {
+            background: #0ea5e9;
+            color: white;
+            border: none;
+            padding: 0 15px;
+            border-radius: 50px;
+            font-weight: bold;
+            font-size: 12.5px;
+            cursor: pointer;
+        }
     </style>
 </head>
 <body>
@@ -74,6 +149,18 @@
             <div class="status-main-badge bg-waiting" id="statusLiveTxt">Menunggu Pembayaran</div>
             <div style="font-size: 24px; font-weight: bold; color: #0ea5e9; margin-bottom: 5px;" id="statusLiveKode">KODE: ---</div>
             <p style="font-size: 13px; color: #64748b; margin: 0;" id="statusLiveDesc">...</p>
+            
+            <div class="customer-chat-box">
+                <div class="chat-box-header">💬 Obrolan Langsung Dengan Kasir</div>
+                <div class="chat-box-body" id="customerChatBody">
+                    <div style="color:#94a3b8; font-size:11.5px; text-align:center; margin-top:50px;">Belum ada obrolan aktif. Tulis pesan di bawah.</div>
+                </div>
+                <div class="chat-box-footer">
+                    <input type="text" id="customerMsgInputField" class="chat-input-text" placeholder="Ketik pesan ke barista / kasir...">
+                    <button class="chat-btn-send" onclick="kirimObrolanCustomer()">Kirim</button>
+                </div>
+            </div>
+
         </div>
     </div>
 </div>
@@ -114,7 +201,6 @@
 </div>
 
 <script type="module">
-  // MENAMBAHKAN deleteDoc UNTUK PENGHAPUSAN REALTIME
   import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
   import { getFirestore, collection, addDoc, doc, onSnapshot, getDoc, deleteDoc } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
 
@@ -184,6 +270,8 @@
   let keranjangPesanan = {};
   let totalHargaGlobal = 0;
   let listenerStatus = null;
+  let listenerObrolanChat = null;
+  let currentActiveFirebaseId = "";
 
   function buatKodeAcak() { return String(Math.floor(Math.random() * 900) + 100); }
 
@@ -249,6 +337,7 @@
               waktuLokal: Date.now() 
           });
           
+          currentActiveFirebaseId = docRef.id;
           localStorage.setItem('id_pesanan_aktif', docRef.id);
           
           document.getElementById('popTotalHarga').innerText = totalHargaGlobal.toLocaleString('id-ID');
@@ -258,12 +347,14 @@
           document.getElementById('btnTutupPopup').style.display = 'none';
 
           pantauStatusPembayaran(docRef.id);
+          sambungkanSistemObrolanChat(docRef.id);
       } catch (e) { alert("Gagal memproses pembayaran."); }
   }
 
   async function cekStatusManual() {
       const savedId = localStorage.getItem('id_pesanan_aktif');
       if (savedId) {
+          currentActiveFirebaseId = savedId;
           try {
               const docSnap = await getDoc(doc(db, "pesanan", savedId));
               if (docSnap.exists()) {
@@ -286,8 +377,11 @@
           if (docSnapshot.exists()) {
               renderStatusUI(docSnapshot.data());
           } else {
-              // Jika kasir atau user menghapus dokumen, bersihkan UI Customer
+              // DETEKSI SINKRONISASI TOMBOL TOLAK KASIR / USER BATALKAN PESANAN
               localStorage.removeItem('id_pesanan_aktif');
+              currentActiveFirebaseId = "";
+              if (listenerObrolanChat) listenerObrolanChat();
+              document.getElementById('layarPopup').style.display = "none";
               document.getElementById('boxStatusKosong').style.display = "block";
               document.getElementById('boxStatusAktif').style.display = "none";
               document.getElementById('trackerLive').style.display = "none";
@@ -339,30 +433,31 @@
           btnClose.innerText = "Selesai (Buat Pesanan Baru)";
           btnClose.onclick = function() {
               localStorage.removeItem('id_pesanan_aktif'); 
+              if (listenerObrolanChat) listenerObrolanChat();
+              currentActiveFirebaseId = "";
               trkBar.style.display = "none";
               tutupLayarPopup();
           };
       }
       else if (data.status === "Selesai") {
           localStorage.removeItem('id_pesanan_aktif');
+          currentActiveFirebaseId = "";
+          if (listenerObrolanChat) listenerObrolanChat();
           boxKosong.style.display = "block"; boxAktif.style.display = "none"; trkBar.style.display = "none";
           window.gantiDashboard('pesan'); inisialisasiAwal();
       }
   }
 
-  // MODIFIKASI: Menghapus data langsung dari Firestore agar Kasir tersinkronisasi otomatis
   window.batalDanEditPesanan = async function() {
       if (confirm("Ingin kembali untuk mengubah atau menambahkan menu pesanan Anda?")) {
           const savedId = localStorage.getItem('id_pesanan_aktif');
           if (savedId) {
-              try {
-                  // Hapus dari database Firebase
-                  await deleteDoc(doc(db, "pesanan", savedId));
-              } catch (e) { console.log("Gagal menghapus pesanan di database:", e); }
+              try { await deleteDoc(doc(db, "pesanan", savedId)); } catch (e) { console.log(e); }
           }
-          
           localStorage.removeItem('id_pesanan_aktif');
-          if(listenerStatus) listenerStatus();
+          currentActiveFirebaseId = "";
+          if (listenerStatus) listenerStatus();
+          if (listenerObrolanChat) listenerObrolanChat();
           document.getElementById('layarPopup').style.display = 'none';
           document.getElementById('trackerLive').style.display = 'none';
           window.gantiDashboard('pesan');
@@ -372,6 +467,47 @@
   window.tutupLayarPopup = function() {
       document.getElementById('layarPopup').style.display = 'none';
       window.gantiDashboard('status');
+  }
+
+  // LOGIKA PENGHUBUNG KONEKSI REALTIME CHAT ROOM UTAMA CUSTOMER
+  function sambungkanSistemObrolanChat(idDoc) {
+      if (listenerObrolanChat) listenerObrolanChat();
+
+      const chatBodyContainer = document.getElementById('customerChatBody');
+      const qChat = query(collection(db, "pesanan", idDoc, "percakapan"), orderBy("timestamp", "asc"));
+
+      listenerObrolanChat = onSnapshot(qChat, (snapshot) => {
+          chatBodyContainer.innerHTML = "";
+          if (snapshot.empty) {
+              chatBodyContainer.innerHTML = `<div style="color:#94a3b8; font-size:11.5px; text-align:center; margin-top:50px;">Belum ada obrolan aktif. Tulis pesan di bawah.</div>`;
+              return;
+          }
+          snapshot.forEach(msgDoc => {
+              const msgData = msgDoc.data();
+              const bubble = document.createElement('div');
+              bubble.className = `msg-bubble ${msgData.pengirim === 'customer' ? 'msg-customer' : 'msg-kasir'}`;
+              bubble.innerText = msgData.teks;
+              chatBodyContainer.appendChild(bubble);
+          });
+          chatBodyContainer.scrollTop = chatBodyContainer.scrollHeight; // Auto gulir ke bawah
+      });
+  }
+
+  // FUNGSI AKSI TOMBOL KIRIM PESAN DI SISI CUSTOMER
+  window.kirimObrolanCustomer = async function() {
+      const chatInput = document.getElementById('customerMsgInputField');
+      const txtValue = chatInput.value.trim();
+      if (!txtValue || !currentActiveFirebaseId) return;
+
+      try {
+          await addDoc(collection(db, "pesanan", currentActiveFirebaseId, "percakapan"), {
+              pengirim: "customer",
+              teks: txtValue,
+              timestamp: Date.now()
+          });
+          chatInput.value = "";
+          chatInput.focus();
+      } catch (e) { console.error("Gagal mengirim obrolan:", e); }
   }
 
   function inisialisasiAwal() {
@@ -385,6 +521,7 @@
   if (idPesananTersimpan) {
       tampilkanMenu(); updateUI();
       pantauStatusPembayaran(idPesananTersimpan);
+      sambungkanSistemObrolanChat(idPesananTersimpan);
       cekStatusManual();
   } else {
       inisialisasiAwal();
