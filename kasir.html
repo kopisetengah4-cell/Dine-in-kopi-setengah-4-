@@ -24,14 +24,7 @@
             border-bottom: 2px solid #e2e8f0;
             z-index: 10;
         }
-
-        .header-fixed h2 {
-            margin: 0;
-            color: #0284c7;
-            font-size: 20px;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-        }
+        .header-fixed h2 { margin: 0; color: #0284c7; font-size: 20px; text-transform: uppercase; letter-spacing: 0.5px; }
 
         .content-scrollable {
             flex: 1;
@@ -84,18 +77,8 @@
             white-space: nowrap;
         }
 
-        .order-items {
-            font-size: 14px;
-            color: #475569;
-            margin-bottom: 10px;
-        }
-
-        .order-item-row {
-            display: flex;
-            justify-content: space-between;
-            margin-bottom: 4px;
-            gap: 10px;
-        }
+        .order-items { font-size: 14px; color: #475569; margin-bottom: 10px; }
+        .order-item-row { display: flex; justify-content: space-between; margin-bottom: 4px; gap: 10px; }
 
         .order-note {
             background: #fef3c7;
@@ -107,13 +90,7 @@
             margin-bottom: 10px;
         }
 
-        .order-total {
-            font-weight: bold;
-            font-size: 15px;
-            color: #10b981;
-            text-align: right;
-            margin-bottom: 10px;
-        }
+        .order-total { font-weight: bold; font-size: 15px; color: #10b981; text-align: right; margin-bottom: 10px; }
 
         .btn-action {
             width: 100%;
@@ -124,243 +101,13 @@
             font-size: 14px;
             cursor: pointer;
         }
-
         .btn-blue { background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%); color: white; }
         .btn-green { background: linear-gradient(135deg, #10b981 0%, #059669 100%); color: white; }
         .btn-red { background: linear-gradient(135deg, #ef4444 0%, #b91c1c 100%); color: white; }
+        .btn-gray { background: linear-gradient(135deg, #64748b 0%, #475569 100%); color: white; }
 
-        .split-buttons {
-            display: flex;
-            gap: 10px;
-        }
-
-        .split-buttons .btn-action {
-            padding: 12px 6px;
-            font-size: 13px;
-        }
-
-        .chat-container {
-            display: flex;
-            flex-direction: column;
-            background: white;
-            border-radius: 20px;
-            border: 1px solid #e2e8f0;
-            height: 68vh;
-            overflow: hidden;
-        }
-
-        .chat-sidebar {
-            background: #f8fafc;
-            border-bottom: 1px solid #e2e8f0;
-            padding: 10px;
-            display: flex;
-            gap: 8px;
-            overflow-x: auto;
-            white-space: nowrap;
-        }
-
-        .chat-user-badge {
-            background: #e2e8f0;
-            color: #475569;
-            padding: 8px 16px;
-            border-radius: 50px;
-            font-size: 13px;
-            font-weight: bold;
-            cursor: pointer;
-            display: inline-block;
-        }
-
-        .chat-user-badge.active {
-            background: #0ea5e9;
-            color: white;
-        }
-
-        .chat-history-box {
-            flex: 1;
-            padding: 15px;
-            overflow-y: auto;
-            background: #f8fafc;
-            display: flex;
-            flex-direction: column;
-            gap: 10px;
-        }
-
-        .bubble-msg {
-            max-width: 75%;
-            padding: 10px 14px;
-            border-radius: 16px;
-            font-size: 13.5px;
-            line-height: 1.4;
-            word-wrap: break-word;
-        }
-
-        .bubble-customer {
-            background: white;
-            color: #1e293b;
-            align-self: flex-start;
-            border: 1px solid #e2e8f0;
-            border-top-left-radius: 4px;
-        }
-
-        .bubble-kasir {
-            background: #0ea5e9;
-            color: white;
-            align-self: flex-end;
-            border-top-right-radius: 4px;
-        }
-
-        .chat-form-input {
-            display: flex;
-            padding: 10px;
-            background: white;
-            border-top: 1px solid #e2e8f0;
-            gap: 8px;
-        }
-
-        .input-chat-txt {
-            flex: 1;
-            padding: 12px 18px;
-            border-radius: 50px;
-            border: 1px solid #cbd5e1;
-            outline: none;
-            font-size: 13.5px;
-        }
-
-        .btn-send-chat {
-            background: #0ea5e9;
-            color: white;
-            border: none;
-            padding: 0 20px;
-            border-radius: 50px;
-            font-weight: bold;
-            font-size: 13.5px;
-            cursor: pointer;
-        }
-
-        .review-summary {
-            background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
-            color: white;
-            padding: 22px;
-            border-radius: 25px;
-            box-shadow: 0 10px 20px rgba(245, 158, 11, 0.25);
-            margin-bottom: 15px;
-            text-align: center;
-        }
-
-        .review-summary-title {
-            font-size: 13px;
-            opacity: 0.95;
-            margin-bottom: 6px;
-            font-weight: 600;
-        }
-
-        .review-average {
-            font-size: 36px;
-            font-weight: 800;
-            line-height: 1;
-            margin-bottom: 6px;
-        }
-
-        .review-stars-big {
-            font-size: 23px;
-            letter-spacing: 1px;
-            color: #fff7ed;
-            margin-bottom: 5px;
-        }
-
-        .review-mini-info {
-            font-size: 12px;
-            opacity: 0.95;
-        }
-
-        .review-card {
-            background: white;
-            border: 1px solid #e2e8f0;
-            border-radius: 20px;
-            padding: 15px;
-            margin-bottom: 15px;
-            position: relative;
-            overflow: hidden;
-        }
-
-        .review-card::before {
-            content: "";
-            position: absolute;
-            left: 0;
-            top: 0;
-            bottom: 0;
-            width: 5px;
-            background: #f59e0b;
-        }
-
-        .review-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            font-weight: bold;
-            margin-bottom: 10px;
-            border-bottom: 1px dashed #cbd5e1;
-            padding-bottom: 8px;
-            gap: 8px;
-        }
-
-        .review-rating-line {
-            color: #f59e0b;
-            font-size: 22px;
-            letter-spacing: 1px;
-            margin: 8px 0;
-            font-weight: bold;
-        }
-
-        .review-text {
-            background: #f8fafc;
-            border-left: 3px solid #0ea5e9;
-            padding: 10px 12px;
-            border-radius: 10px;
-            font-size: 13.5px;
-            color: #334155;
-            line-height: 1.45;
-            margin-top: 8px;
-        }
-
-        .review-menu {
-            font-size: 12px;
-            color: #64748b;
-            margin-top: 8px;
-            line-height: 1.5;
-        }
-
-        .review-time {
-            color: #94a3b8;
-            font-size: 12px;
-            white-space: nowrap;
-        }
-
-        .review-filter-box {
-            display: flex;
-            gap: 8px;
-            margin-bottom: 12px;
-            overflow-x: auto;
-            padding-bottom: 2px;
-        }
-
-        .review-filter-btn {
-            border: 1px solid #e2e8f0;
-            background: white;
-            color: #64748b;
-            padding: 8px 14px;
-            border-radius: 50px;
-            font-size: 12px;
-            font-weight: bold;
-            cursor: pointer;
-            white-space: nowrap;
-        }
-
-        .review-filter-btn.active {
-            background: #f59e0b;
-            border-color: #f59e0b;
-            color: white;
-        }
+        .split-buttons { display: flex; gap: 10px; }
+        .split-buttons .btn-action { padding: 12px 6px; font-size: 13px; }
 
         .date-filter-box {
             background: white;
@@ -373,48 +120,88 @@
             align-items: end;
             justify-content: space-between;
         }
+        .filter-label { font-size: 12px; color: #64748b; font-weight: bold; margin-bottom: 6px; }
+        .date-input { border: 1px solid #cbd5e1; border-radius: 50px; padding: 10px 14px; font-size: 13px; color: #334155; outline: none; background: #f8fafc; }
+        .btn-today { border: none; background: #0ea5e9; color: white; padding: 10px 14px; border-radius: 50px; font-size: 12px; font-weight: bold; cursor: pointer; white-space: nowrap; }
 
-        .filter-label {
-            font-size: 12px;
-            color: #64748b;
-            font-weight: bold;
-            margin-bottom: 6px;
+        .chat-container {
+            display: flex;
+            flex-direction: column;
+            background: white;
+            border-radius: 20px;
+            border: 1px solid #e2e8f0;
+            height: 68vh;
+            overflow: hidden;
         }
-
-        .date-input {
-            border: 1px solid #cbd5e1;
-            border-radius: 50px;
-            padding: 10px 14px;
-            font-size: 13px;
-            color: #334155;
-            outline: none;
+        .chat-sidebar {
             background: #f8fafc;
-        }
-
-        .btn-today {
-            border: none;
-            background: #0ea5e9;
-            color: white;
-            padding: 10px 14px;
-            border-radius: 50px;
-            font-size: 12px;
-            font-weight: bold;
-            cursor: pointer;
+            border-bottom: 1px solid #e2e8f0;
+            padding: 10px;
+            display: flex;
+            gap: 8px;
+            overflow-x: auto;
             white-space: nowrap;
         }
-
-        .btn-reset-ulasan {
-            width: 100%;
-            border: none;
-            background: #64748b;
-            color: white;
-            padding: 11px;
+        .chat-user-badge {
+            background: #e2e8f0;
+            color: #475569;
+            padding: 8px 16px;
             border-radius: 50px;
             font-size: 13px;
             font-weight: bold;
             cursor: pointer;
-            margin-bottom: 12px;
+            display: inline-block;
         }
+        .chat-user-badge.active { background: #0ea5e9; color: white; }
+        .chat-history-box {
+            flex: 1;
+            padding: 15px;
+            overflow-y: auto;
+            background: #f8fafc;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+        .bubble-msg { max-width: 75%; padding: 10px 14px; border-radius: 16px; font-size: 13.5px; line-height: 1.4; word-wrap: break-word; }
+        .bubble-customer { background: white; color: #1e293b; align-self: flex-start; border: 1px solid #e2e8f0; border-top-left-radius: 4px; }
+        .bubble-kasir { background: #0ea5e9; color: white; align-self: flex-end; border-top-right-radius: 4px; }
+        .chat-form-input { display: flex; padding: 10px; background: white; border-top: 1px solid #e2e8f0; gap: 8px; }
+        .input-chat-txt { flex: 1; padding: 12px 18px; border-radius: 50px; border: 1px solid #cbd5e1; outline: none; font-size: 13.5px; }
+        .btn-send-chat { background: #0ea5e9; color: white; border: none; padding: 0 20px; border-radius: 50px; font-weight: bold; font-size: 13.5px; cursor: pointer; }
+
+        .review-summary {
+            background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
+            color: white;
+            padding: 22px;
+            border-radius: 25px;
+            box-shadow: 0 10px 20px rgba(245, 158, 11, 0.25);
+            margin-bottom: 15px;
+            text-align: center;
+        }
+        .review-summary-title { font-size: 13px; opacity: 0.95; margin-bottom: 6px; font-weight: 600; }
+        .review-average { font-size: 36px; font-weight: 800; line-height: 1; margin-bottom: 6px; }
+        .review-stars-big { font-size: 23px; letter-spacing: 1px; color: #fff7ed; margin-bottom: 5px; }
+        .review-mini-info { font-size: 12px; opacity: 0.95; }
+
+        .review-card {
+            background: white;
+            border: 1px solid #e2e8f0;
+            border-radius: 20px;
+            padding: 15px;
+            margin-bottom: 15px;
+            position: relative;
+            overflow: hidden;
+        }
+        .review-card::before { content: ""; position: absolute; left: 0; top: 0; bottom: 0; width: 5px; background: #f59e0b; }
+        .review-header { display: flex; justify-content: space-between; align-items: center; font-weight: bold; margin-bottom: 10px; border-bottom: 1px dashed #cbd5e1; padding-bottom: 8px; gap: 8px; }
+        .review-rating-line { color: #f59e0b; font-size: 22px; letter-spacing: 1px; margin: 8px 0; font-weight: bold; }
+        .review-text { background: #f8fafc; border-left: 3px solid #0ea5e9; padding: 10px 12px; border-radius: 10px; font-size: 13.5px; color: #334155; line-height: 1.45; margin-top: 8px; }
+        .review-menu { font-size: 12px; color: #64748b; margin-top: 8px; line-height: 1.5; }
+        .review-time { color: #94a3b8; font-size: 12px; white-space: nowrap; }
+        .review-filter-box { display: flex; gap: 8px; margin-bottom: 12px; overflow-x: auto; padding-bottom: 2px; }
+        .review-filter-btn { border: 1px solid #e2e8f0; background: white; color: #64748b; padding: 8px 14px; border-radius: 50px; font-size: 12px; font-weight: bold; cursor: pointer; white-space: nowrap; }
+        .review-filter-btn.active { background: #f59e0b; border-color: #f59e0b; color: white; }
+        .btn-reset-ulasan { width: 100%; border: none; background: #64748b; color: white; padding: 11px; border-radius: 50px; font-size: 13px; font-weight: bold; cursor: pointer; margin-bottom: 12px; }
 
         .nav-fixed-bottom {
             position: fixed;
@@ -430,7 +217,6 @@
             z-index: 100;
             box-shadow: 0 -5px 15px rgba(0,0,0,0.05);
         }
-
         .nav-item {
             background: none;
             border: none;
@@ -445,11 +231,7 @@
             position: relative;
             padding: 4px 2px;
         }
-
-        .nav-item.active {
-            color: #0284c7;
-        }
-
+        .nav-item.active { color: #0284c7; }
         .badge-count {
             position: absolute;
             top: -8px;
@@ -471,7 +253,6 @@
 </div>
 
 <div class="content-scrollable">
-
     <div id="tab-baru" class="tab-panel active">
         <div id="list-baru"></div>
     </div>
@@ -496,9 +277,7 @@
             <div class="review-summary-title">Rata-rata Rating Customer</div>
             <div class="review-average" id="review-average">0.0</div>
             <div class="review-stars-big" id="review-stars-big">☆☆☆☆☆</div>
-            <div class="review-mini-info">
-                <span id="review-total">0</span> ulasan masuk
-            </div>
+            <div class="review-mini-info"><span id="review-total">0</span> ulasan masuk</div>
         </div>
 
         <div class="review-filter-box">
@@ -511,7 +290,6 @@
         </div>
 
         <button class="btn-reset-ulasan" onclick="resetTampilanUlasan()">Reset Tampilan Ulasan</button>
-
         <div id="list-ulasan"></div>
     </div>
 
@@ -529,7 +307,6 @@
             </div>
         </div>
     </div>
-
 </div>
 
 <div class="nav-fixed-bottom">
@@ -537,20 +314,16 @@
         <span class="badge-count" id="notif-baru-badge">0</span>
         <span>Pesanan Baru</span>
     </button>
-
     <button class="nav-item" onclick="gantiTab('siap', this)">
         <span>Siap Diambil</span>
     </button>
-
     <button class="nav-item" onclick="gantiTab('selesai', this)">
         <span>Selesai</span>
     </button>
-
     <button class="nav-item" onclick="gantiTab('ulasan', this)">
         <span>Ulasan</span>
     </button>
-
-    <button class="nav-item" onclick="gantiTab('chat', this)">
+    <button class="nav-item" onclick="gantiTab('chat', this); resetNotifChat();">
         <span class="badge-count" id="notif-chat-badge">0</span>
         <span>Chat</span>
     </button>
@@ -576,187 +349,9 @@
   let activeChatOrderId = "";
   let unregisterChatListener = null;
   let semuaDataUlasan = [];
-  let filterRatingAktif = "semua";
   let semuaPesananSelesai = [];
-  let jumlahChatBelumDibaca = 0;
-  let unsubscribeNotifChat = {};
-  let jumlahPesanCustomerPerRoom = {};
-
-  const q = query(collection(db, "pesanan"), orderBy("waktuLokal", "desc"));
-
-  setTanggalSelesaiHariIni();
-
-  onSnapshot(q, (snapshot) => {
-      const containerBaru = document.getElementById('list-baru');
-      const containerSiap = document.getElementById('list-siap');
-      const containerSelesai = document.getElementById('list-selesai');
-      const sidebarChat = document.getElementById('room-list-sidebar');
-
-      containerBaru.innerHTML = "";
-      containerSiap.innerHTML = "";
-      containerSelesai.innerHTML = "";
-      semuaDataUlasan = [];
-      semuaPesananSelesai = [];
-
-      let countBaru = 0;
-      let htmlSidebar = "";
-
-      snapshot.docs.forEach((docSnapshot) => {
-          const data = docSnapshot.data();
-          const idDoc = docSnapshot.id;
-
-          if (data.status === "Menunggu Pembayaran") {
-              countBaru++;
-          }
-
-          if (data.status === "Selesai") {
-              semuaPesananSelesai.push({
-                  id: idDoc,
-                  data: data
-              });
-          }
-
-          if (data.rating && data.ulasan) {
-              semuaDataUlasan.push({
-                  id: idDoc,
-                  data: data
-              });
-          }
-
-          if (data.status !== "Selesai") {
-              const kelasAktif = idDoc === activeChatOrderId ? "active" : "";
-              htmlSidebar += `<div class="chat-user-badge ${kelasAktif}" onclick="bukaKamarObrolan('${idDoc}', '${escapeHTML(data.kodeAntrean)}')">Kode: ${escapeHTML(data.kodeAntrean)}</div>`;
-          }
-
-          pasangListenerNotifChat(idDoc, data);
-
-          renderKartuKeHTML(idDoc, data);
-      });
-
-      if (htmlSidebar !== "") {
-          sidebarChat.innerHTML = htmlSidebar;
-      } else {
-          sidebarChat.innerHTML = `<div style="color:#94a3b8; padding: 8px 10px; font-size:13px;">Belum ada customer aktif</div>`;
-      }
-
-      const badgeBaru = document.getElementById('notif-baru-badge');
-
-      if (countBaru > 0) {
-          badgeBaru.innerText = countBaru;
-          badgeBaru.style.display = "block";
-      } else {
-          badgeBaru.style.display = "none";
-      }
-
-      renderDashboardUlasan();
-      renderDashboardSelesaiBerdasarkanTanggal();
-      tampilkanEmptyJikaKosong();
-      bersihkanListenerChatYangTidakAktif(snapshot.docs.map(d => d.id));
-  });
-
-  function tampilkanEmptyJikaKosong() {
-      if (document.getElementById('list-baru').innerHTML.trim() === "") {
-          document.getElementById('list-baru').innerHTML = `<div class="empty-state">Belum ada pesanan baru.</div>`;
-      }
-
-      if (document.getElementById('list-siap').innerHTML.trim() === "") {
-          document.getElementById('list-siap').innerHTML = `<div class="empty-state">Belum ada pesanan siap diambil.</div>`;
-      }
-
-      if (document.getElementById('list-selesai').innerHTML.trim() === "") {
-          document.getElementById('list-selesai').innerHTML = `<div class="empty-state">Belum ada pesanan selesai.</div>`;
-      }
-  }
-
-  function renderKartuKeHTML(idDokumen, data) {
-      let htmlMenuRows = "";
-
-      if(data.daftarMenu && Array.isArray(data.daftarMenu)) {
-          data.daftarMenu.forEach(item => {
-              htmlMenuRows += `<div class="order-item-row"><span>${escapeHTML(item.nama)}</span><span>x${item.qty}</span></div>`;
-          });
-      }
-
-      let htmlCatatan = "";
-
-      if (data.catatan && data.catatan.trim() !== "") {
-          htmlCatatan = `<div class="order-note"><b>Catatan:</b> "${escapeHTML(data.catatan)}"</div>`;
-      }
-
-      let formatWaktu = "...";
-
-      if (data.waktuLokal) {
-          formatWaktu = new Date(data.waktuLokal).toLocaleTimeString('id-ID', {
-              hour: '2-digit',
-              minute: '2-digit'
-          });
-      }
-
-      const card = document.createElement('div');
-      card.className = "order-card";
-      card.id = `card_${idDokumen}`;
-
-      if (data.status === "Menunggu Pembayaran") {
-          card.innerHTML = `
-              <div class="order-header">
-                  <span class="kode-antrean">Kode: ${escapeHTML(data.kodeAntrean)}</span>
-                  <span style="font-size: 12px; color: #94a3b8;">🕒 ${formatWaktu}</span>
-              </div>
-
-              <div class="order-items">${htmlMenuRows}</div>
-              ${htmlCatatan}
-
-              <div class="order-total">
-                  Total: Rp ${(data.totalBayar || 0).toLocaleString('id-ID')}
-              </div>
-
-              <div class="split-buttons">
-                  <button class="btn-action btn-red" onclick="tolakPesananCustomer('${idDokumen}')">Tolak</button>
-                  <button class="btn-action btn-blue" onclick="ubahStatusPesanan('${idDokumen}', 'Diproses')">Terima</button>
-              </div>
-          `;
-
-          document.getElementById('list-baru').appendChild(card);
-      } 
-      else if (data.status === "Diproses") {
-          card.innerHTML = `
-              <div class="order-header">
-                  <span class="kode-antrean" style="background:#3b82f6;">Kode: ${escapeHTML(data.kodeAntrean)}</span>
-                  <span style="font-size: 12px; color: #3b82f6; font-weight:bold;">Sedang Diproses</span>
-              </div>
-
-              <div class="order-items">${htmlMenuRows}</div>
-              ${htmlCatatan}
-
-              <div class="order-total">
-                  Total: Rp ${(data.totalBayar || 0).toLocaleString('id-ID')}
-              </div>
-
-              <button class="btn-action btn-green" onclick="ubahStatusPesanan('${idDokumen}', 'Siap Diambil')">Pesanan Siap</button>
-          `;
-
-          document.getElementById('list-baru').appendChild(card); 
-      } 
-      else if (data.status === "Siap Diambil") {
-          card.innerHTML = `
-              <div class="order-header">
-                  <span class="kode-antrean" style="background:#10b981;">Kode: ${escapeHTML(data.kodeAntrean)}</span>
-                  <span style="font-size: 12px; color: #10b981; font-weight:bold;">Siap Diambil</span>
-              </div>
-
-              <div class="order-items">${htmlMenuRows}</div>
-              ${htmlCatatan}
-
-              <button class="btn-action btn-green" onclick="ubahStatusPesanan('${idDokumen}', 'Selesai')">Selesai</button>
-          `;
-
-          document.getElementById('list-siap').appendChild(card);
-      } 
-      else if (data.status === "Selesai") {
-          return;
-      }
-  }
-
+  let filterRatingAktif = "semua";
+  let chatNotifCount = 0;
 
   function formatTanggalInput(timestamp) {
       const d = new Date(timestamp);
@@ -768,21 +363,171 @@
 
   window.setTanggalSelesaiHariIni = function() {
       const input = document.getElementById('filterTanggalSelesai');
-      if (!input) return;
       input.value = formatTanggalInput(Date.now());
       renderDashboardSelesaiBerdasarkanTanggal();
   }
-
-  window.setTanggalSelesaiHariIni();
 
   window.renderUlangDashboardSelesai = function() {
       renderDashboardSelesaiBerdasarkanTanggal();
   }
 
+  window.resetNotifChat = function() {
+      chatNotifCount = 0;
+      updateChatBadge();
+  }
+
+  function updateChatBadge() {
+      const badge = document.getElementById('notif-chat-badge');
+      if (chatNotifCount > 0) {
+          badge.innerText = chatNotifCount;
+          badge.style.display = "block";
+      } else {
+          badge.style.display = "none";
+      }
+  }
+
+  function escapeHTML(value) {
+      if (value === undefined || value === null) return "";
+      return String(value)
+          .replaceAll("&", "&amp;")
+          .replaceAll("<", "&lt;")
+          .replaceAll(">", "&gt;")
+          .replaceAll('"', "&quot;")
+          .replaceAll("'", "&#039;");
+  }
+
+  const q = query(collection(db, "pesanan"), orderBy("waktuLokal", "desc"));
+
+  setTanggalSelesaiHariIni();
+
+  onSnapshot(q, (snapshot) => {
+      document.getElementById('list-baru').innerHTML = "";
+      document.getElementById('list-siap').innerHTML = "";
+      document.getElementById('list-selesai').innerHTML = "";
+      document.getElementById('room-list-sidebar').innerHTML = "";
+
+      semuaDataUlasan = [];
+      semuaPesananSelesai = [];
+
+      let countBaru = 0;
+      let htmlSidebar = "";
+
+      snapshot.docs.forEach((docSnapshot) => {
+          const data = docSnapshot.data();
+          const idDoc = docSnapshot.id;
+
+          if (data.status === "Menunggu Pembayaran") countBaru++;
+
+          if (data.status === "Selesai") {
+              semuaPesananSelesai.push({ id: idDoc, data });
+          }
+
+          if (data.rating && data.ulasan) {
+              semuaDataUlasan.push({ id: idDoc, data });
+          }
+
+          if (data.status !== "Selesai") {
+              const kelasAktif = idDoc === activeChatOrderId ? "active" : "";
+              htmlSidebar += `<div class="chat-user-badge ${kelasAktif}" onclick="bukaKamarObrolan('${idDoc}', '${escapeHTML(data.kodeAntrean)}')">Kode: ${escapeHTML(data.kodeAntrean)}</div>`;
+          }
+
+          renderKartuKeHTML(idDoc, data);
+      });
+
+      document.getElementById('room-list-sidebar').innerHTML = htmlSidebar || `<div style="color:#94a3b8; padding: 8px 10px; font-size:13px;">Belum ada customer aktif</div>`;
+
+      const badgeBaru = document.getElementById('notif-baru-badge');
+      if (countBaru > 0) {
+          badgeBaru.innerText = countBaru;
+          badgeBaru.style.display = "block";
+      } else {
+          badgeBaru.style.display = "none";
+      }
+
+      renderDashboardUlasan();
+      renderDashboardSelesaiBerdasarkanTanggal();
+      tampilkanEmptyJikaKosong();
+  });
+
+  function tampilkanEmptyJikaKosong() {
+      if (document.getElementById('list-baru').innerHTML.trim() === "") {
+          document.getElementById('list-baru').innerHTML = `<div class="empty-state">Belum ada pesanan baru.</div>`;
+      }
+      if (document.getElementById('list-siap').innerHTML.trim() === "") {
+          document.getElementById('list-siap').innerHTML = `<div class="empty-state">Belum ada pesanan siap diambil.</div>`;
+      }
+  }
+
+  function menuRows(data) {
+      let html = "";
+      if(data.daftarMenu && Array.isArray(data.daftarMenu)) {
+          data.daftarMenu.forEach(item => {
+              html += `<div class="order-item-row"><span>${escapeHTML(item.nama)}</span><span>x${item.qty}</span></div>`;
+          });
+      }
+      return html;
+  }
+
+  function catatanHTML(data) {
+      if (data.catatan && data.catatan.trim() !== "") {
+          return `<div class="order-note"><b>Catatan:</b> "${escapeHTML(data.catatan)}"</div>`;
+      }
+      return "";
+  }
+
+  function waktuJam(timestamp) {
+      if (!timestamp) return "...";
+      return new Date(timestamp).toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' });
+  }
+
+  function renderKartuKeHTML(idDokumen, data) {
+      const card = document.createElement('div');
+      card.className = "order-card";
+      card.id = `card_${idDokumen}`;
+
+      if (data.status === "Menunggu Pembayaran") {
+          card.innerHTML = `
+              <div class="order-header">
+                  <span class="kode-antrean">Kode: ${escapeHTML(data.kodeAntrean)}</span>
+                  <span style="font-size: 12px; color: #94a3b8;">🕒 ${waktuJam(data.waktuLokal)}</span>
+              </div>
+              <div class="order-items">${menuRows(data)}</div>
+              ${catatanHTML(data)}
+              <div class="order-total">Total: Rp ${(data.totalBayar || 0).toLocaleString('id-ID')}</div>
+              <div class="split-buttons">
+                  <button class="btn-action btn-red" onclick="tolakPesananCustomer('${idDokumen}')">Tolak</button>
+                  <button class="btn-action btn-blue" onclick="ubahStatusPesanan('${idDokumen}', 'Diproses')">Terima</button>
+              </div>`;
+          document.getElementById('list-baru').appendChild(card);
+      } 
+      else if (data.status === "Diproses") {
+          card.innerHTML = `
+              <div class="order-header">
+                  <span class="kode-antrean" style="background:#3b82f6;">Kode: ${escapeHTML(data.kodeAntrean)}</span>
+                  <span style="font-size: 12px; color: #3b82f6; font-weight:bold;">Sedang Diproses</span>
+              </div>
+              <div class="order-items">${menuRows(data)}</div>
+              ${catatanHTML(data)}
+              <div class="order-total">Total: Rp ${(data.totalBayar || 0).toLocaleString('id-ID')}</div>
+              <button class="btn-action btn-green" onclick="ubahStatusPesanan('${idDokumen}', 'Siap Diambil')">Pesanan Siap</button>`;
+          document.getElementById('list-baru').appendChild(card); 
+      } 
+      else if (data.status === "Siap Diambil") {
+          card.innerHTML = `
+              <div class="order-header">
+                  <span class="kode-antrean" style="background:#10b981;">Kode: ${escapeHTML(data.kodeAntrean)}</span>
+                  <span style="font-size: 12px; color: #10b981; font-weight:bold;">Siap Diambil</span>
+              </div>
+              <div class="order-items">${menuRows(data)}</div>
+              ${catatanHTML(data)}
+              <button class="btn-action btn-gray" onclick="ubahStatusPesanan('${idDokumen}', 'Selesai')">Selesai</button>`;
+          document.getElementById('list-siap').appendChild(card);
+      }
+  }
+
   function renderDashboardSelesaiBerdasarkanTanggal() {
       const wadah = document.getElementById('list-selesai');
       const inputTanggal = document.getElementById('filterTanggalSelesai');
-
       if (!wadah || !inputTanggal) return;
 
       const tanggalDipilih = inputTanggal.value || formatTanggalInput(Date.now());
@@ -800,103 +545,27 @@
 
       dataTampil.forEach(item => {
           const data = item.data;
-          const idDokumen = item.id;
-
-          let htmlMenuRows = "";
-          if(data.daftarMenu && Array.isArray(data.daftarMenu)) {
-              data.daftarMenu.forEach(menu => {
-                  htmlMenuRows += `<div class="order-item-row"><span>${escapeHTML(menu.nama)}</span><span>x${menu.qty}</span></div>`;
-              });
-          }
-
-          let formatWaktu = "...";
-          const waktuAcuan = data.waktuSelesai || data.waktuLokal;
-
-          if (waktuAcuan) {
-              formatWaktu = new Date(waktuAcuan).toLocaleTimeString('id-ID', {
-                  hour: '2-digit',
-                  minute: '2-digit'
-              });
-          }
-
           const card = document.createElement('div');
           card.className = "order-card";
-          card.id = `card_selesai_${idDokumen}`;
           card.innerHTML = `
               <div class="order-header">
                   <span class="kode-antrean" style="background:#64748b;">Kode: ${escapeHTML(data.kodeAntrean)}</span>
-                  <span style="font-size: 12px; color: #94a3b8;">Selesai 🕒 ${formatWaktu}</span>
+                  <span style="font-size: 12px; color: #94a3b8;">Selesai 🕒 ${waktuJam(data.waktuSelesai || data.waktuLokal)}</span>
               </div>
-
-              <div class="order-items">${htmlMenuRows}</div>
-
-              <div class="order-total" style="color:#64748b;">
-                  Lunas: Rp ${(data.totalBayar || 0).toLocaleString('id-ID')}
-              </div>
-          `;
-
+              <div class="order-items">${menuRows(data)}</div>
+              <div class="order-total" style="color:#64748b;">Lunas: Rp ${(data.totalBayar || 0).toLocaleString('id-ID')}</div>`;
           wadah.appendChild(card);
       });
   }
 
-  function pasangListenerNotifChat(idDoc, data) {
-      if (!idDoc || unsubscribeNotifChat[idDoc]) return;
-
-      const chatQuery = query(collection(db, "pesanan", idDoc, "percakapan"), orderBy("timestamp", "asc"));
-
-      unsubscribeNotifChat[idDoc] = onSnapshot(chatQuery, (chatSnapshot) => {
-          let totalPesanCustomer = 0;
-
-          chatSnapshot.forEach(msgDoc => {
-              const msgData = msgDoc.data();
-
-              if (msgData.pengirim === "customer") {
-                  totalPesanCustomer++;
-              }
-          });
-
-          jumlahPesanCustomerPerRoom[idDoc] = totalPesanCustomer;
-          hitungTotalNotifChat();
-      });
-  }
-
-  function hitungTotalNotifChat() {
-      let total = 0;
-
-      Object.keys(jumlahPesanCustomerPerRoom).forEach(id => {
-          if (id !== activeChatOrderId && jumlahPesanCustomerPerRoom[id] > 0) {
-              total += jumlahPesanCustomerPerRoom[id];
-          }
-      });
-
-      const badge = document.getElementById('notif-chat-badge');
-
-      if (!badge) return;
-
-      if (total > 0) {
-          badge.innerText = total;
-          badge.style.display = "block";
-      } else {
-          badge.style.display = "none";
-      }
-  }
-
-  function bersihkanListenerChatYangTidakAktif(listIdAktif) {
-      Object.keys(unsubscribeNotifChat).forEach(id => {
-          if (!listIdAktif.includes(id)) {
-              unsubscribeNotifChat[id]();
-              delete unsubscribeNotifChat[id];
-              delete jumlahPesanCustomerPerRoom[id];
-          }
-      });
-
-      hitungTotalNotifChat();
+  function buatBintang(nilai) {
+      const rating = Number(nilai || 0);
+      return "★".repeat(rating) + "☆".repeat(5 - rating);
   }
 
   function renderDashboardUlasan() {
       const wadahUlasan = document.getElementById('list-ulasan');
       const totalUlasan = semuaDataUlasan.length;
-
       document.getElementById('review-total').innerText = totalUlasan;
 
       if (totalUlasan === 0) {
@@ -907,18 +576,13 @@
       }
 
       let totalNilai = 0;
-
-      semuaDataUlasan.forEach(item => {
-          totalNilai += Number(item.data.rating || 0);
-      });
+      semuaDataUlasan.forEach(item => totalNilai += Number(item.data.rating || 0));
 
       const rataRata = totalNilai / totalUlasan;
-
       document.getElementById('review-average').innerText = rataRata.toFixed(1);
       document.getElementById('review-stars-big').innerText = buatBintang(Math.round(rataRata));
 
       let dataTampil = semuaDataUlasan;
-
       if (filterRatingAktif !== "semua") {
           dataTampil = semuaDataUlasan.filter(item => Number(item.data.rating) === Number(filterRatingAktif));
       }
@@ -929,26 +593,11 @@
       }
 
       let html = "";
-
       dataTampil.forEach(item => {
           const data = item.data;
-
-          let formatWaktu = "...";
-
-          if (data.waktuUlasan || data.waktuLokal) {
-              formatWaktu = new Date(data.waktuUlasan || data.waktuLokal).toLocaleString('id-ID', {
-                  day: '2-digit',
-                  month: 'short',
-                  hour: '2-digit',
-                  minute: '2-digit'
-              });
-          }
-
-          let daftarMenuSingkat = "";
-
-          if (data.daftarMenu && Array.isArray(data.daftarMenu)) {
-              daftarMenuSingkat = data.daftarMenu.map(menu => `${escapeHTML(menu.nama)} x${menu.qty}`).join(", ");
-          }
+          const waktu = data.waktuUlasan || data.waktuLokal;
+          const formatWaktu = waktu ? new Date(waktu).toLocaleString('id-ID', { day: '2-digit', month: 'short', hour: '2-digit', minute: '2-digit' }) : "...";
+          const daftarMenuSingkat = (data.daftarMenu || []).map(menu => `${escapeHTML(menu.nama)} x${menu.qty}`).join(", ");
 
           html += `
               <div class="review-card">
@@ -956,20 +605,11 @@
                       <span class="kode-antrean" style="background:#f59e0b;">Kode: ${escapeHTML(data.kodeAntrean)}</span>
                       <span class="review-time">${formatWaktu}</span>
                   </div>
-
                   <div class="review-rating-line">${buatBintang(data.rating)}</div>
-
                   <div class="review-text">"${escapeHTML(data.ulasan)}"</div>
-
-                  <div class="review-menu">
-                      <b>Pesanan:</b> ${daftarMenuSingkat || "-"}
-                  </div>
-
-                  <div class="order-total" style="color:#64748b; margin-top:8px;">
-                      Total: Rp ${(data.totalBayar || 0).toLocaleString('id-ID')}
-                  </div>
-              </div>
-          `;
+                  <div class="review-menu"><b>Pesanan:</b> ${daftarMenuSingkat || "-"}</div>
+                  <div class="order-total" style="color:#64748b; margin-top:8px;">Total: Rp ${(data.totalBayar || 0).toLocaleString('id-ID')}</div>
+              </div>`;
       });
 
       wadahUlasan.innerHTML = html;
@@ -977,50 +617,24 @@
 
   window.resetTampilanUlasan = function() {
       filterRatingAktif = "semua";
-
       document.querySelectorAll('.review-filter-btn').forEach(btn => btn.classList.remove('active'));
-
       const tombolSemua = document.querySelector('.review-filter-btn');
       if (tombolSemua) tombolSemua.classList.add('active');
-
       renderDashboardUlasan();
   }
 
   window.filterUlasan = function(nilai, tombol) {
       filterRatingAktif = nilai;
-
       document.querySelectorAll('.review-filter-btn').forEach(btn => btn.classList.remove('active'));
-
       tombol.classList.add('active');
-
       renderDashboardUlasan();
-  }
-
-  function buatBintang(nilai) {
-      const rating = Number(nilai || 0);
-      return "★".repeat(rating) + "☆".repeat(5 - rating);
-  }
-
-  function escapeHTML(value) {
-      if (value === undefined || value === null) return "";
-
-      return String(value)
-          .replaceAll("&", "&amp;")
-          .replaceAll("<", "&lt;")
-          .replaceAll(">", "&gt;")
-          .replaceAll('"', "&quot;")
-          .replaceAll("'", "&#039;");
   }
 
   window.ubahStatusPesanan = async function(idDokumen, statusBaru) {
       try {
           const docRef = doc(db, "pesanan", idDokumen);
-
           if (statusBaru === "Selesai") {
-              await updateDoc(docRef, {
-                  status: statusBaru,
-                  waktuSelesai: Date.now()
-              });
+              await updateDoc(docRef, { status: statusBaru, waktuSelesai: Date.now() });
           } else {
               await updateDoc(docRef, { status: statusBaru });
           }
@@ -1041,15 +655,12 @@
 
   window.bukaKamarObrolan = function(idDoc, kodeAntrean) {
       activeChatOrderId = idDoc;
+      chatNotifCount = 0;
+      updateChatBadge();
 
-      const semuaBadges = document.querySelectorAll('.chat-user-badge');
-
-      semuaBadges.forEach(b => {
+      document.querySelectorAll('.chat-user-badge').forEach(b => {
           b.classList.remove('active');
-
-          if (b.innerText.includes(kodeAntrean)) {
-              b.classList.add('active');
-          }
+          if (b.innerText.includes(kodeAntrean)) b.classList.add('active');
       });
 
       document.getElementById('chatMessageField').disabled = false;
@@ -1063,22 +674,26 @@
 
       unregisterChatListener = onSnapshot(chatQuery, (chatSnapshot) => {
           areaHistori.innerHTML = "";
-
           if (chatSnapshot.empty) {
               areaHistori.innerHTML = `<div style="color:#94a3b8; text-align:center; margin-top:5px; font-size:12px;">Belum ada riwayat pesan. Silakan ketik di bawah untuk memulai chat.</div>`;
               return;
           }
-
+          chatSnapshot.docChanges().forEach(change => {
+              if (change.type === "added") {
+                  const msgData = change.doc.data();
+                  if (msgData.pengirim === "customer" && document.getElementById('tab-chat').classList.contains('active') === false) {
+                      chatNotifCount++;
+                      updateChatBadge();
+                  }
+              }
+          });
           chatSnapshot.forEach(msgDoc => {
               const msgData = msgDoc.data();
               const msgRow = document.createElement('div');
-
               msgRow.className = `bubble-msg ${msgData.pengirim === 'kasir' ? 'bubble-kasir' : 'bubble-customer'}`;
               msgRow.innerText = msgData.teks;
-
               areaHistori.appendChild(msgRow);
           });
-
           areaHistori.scrollTop = areaHistori.scrollHeight;
       });
   }
@@ -1107,11 +722,8 @@
 
 <script>
     function gantiTab(tabId, tombol) {
-        const panels = document.querySelectorAll('.tab-panel');
-        panels.forEach(p => p.classList.remove('active'));
-
-        const navItems = document.querySelectorAll('.nav-item');
-        navItems.forEach(n => n.classList.remove('active'));
+        document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
+        document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
 
         document.getElementById('tab-' + tabId).classList.add('active');
         tombol.classList.add('active');
