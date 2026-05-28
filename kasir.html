@@ -17,7 +17,6 @@
             overflow: hidden;
         }
 
-        /* AREA ATAS: Judul Monitor (Terkunci) */
         .header-fixed {
             background: white;
             padding: 15px;
@@ -25,23 +24,37 @@
             border-bottom: 2px solid #e2e8f0;
             z-index: 10;
         }
-        .header-fixed h2 { margin: 0; color: #0284c7; font-size: 20px; text-transform: uppercase; letter-spacing: 0.5px; }
+        .header-fixed h2 { 
+            margin: 0; 
+            color: #0284c7; 
+            font-size: 20px; 
+            text-transform: uppercase; 
+            letter-spacing: 0.5px; 
+        }
 
-        /* AREA TENGAH: Konten Utama Utama (Bisa di-scroll) */
         .content-scrollable {
             flex: 1;
             overflow-y: auto;
             padding: 15px;
-            padding-bottom: 80px; 
+            padding-bottom: 90px; 
             -webkit-overflow-scrolling: touch;
+            box-sizing: border-box;
         }
 
-        /* Desain Tab Konten Panel */
         .tab-panel { display: none; }
         .tab-panel.active { display: block; }
 
-        /* Kartu Pesanan Gelembung Kapsul */
-        .order-card {
+        .empty-state {
+            background: white;
+            border: 1px dashed #cbd5e1;
+            color: #94a3b8;
+            text-align: center;
+            padding: 25px 15px;
+            border-radius: 20px;
+            font-size: 14px;
+        }
+
+        .order-card, .review-card {
             background: white;
             border: 1px solid #e2e8f0;
             border-radius: 20px;
@@ -49,25 +62,30 @@
             margin-bottom: 15px;
             box-shadow: 0 4px 10px rgba(0,0,0,0.02);
         }
-        .order-header {
+
+        .order-header, .review-header {
             display: flex;
             justify-content: space-between;
             align-items: center;
             font-weight: bold;
             margin-bottom: 10px;
             border-bottom: 1px dashed #cbd5e1;
-            padding-bottom: 5px;
+            padding-bottom: 8px;
+            gap: 8px;
         }
+
         .kode-antrean {
             background: #0ea5e9;
             color: white;
             padding: 4px 14px;
             border-radius: 50px;
             font-size: 14px;
+            white-space: nowrap;
         }
+
         .order-items { font-size: 14px; color: #475569; margin-bottom: 10px; }
-        .order-item-row { display: flex; justify-content: space-between; margin-bottom: 4px; }
-        
+        .order-item-row { display: flex; justify-content: space-between; margin-bottom: 4px; gap: 8px; }
+
         .order-note {
             background: #fef3c7;
             border-left: 3px solid #d97706;
@@ -77,9 +95,15 @@
             border-radius: 8px;
             margin-bottom: 10px;
         }
-        .order-total { font-weight: bold; font-size: 15px; color: #10b981; text-align: right; margin-bottom: 10px; }
 
-        /* Tombol Aksi */
+        .order-total { 
+            font-weight: bold; 
+            font-size: 15px; 
+            color: #10b981; 
+            text-align: right; 
+            margin-bottom: 10px; 
+        }
+
         .btn-action {
             width: 100%;
             padding: 12px;
@@ -89,12 +113,12 @@
             font-size: 14px;
             cursor: pointer;
         }
+
         .btn-orange { background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%); color: white; }
         .btn-blue { background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%); color: white; }
         .btn-green { background: linear-gradient(135deg, #10b981 0%, #059669 100%); color: white; }
         .btn-red { background: linear-gradient(135deg, #ef4444 0%, #b91c1c 100%); color: white; }
 
-        /* Wadah Khusus Tombol Berdampingan Kiri-Kanan */
         .split-buttons {
             display: flex;
             gap: 10px;
@@ -104,7 +128,6 @@
             font-size: 13px;
         }
 
-        /* STRUKTUR TAMPILAN DASHBOARD CHAT BARU */
         .chat-container {
             display: flex;
             flex-direction: column;
@@ -193,7 +216,6 @@
             cursor: pointer;
         }
 
-        /* Tampilan Khusus Menu Omset */
         .omset-box {
             background: linear-gradient(135deg, #0ea5e9 0%, #0284c7 100%);
             color: white;
@@ -209,40 +231,153 @@
         .stat-card { background: white; padding: 15px; border-radius: 18px; text-align: center; border: 1px solid #e2e8f0; }
         .stat-num { font-size: 18px; font-weight: bold; color: #1e293b; }
 
-        /* MENU NAVIGASI DASHBOARD BAWAH */
+        /* DASHBOARD ULASAN */
+        .review-summary {
+            background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
+            color: white;
+            padding: 22px;
+            border-radius: 25px;
+            box-shadow: 0 10px 20px rgba(245, 158, 11, 0.25);
+            margin-bottom: 15px;
+            text-align: center;
+        }
+
+        .review-summary-title {
+            font-size: 13px;
+            opacity: 0.95;
+            margin-bottom: 6px;
+            font-weight: 600;
+        }
+
+        .review-average {
+            font-size: 36px;
+            font-weight: 800;
+            line-height: 1;
+            margin-bottom: 6px;
+        }
+
+        .review-stars-big {
+            font-size: 23px;
+            letter-spacing: 1px;
+            color: #fff7ed;
+            margin-bottom: 5px;
+        }
+
+        .review-mini-info {
+            font-size: 12px;
+            opacity: 0.95;
+        }
+
+        .review-card {
+            position: relative;
+            overflow: hidden;
+        }
+
+        .review-card::before {
+            content: "";
+            position: absolute;
+            left: 0;
+            top: 0;
+            bottom: 0;
+            width: 5px;
+            background: #f59e0b;
+        }
+
+        .review-rating-line {
+            color: #f59e0b;
+            font-size: 22px;
+            letter-spacing: 1px;
+            margin: 8px 0;
+            font-weight: bold;
+        }
+
+        .review-text {
+            background: #f8fafc;
+            border-left: 3px solid #0ea5e9;
+            padding: 10px 12px;
+            border-radius: 10px;
+            font-size: 13.5px;
+            color: #334155;
+            line-height: 1.45;
+            margin-top: 8px;
+        }
+
+        .review-menu {
+            font-size: 12px;
+            color: #64748b;
+            margin-top: 8px;
+            line-height: 1.5;
+        }
+
+        .review-time {
+            color: #94a3b8;
+            font-size: 12px;
+            white-space: nowrap;
+        }
+
+        .review-filter-box {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 12px;
+            overflow-x: auto;
+            padding-bottom: 2px;
+        }
+
+        .review-filter-btn {
+            border: none;
+            background: white;
+            border: 1px solid #e2e8f0;
+            color: #64748b;
+            padding: 8px 14px;
+            border-radius: 50px;
+            font-size: 12px;
+            font-weight: bold;
+            cursor: pointer;
+            white-space: nowrap;
+        }
+
+        .review-filter-btn.active {
+            background: #f59e0b;
+            border-color: #f59e0b;
+            color: white;
+        }
+
         .nav-fixed-bottom {
             position: fixed;
             bottom: 0;
             left: 0;
             width: 100%;
-            background: rgba(255, 255, 255, 0.95);
+            background: rgba(255, 255, 255, 0.96);
             backdrop-filter: blur(10px);
             border-top: 1px solid #e2e8f0;
             display: flex;
             justify-content: space-around;
-            padding: 15px 0;
+            padding: 12px 0;
             z-index: 100;
             box-shadow: 0 -5px 15px rgba(0,0,0,0.05);
         }
+
         .nav-item {
             background: none;
             border: none;
             color: #64748b;
-            font-size: 13px;
+            font-size: 11.5px;
             font-weight: bold;
             display: flex;
             flex-direction: column;
             align-items: center;
             cursor: pointer;
-            width: 18%;
+            width: 16.6%;
             position: relative;
+            padding: 4px 2px;
         }
+
         .nav-item.active { color: #0284c7; }
-        
+
         .badge-count {
             position: absolute;
             top: -8px;
-            right: 5px;
+            right: 4px;
             background: #ef4444;
             color: white;
             font-size: 10px;
@@ -250,6 +385,18 @@
             padding: 2px 6px;
             font-weight: bold;
             display: none;
+            min-width: 12px;
+            text-align: center;
+        }
+
+        .badge-review {
+            background: #f59e0b;
+        }
+
+        @media (max-width: 360px) {
+            .nav-item { font-size: 10.5px; }
+            .kode-antrean { font-size: 12px; padding: 4px 10px; }
+            .review-average { font-size: 32px; }
         }
     </style>
 </head>
@@ -260,7 +407,7 @@
 </div>
 
 <div class="content-scrollable">
-    
+
     <div id="tab-baru" class="tab-panel active">
         <div id="list-baru"></div>
     </div>
@@ -271,6 +418,28 @@
 
     <div id="tab-selesai" class="tab-panel">
         <div id="list-selesai"></div>
+    </div>
+
+    <div id="tab-ulasan" class="tab-panel">
+        <div class="review-summary">
+            <div class="review-summary-title">Rata-rata Rating Customer</div>
+            <div class="review-average" id="review-average">0.0</div>
+            <div class="review-stars-big" id="review-stars-big">☆☆☆☆☆</div>
+            <div class="review-mini-info">
+                <span id="review-total">0</span> ulasan masuk
+            </div>
+        </div>
+
+        <div class="review-filter-box">
+            <button class="review-filter-btn active" onclick="filterUlasan('semua', this)">Semua</button>
+            <button class="review-filter-btn" onclick="filterUlasan('5', this)">5 ★</button>
+            <button class="review-filter-btn" onclick="filterUlasan('4', this)">4 ★</button>
+            <button class="review-filter-btn" onclick="filterUlasan('3', this)">3 ★</button>
+            <button class="review-filter-btn" onclick="filterUlasan('2', this)">2 ★</button>
+            <button class="review-filter-btn" onclick="filterUlasan('1', this)">1 ★</button>
+        </div>
+
+        <div id="list-ulasan"></div>
     </div>
 
     <div id="tab-chat" class="tab-panel">
@@ -293,7 +462,7 @@
             <div style="font-size: 14px; opacity: 0.9;">Total Omset Hari Ini</div>
             <h1 id="omset-total">Rp 0</h1>
         </div>
-        
+
         <div class="stat-grid">
             <div class="stat-card">
                 <div style="font-size: 12px; color: #64748b;">Cup Terjual</div>
@@ -318,6 +487,10 @@
     </button>
     <button class="nav-item" onclick="gantiTab('selesai', this)">
         <span>Selesai</span>
+    </button>
+    <button class="nav-item" onclick="gantiTab('ulasan', this)">
+        <span class="badge-count badge-review" id="notif-ulasan-badge">0</span>
+        <span>Ulasan</span>
     </button>
     <button class="nav-item" onclick="gantiTab('chat', this)">
         <span>Chat</span>
@@ -346,24 +519,32 @@
 
   let activeChatOrderId = "";
   let unregisterChatListener = null;
+  let semuaDataUlasan = [];
+  let filterRatingAktif = "semua";
 
   const q = query(collection(db, "pesanan"), orderBy("waktuLokal", "desc"));
-  
+
   onSnapshot(q, (snapshot) => {
       const containerBaru = document.getElementById('list-baru');
       const containerSiap = document.getElementById('list-siap');
       const containerSelesai = document.getElementById('list-selesai');
       const sidebarChat = document.getElementById('room-list-sidebar');
 
+      containerBaru.innerHTML = "";
+      containerSiap.innerHTML = "";
+      containerSelesai.innerHTML = "";
+
       let countBaru = 0;
       let totalOmsetHariIni = 0;
       let totalCupTerjual = 0;
       let totalTransaksiSukses = 0;
       let htmlSidebar = "";
+      semuaDataUlasan = [];
 
       snapshot.docs.forEach((docSnapshot) => {
           const data = docSnapshot.data();
           const idDoc = docSnapshot.id;
+
           let totalCupDiNotaIni = 0;
           if(data.daftarMenu && Array.isArray(data.daftarMenu)) {
               data.daftarMenu.forEach(item => {
@@ -374,51 +555,33 @@
           if (data.status === "Menunggu Pembayaran" || data.status === "Dibayar") {
               countBaru++;
           }
-          
+
           if (data.status === "Diproses" || data.status === "Selesai") {
               totalOmsetHariIni += (data.totalBayar || 0);
               totalCupTerjual += totalCupDiNotaIni;
               totalTransaksiSukses++;
           }
 
-          // Kumpulkan data pesanan aktif untuk masuk daftar sidebar Chat room
+          if (data.rating && data.ulasan) {
+              semuaDataUlasan.push({
+                  id: idDoc,
+                  data: data
+              });
+          }
+
           if (data.status !== "Selesai") {
               const kelasAktif = idDoc === activeChatOrderId ? "active" : "";
               htmlSidebar += `<div class="chat-user-badge ${kelasAktif}" onclick="bukaKamarObrolan('${idDoc}', '${data.kodeAntrean}')">Kode: ${data.kodeAntrean}</div>`;
           }
+
+          renderKartuKeHTML(idDoc, data);
       });
 
-      // Render Baris User Sidebar Chat
       if (htmlSidebar !== "") {
           sidebarChat.innerHTML = htmlSidebar;
       } else {
           sidebarChat.innerHTML = `<div style="color:#94a3b8; padding: 8px 10px; font-size:13px;">Belum ada customer aktif</div>`;
       }
-
-      // Deteksi manipulasi kartu secara real-time
-      snapshot.docChanges().forEach((change) => {
-          const idDokumen = change.doc.id;
-          const data = change.doc.data();
-
-          if (change.type === "added") {
-              renderKartuKeHTML(idDokumen, data);
-          } 
-          else if (change.type === "modified") {
-              const elemenLama = document.getElementById(`card_${idDokumen}`);
-              if (elemenLama) elemenLama.remove();
-              
-              renderKartuKeHTML(idDokumen, data);
-          } 
-          else if (change.type === "removed") {
-              const elemenKotak = document.getElementById(`card_${idDokumen}`);
-              if (elemenKotak) {
-                  elemenKotak.remove();
-              }
-              if (idDokumen === activeChatOrderId) {
-                  resetSistemChatLayar();
-              }
-          }
-      });
 
       document.getElementById('omset-total').innerText = "Rp " + totalOmsetHariIni.toLocaleString('id-ID');
       document.getElementById('omset-cup').innerText = totalCupTerjual + " Cup";
@@ -431,21 +594,34 @@
       } else {
           badgeBaru.style.display = "none";
       }
+
+      renderDashboardUlasan();
+      tampilkanEmptyJikaKosong();
   });
 
-  function renderKartuKeHTML(idDokumen, data) {
-      if (document.getElementById(`card_${idDokumen}`)) return;
+  function tampilkanEmptyJikaKosong() {
+      if (document.getElementById('list-baru').innerHTML.trim() === "") {
+          document.getElementById('list-baru').innerHTML = `<div class="empty-state">Belum ada pesanan baru.</div>`;
+      }
+      if (document.getElementById('list-siap').innerHTML.trim() === "") {
+          document.getElementById('list-siap').innerHTML = `<div class="empty-state">Belum ada pesanan siap diambil.</div>`;
+      }
+      if (document.getElementById('list-selesai').innerHTML.trim() === "") {
+          document.getElementById('list-selesai').innerHTML = `<div class="empty-state">Belum ada pesanan selesai.</div>`;
+      }
+  }
 
+  function renderKartuKeHTML(idDokumen, data) {
       let htmlMenuRows = "";
       if(data.daftarMenu && Array.isArray(data.daftarMenu)) {
           data.daftarMenu.forEach(item => {
-              htmlMenuRows += `<div class="order-item-row"><span>${item.nama}</span><span>x${item.qty}</span></div>`;
+              htmlMenuRows += `<div class="order-item-row"><span>${escapeHTML(item.nama)}</span><span>x${item.qty}</span></div>`;
           });
       }
 
       let htmlCatatan = "";
       if (data.catatan && data.catatan.trim() !== "") {
-          htmlCatatan = `<div class="order-note"><b>Catatan:</b> "${data.catatan}"</div>`;
+          htmlCatatan = `<div class="order-note"><b>Catatan:</b> "${escapeHTML(data.catatan)}"</div>`;
       }
 
       let formatWaktu = "...";
@@ -457,11 +633,10 @@
       card.className = "order-card";
       card.id = `card_${idDokumen}`;
 
-      // 1. DASHBOARD PESANAN BARU
       if (data.status === "Menunggu Pembayaran") {
           card.innerHTML = `
               <div class="order-header">
-                  <span class="kode-antrean">Kode: ${data.kodeAntrean}</span>
+                  <span class="kode-antrean">Kode: ${escapeHTML(data.kodeAntrean)}</span>
                   <span style="font-size: 12px; color: #94a3b8;">🕒 ${formatWaktu}</span>
               </div>
               <div class="order-items">${htmlMenuRows}</div>
@@ -476,7 +651,7 @@
       else if (data.status === "Dibayar") {
           card.innerHTML = `
               <div class="order-header">
-                  <span class="kode-antrean" style="background:#3b82f6;">Kode: ${data.kodeAntrean}</span>
+                  <span class="kode-antrean" style="background:#3b82f6;">Kode: ${escapeHTML(data.kodeAntrean)}</span>
                   <span style="font-size: 12px; color: #3b82f6; font-weight:bold;">Lunas</span>
               </div>
               <div class="order-items">${htmlMenuRows}</div>
@@ -485,12 +660,10 @@
               <button class="btn-action btn-blue" onclick="ubahStatusPesanan('${idDokumen}', 'Diproses')">Pesanan Siap</button>`;
           document.getElementById('list-baru').appendChild(card); 
       } 
-      
-      // 2. DASHBOARD SIAP DIAMBIL
       else if (data.status === "Diproses") {
           card.innerHTML = `
               <div class="order-header">
-                  <span class="kode-antrean" style="background:#10b981;">Kode: ${data.kodeAntrean}</span>
+                  <span class="kode-antrean" style="background:#10b981;">Kode: ${escapeHTML(data.kodeAntrean)}</span>
                   <span style="font-size: 12px; color: #94a3b8;">🕒 ${formatWaktu}</span>
               </div>
               <div class="order-items">${htmlMenuRows}</div>
@@ -498,18 +671,123 @@
               <button class="btn-action btn-green" onclick="ubahStatusPesanan('${idDokumen}', 'Selesai')">Selesai</button>`;
           document.getElementById('list-siap').appendChild(card);
       } 
-      
-      // 3. DASHBOARD SELESAI
       else if (data.status === "Selesai") {
+          const ratingHTML = data.rating
+              ? `<div style="margin-top:8px; font-size:18px; color:#f59e0b;">${buatBintang(data.rating)}</div>`
+              : `<div style="font-size:12px; color:#94a3b8; margin-top:8px;">Belum ada rating</div>`;
+
+          const ulasanHTML = data.ulasan
+              ? `<div class="review-text"><b>Ulasan:</b> "${escapeHTML(data.ulasan)}"</div>`
+              : `<div style="font-size:12px; color:#94a3b8; margin-top:5px;">Belum ada ulasan</div>`;
+
           card.innerHTML = `
               <div class="order-header">
-                  <span class="kode-antrean" style="background:#64748b;">Kode: ${data.kodeAntrean}</span>
+                  <span class="kode-antrean" style="background:#64748b;">Kode: ${escapeHTML(data.kodeAntrean)}</span>
                   <span style="font-size: 12px; color: #94a3b8;">Selesai 🕒 ${formatWaktu}</span>
               </div>
               <div class="order-items">${htmlMenuRows}</div>
-              <div class="order-total" style="color:#64748b;">Lunas: Rp ${(data.totalBayar || 0).toLocaleString('id-ID')}</div>`;
+              <div class="order-total" style="color:#64748b;">Lunas: Rp ${(data.totalBayar || 0).toLocaleString('id-ID')}</div>
+              ${ratingHTML}
+              ${ulasanHTML}`;
           document.getElementById('list-selesai').appendChild(card);
       }
+  }
+
+  function renderDashboardUlasan() {
+      const wadahUlasan = document.getElementById('list-ulasan');
+      const totalUlasan = semuaDataUlasan.length;
+      const badgeUlasan = document.getElementById('notif-ulasan-badge');
+
+      if (totalUlasan > 0) {
+          badgeUlasan.innerText = totalUlasan;
+          badgeUlasan.style.display = "block";
+      } else {
+          badgeUlasan.style.display = "none";
+      }
+
+      document.getElementById('review-total').innerText = totalUlasan;
+
+      if (totalUlasan === 0) {
+          document.getElementById('review-average').innerText = "0.0";
+          document.getElementById('review-stars-big').innerText = "☆☆☆☆☆";
+          wadahUlasan.innerHTML = `<div class="empty-state">Belum ada rating dan ulasan dari customer.</div>`;
+          return;
+      }
+
+      let totalNilai = 0;
+      semuaDataUlasan.forEach(item => {
+          totalNilai += Number(item.data.rating || 0);
+      });
+
+      const rataRata = totalNilai / totalUlasan;
+      document.getElementById('review-average').innerText = rataRata.toFixed(1);
+      document.getElementById('review-stars-big').innerText = buatBintang(Math.round(rataRata));
+
+      let dataTampil = semuaDataUlasan;
+      if (filterRatingAktif !== "semua") {
+          dataTampil = semuaDataUlasan.filter(item => Number(item.data.rating) === Number(filterRatingAktif));
+      }
+
+      if (dataTampil.length === 0) {
+          wadahUlasan.innerHTML = `<div class="empty-state">Tidak ada ulasan dengan rating ${filterRatingAktif} bintang.</div>`;
+          return;
+      }
+
+      let html = "";
+      dataTampil.forEach(item => {
+          const data = item.data;
+          let formatWaktu = "...";
+          if (data.waktuLokal) {
+              formatWaktu = new Date(data.waktuLokal).toLocaleString('id-ID', {
+                  day: '2-digit',
+                  month: 'short',
+                  hour: '2-digit',
+                  minute: '2-digit'
+              });
+          }
+
+          let daftarMenuSingkat = "";
+          if (data.daftarMenu && Array.isArray(data.daftarMenu)) {
+              daftarMenuSingkat = data.daftarMenu.map(menu => `${escapeHTML(menu.nama)} x${menu.qty}`).join(", ");
+          }
+
+          html += `
+              <div class="review-card">
+                  <div class="review-header">
+                      <span class="kode-antrean" style="background:#f59e0b;">Kode: ${escapeHTML(data.kodeAntrean)}</span>
+                      <span class="review-time">${formatWaktu}</span>
+                  </div>
+                  <div class="review-rating-line">${buatBintang(data.rating)}</div>
+                  <div class="review-text">"${escapeHTML(data.ulasan)}"</div>
+                  <div class="review-menu"><b>Pesanan:</b> ${daftarMenuSingkat || "-"}</div>
+                  <div class="order-total" style="color:#64748b; margin-top:8px;">Total: Rp ${(data.totalBayar || 0).toLocaleString('id-ID')}</div>
+              </div>
+          `;
+      });
+
+      wadahUlasan.innerHTML = html;
+  }
+
+  window.filterUlasan = function(nilai, tombol) {
+      filterRatingAktif = nilai;
+      document.querySelectorAll('.review-filter-btn').forEach(btn => btn.classList.remove('active'));
+      tombol.classList.add('active');
+      renderDashboardUlasan();
+  }
+
+  function buatBintang(nilai) {
+      const rating = Number(nilai || 0);
+      return "★".repeat(rating) + "☆".repeat(5 - rating);
+  }
+
+  function escapeHTML(value) {
+      if (value === undefined || value === null) return "";
+      return String(value)
+          .replaceAll("&", "&amp;")
+          .replaceAll("<", "&lt;")
+          .replaceAll(">", "&gt;")
+          .replaceAll('"', "&quot;")
+          .replaceAll("'", "&#039;");
   }
 
   window.ubahStatusPesanan = async function(idDokumen, statusBaru) {
@@ -519,7 +797,6 @@
       } catch (e) { alert("Gagal memperbarui status."); }
   }
 
-  // FUNGSI AKSI TOMBOL TOLAK PEMBAYARAN
   window.tolakPesananCustomer = async function(idDokumen) {
       if (confirm("Apakah Anda yakin ingin menolak transaksi ini? Data pesanan customer akan otomatis dihapus.")) {
           try {
@@ -528,18 +805,15 @@
       }
   }
 
-  // MANAJEMEN SISTEM REALTIME CHAT ROOM
   window.bukaKamarObrolan = function(idDoc, kodeAntrean) {
       activeChatOrderId = idDoc;
-      
-      // Highlight badge terpilih di sidebar
+
       const semuaBadges = document.querySelectorAll('.chat-user-badge');
       semuaBadges.forEach(b => {
           b.classList.remove('active');
           if (b.innerText.includes(kodeAntrean)) b.classList.add('active');
       });
 
-      // Aktifkan area input formulir tulis pesan
       document.getElementById('chatMessageField').disabled = false;
       document.getElementById('btnKirimMsg').disabled = false;
       document.getElementById('chatMessageField').placeholder = `Kirim pesan ke Antrean ${kodeAntrean}...`;
@@ -547,10 +821,8 @@
       if (unregisterChatListener) unregisterChatListener();
 
       const areaHistori = document.getElementById('msg-history-area');
-      
-      // Mengikat real-time data sub-collection percakapan chat dari dokumen terkait
       const chatQuery = query(collection(db, "pesanan", idDoc, "percakapan"), orderBy("timestamp", "asc"));
-      
+
       unregisterChatListener = onSnapshot(chatQuery, (chatSnapshot) => {
           areaHistori.innerHTML = "";
           if (chatSnapshot.empty) {
@@ -564,7 +836,7 @@
               msgRow.innerText = msgData.teks;
               areaHistori.appendChild(msgRow);
           });
-          areaHistori.scrollTop = areaHistori.scrollHeight; // Auto-scroll ke paling bawah
+          areaHistori.scrollTop = areaHistori.scrollHeight;
       });
   }
 
@@ -574,7 +846,6 @@
       if (!teksPesan || !activeChatOrderId) return;
 
       try {
-          // Tambahkan pesan balasan kasir ke sub-collection di dalam dokumen pesanan tersebut
           await addDoc(collection(db, "pesanan", activeChatOrderId, "percakapan"), {
               pengirim: "kasir",
               teks: teksPesan,
@@ -594,6 +865,8 @@
       document.getElementById('chatMessageField').placeholder = "Silakan pilih nomor antrean customer di atas...";
       document.getElementById('msg-history-area').innerHTML = `<div style="color:#94a3b8; text-align:center; margin-top:100px; font-size:14px;">Silakan pilih nomor antrean customer di atas untuk memulai obrolan</div>`;
   }
+
+  window.resetSistemChatLayar = resetSistemChatLayar;
 </script>
 
 <script>
