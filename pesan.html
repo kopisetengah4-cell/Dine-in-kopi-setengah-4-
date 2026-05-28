@@ -10,9 +10,8 @@
         .header-fixed h2 { color: #0284c7; margin: 0 0 8px 0; font-size: 18px;}
         .info-bubble { background: #0ea5e9; color: white; padding: 8px; border-radius: 50px; font-weight: bold; display: inline-block; padding-left: 20px; padding-right: 20px; box-shadow: 0 4px 10px rgba(14, 165, 233, 0.2); font-size: 14px; }
         
-        /* Modifikasi pembungkus konten agar fleksibel dan tidak menabrak footer */
         .content-scrollable { flex: 1; overflow-y: auto; padding: 15px; -webkit-overflow-scrolling: touch; box-sizing: border-box; }
-        .body-padding-pesan { padding-bottom: 250px; } /* Khusus tab pesan agar tidak tertutup ringkasan belanja */
+        .body-padding-pesan { padding-bottom: 250px; } 
         
         .tab-content { display: none; height: 100%; }
         .tab-content.active { display: block; }
@@ -61,21 +60,21 @@
         .track-dot { width: 8px; height: 8px; background: #f59e0b; border-radius: 50%; display: inline-block; margin-right: 5px; animation: kedip 1s infinite; }
         @keyframes kedip { 0%, 100% { opacity: 0.3; } 50% { opacity: 1; } }
 
-        /* PERBAIKAN TINGGI PANEL CHAT LAYAR RESPONSIVE */
+        /* ARSITEKTUR PANEL CHAT FIXED HEIGHT */
         .full-chat-panel { background: white; display: flex; flex-direction: column; overflow: hidden; height: calc(100vh - 160px); margin-top: -15px; margin-left: -15px; margin-right: -15px; position: relative; }
         .chat-room-selector { display: flex; gap: 8px; padding: 12px; background: #f1f5f9; border-bottom: 1px solid #e2e8f0; overflow-x: auto; white-space: nowrap; min-height: 38px; flex-shrink: 0; }
         .chat-token-badge { background: #e2e8f0; color: #64748b; padding: 8px 16px; border-radius: 50px; font-size: 12px; font-weight: bold; cursor: pointer; }
         .chat-token-badge.active { background: #0ea5e9; color: white; }
         
+        /* Modifikasi border agar input form di bagian atas terlihat berwujud pembatas rapi */
+        .chat-footer-sender { display: flex; padding: 12px; background: #ffffff; border-bottom: 1px solid #e2e8f0; gap: 8px; box-sizing: border-box; flex-shrink: 0; }
+        .chat-input-field { flex: 1; padding: 12px 18px; border-radius: 50px; border: 1px solid #cbd5e1; outline: none; font-size: 13.5px; }
+        .chat-send-btn { background: #0ea5e9; color: white; border: none; padding: 0 22px; border-radius: 50px; font-weight: bold; font-size: 13.5px; cursor: pointer; }
+
         .chat-body-scroller { flex: 1; padding: 15px; overflow-y: auto; background: #f8fafc; display: flex; flex-direction: column; gap: 10px; box-sizing: border-box; scroll-behavior: smooth; }
         .chat-bubble { max-width: 78%; padding: 10px 14px; border-radius: 16px; font-size: 13.5px; line-height: 1.4; word-wrap: break-word; flex-shrink: 0; }
         .chat-bubble.me { background: #0ea5e9; color: white; align-self: flex-end; border-top-right-radius: 4px; box-shadow: 0 2px 5px rgba(14,165,233,0.2); }
         .chat-bubble.staff { background: white; color: #1e293b; align-self: flex-start; border: 1px solid #e2e8f0; border-top-left-radius: 4px; box-shadow: 0 2px 5px rgba(0,0,0,0.02); }
-        
-        /* Footer pengiriman dipastikan melayang pas di atas navigasi utama tanpa tertutup */
-        .chat-footer-sender { display: flex; padding: 12px; background: white; border-top: 1px solid #e2e8f0; gap: 8px; box-sizing: border-box; flex-shrink: 0; }
-        .chat-input-field { flex: 1; padding: 12px 18px; border-radius: 50px; border: 1px solid #cbd5e1; outline: none; font-size: 13.5px; }
-        .chat-send-btn { background: #0ea5e9; color: white; border: none; padding: 0 22px; border-radius: 50px; font-weight: bold; font-size: 13.5px; cursor: pointer; }
     </style>
 </head>
 <body>
@@ -100,12 +99,14 @@
     <div id="panel-chat" class="tab-content">
         <div class="full-chat-panel">
             <div class="chat-room-selector" id="chatRoomBar"></div>
-            <div class="chat-body-scroller" id="chatScrollerArea">
-                <div style="color:#94a3b8; font-size:13px; text-align:center; margin-top:150px;" id="chatNoticeLabel">Belum ada transaksi aktif untuk memulai chat.</div>
-            </div>
+            
             <div class="chat-footer-sender">
                 <input type="text" id="chatMessageInput" class="chat-input-field" placeholder="Pilih nomor antrean di atas..." disabled>
                 <button class="chat-send-btn" id="chatSendButton" disabled>Kirim</button>
+            </div>
+
+            <div class="chat-body-scroller" id="chatScrollerArea">
+                <div style="color:#94a3b8; font-size:13px; text-align:center; margin-top:150px;" id="chatNoticeLabel">Belum ada transaksi aktif untuk memulai chat.</div>
             </div>
         </div>
     </div>
@@ -150,7 +151,6 @@
 </div>
 
 <script type="module">
-  // PERBAIKAN IMPORT: Menambahkan query dan orderBy agar pembacaan chat dua arah aktif
   import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
   import { getFirestore, collection, addDoc, doc, onSnapshot, deleteDoc, query, orderBy } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
 
@@ -621,7 +621,7 @@
         } else if (tabId === 'chat') {
             orderMetaBox.style.display = "none";
             mainBox.classList.remove('body-padding-pesan');
-            mainBox.style.overflowY = "hidden"; // Kunci scroll agar layout chat kokoh
+            mainBox.style.overflowY = "hidden"; 
         } else { 
             orderMetaBox.style.display = "none"; 
             mainBox.classList.remove('body-padding-pesan');
