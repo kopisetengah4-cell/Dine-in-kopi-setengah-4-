@@ -253,7 +253,6 @@
           
           simpanIdKeDaftarSesiLokal(docRef.id);
           
-          // RE-FIX: Ikat tanda kode antrean lokal agar popup bisa melacak statusnya secara akurat
           localStorage.setItem('id_popup_menunggu_bayar', docRef.id);
           document.getElementById('currentPopupDocId').value = docRef.id;
           
@@ -309,20 +308,11 @@
                   if(indeks !== -1) listPesananAktifArray[indeks].data = data;
                   else listPesananAktifArray.push({ id: documentId, data: data });
 
-                  renderUIRiwayatKartuStatus();
-                  perbaruiSidebarKamarChat();
-                  
-                  // PERBAIKAN STRUKTUR PRIORITAS: Jendela QRIS dipaksa langsung tutup duluan tanpa jeda
+                  // 1. OTOMATIS NUTUP POP-UP QRIS JIKA KASIR KLIK TERIMA (STATUS DIPROSES)
                   if (data.status === "Diproses") {
-                      const idPopupAktif = localStorage.getItem('id_popup_menunggu_bayar') || document.getElementById('currentPopupDocId').value;
-                      if (idPopupAktif === documentId) {
-                          document.getElementById('layarPopup').style.display = 'none';
-                          localStorage.removeItem('id_popup_menunggu_bayar');
-                          document.getElementById('currentPopupDocId').value = "";
-                      }
+                      document.getElementById('layarPopup').style.display = 'none';
+                      localStorage.removeItem('id_popup_menunggu_bayar');
                       
-                      window.gantiDashboard('status');
-
                       const currentActiveCode = localStorage.getItem('kode_antrean_aktif_saat_ini');
                       if (currentActiveCode === data.kodeAntrean) {
                           const kodeBaruLagi = buatKodeAcak();
@@ -337,10 +327,13 @@
                       }
                   }
 
+                  // 2. OTOMATIS HILANGKAN FLOATING NOTIF BAR BAWAH JIKA KASIR KLIK SELESAI
                   if (data.status === "Selesai") {
+                      document.getElementById('trackerLive').style.display = "none";
+
                       let limitWaktuSelesai = localStorage.getItem(`timer_clear_${documentId}`);
                       if (!limitWaktuSelesai) {
-                          limitWaktuSelesai = Date.now() + (5 * 60 * 1000);
+                          limitWaktuSelesai = Date.now() + (5 * 60 * 1000); // Tampil di Tab Status 5 Menit
                           localStorage.setItem(`timer_clear_${documentId}`, limitWaktuSelesai);
                       }
 
@@ -360,8 +353,10 @@
                       }
                   }
 
+                  renderUIRiwayatKartuStatus();
+                  perbaruiSidebarKamarChat();
+
               } else {
-                  // Re-fix penanganan pembatalan aman
                   if(localStorage.getItem('id_popup_menunggu_bayar') === documentId) {
                       document.getElementById('layarPopup').style.display = 'none';
                       localStorage.removeItem('id_popup_menunggu_bayar');
@@ -402,14 +397,15 @@
           `;
           wadahListHTML.appendChild(itemCard);
 
-          if(index === 0) {
+          // Tampilkan floating tracker bawah HANYA JIKA status pesanan belum 'Selesai'
+          if(index === 0 && data.status !== "Selesai") {
               const trkBar = document.getElementById('trackerLive');
               trkBar.style.display = "flex";
               document.getElementById('trackerKode').innerText = `KODE: ${data.kodeAntrean}`;
               document.getElementById('trackerTxt').innerText = (data.status === 'Diproses' ? 'Sedang Dibuat' : data.status) + "...";
               if(data.status === "Menunggu Pembayaran") document.getElementById('trackerDot').style.backgroundColor = "#f59e0b";
               else if(data.status === "Diproses") document.getElementById('trackerDot').style.backgroundColor = "#0ea5e9";
-              else if(data.status === "Siap Diambil" || data.status === "Selesai") document.getElementById('trackerDot').style.backgroundColor = "#10b981";
+              else if(data.status === "Siap Diambil") document.getElementById('trackerDot').style.backgroundColor = "#10b981";
           }
       });
   }
