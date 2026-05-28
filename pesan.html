@@ -60,13 +60,12 @@
         .track-dot { width: 8px; height: 8px; background: #f59e0b; border-radius: 50%; display: inline-block; margin-right: 5px; animation: kedip 1s infinite; }
         @keyframes kedip { 0%, 100% { opacity: 0.3; } 50% { opacity: 1; } }
 
-        /* ARSITEKTUR PANEL CHAT FIXED HEIGHT */
+        /* ARSITEKTUR PANEL CHAT FULLSCREEN */
         .full-chat-panel { background: white; display: flex; flex-direction: column; overflow: hidden; height: calc(100vh - 160px); margin-top: -15px; margin-left: -15px; margin-right: -15px; position: relative; }
         .chat-room-selector { display: flex; gap: 8px; padding: 12px; background: #f1f5f9; border-bottom: 1px solid #e2e8f0; overflow-x: auto; white-space: nowrap; min-height: 38px; flex-shrink: 0; }
         .chat-token-badge { background: #e2e8f0; color: #64748b; padding: 8px 16px; border-radius: 50px; font-size: 12px; font-weight: bold; cursor: pointer; }
         .chat-token-badge.active { background: #0ea5e9; color: white; }
         
-        /* Modifikasi border agar input form di bagian atas terlihat berwujud pembatas rapi */
         .chat-footer-sender { display: flex; padding: 12px; background: #ffffff; border-bottom: 1px solid #e2e8f0; gap: 8px; box-sizing: border-box; flex-shrink: 0; }
         .chat-input-field { flex: 1; padding: 12px 18px; border-radius: 50px; border: 1px solid #cbd5e1; outline: none; font-size: 13.5px; }
         .chat-send-btn { background: #0ea5e9; color: white; border: none; padding: 0 22px; border-radius: 50px; font-weight: bold; font-size: 13.5px; cursor: pointer; }
@@ -151,6 +150,7 @@
 </div>
 
 <script type="module">
+  // PERBAIKAN FATAL: Memasukkan kembali query, orderBy agar logika pembacaan data tersambung sempurna!
   import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
   import { getFirestore, collection, addDoc, doc, onSnapshot, deleteDoc, query, orderBy } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
 
@@ -470,12 +470,13 @@
       document.getElementById('chatSendButton').disabled = false;
       document.getElementById('chatNoticeLabel').style.display = "none";
 
+      // PANGGILAN DATABASE UTAMA: Logika query & orderBy berjalan normal melacak riwayat obrolan
       const chatQuery = query(collection(db, "pesanan", idDoc, "percakapan"), orderBy("timestamp", "asc"));
       
       unregisterChatMessages = onSnapshot(chatQuery, (snapshot) => {
           scroller.innerHTML = "";
           if(snapshot.empty) {
-              scroller.innerHTML = `<div style="color:#94a3b8; font-size:12px; text-align:center; margin-top:100px;">Ketik balasan Anda ke kasir di bawah ini.</div>`;
+              scroller.innerHTML = `<div style="color:#94a3b8; font-size:12px; text-align:center; margin-top:100px;">Ketik pesan Anda ke kasir di atas.</div>`;
               return;
           }
           snapshot.forEach(msgDoc => {
@@ -486,6 +487,7 @@
               scroller.appendChild(bbl);
           });
           
+          // AUTO SCROLL: Meluncur ke bagian bawah riwayat chat secara otomatis
           setTimeout(() => {
               scroller.scrollTop = scroller.scrollHeight;
           }, 50);
@@ -597,7 +599,7 @@
     { kategori: "1 Liter", nama: "Botol 1L Belgian Coklat", harga: 100000 },
     { kategori: "Additional Topping", nama: "Upsize Gelas", harga: 5000 },
     { kategori: "Additional Topping", nama: "Extra Cream", harga: 5000 },
-    { kategori: "Additional Topping", nama: "Extra Shot", harga: 5000 },
+    { kategori: "Additional Topping", stroke: 1, nama: "Extra Shot", harga: 5000 },
     { kategori: "Additional Topping", nama: "Extra Jelly", harga: 5000 }
   ];
 
