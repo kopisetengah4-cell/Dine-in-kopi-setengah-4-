@@ -352,6 +352,8 @@
   let semuaPesananSelesai = [];
   let filterRatingAktif = "semua";
   let chatNotifCount = 0;
+  let chatNotifListenerMap = {};
+  let chatListenerInitializedMap = {};
 
   function formatTanggalInput(timestamp) {
       const d = new Date(timestamp);
@@ -385,6 +387,46 @@
           badge.style.display = "none";
       }
   }
+
+  function pasangListenerNotifChat(idDoc) {
+      if (chatNotifListenerMap[idDoc]) return;
+
+      const chatQuery = query(collection(db, "pesanan", idDoc, "percakapan"), orderBy("timestamp", "asc"));
+
+      chatNotifListenerMap[idDoc] = onSnapshot(chatQuery, (chatSnapshot) => {
+          if (!chatListenerInitializedMap[idDoc]) {
+              chatListenerInitializedMap[idDoc] = true;
+              return;
+          }
+
+          chatSnapshot.docChanges().forEach(change => {
+              if (change.type !== "added") return;
+
+              const msgData = change.doc.data();
+
+              if (msgData.pengirim === "customer") {
+                  const tabChatSedangDibuka = document.getElementById('tab-chat').classList.contains('active');
+                  const sedangRoomYangSama = activeChatOrderId === idDoc;
+
+                  if (!tabChatSedangDibuka || !sedangRoomYangSama) {
+                      chatNotifCount++;
+                      updateChatBadge();
+                  }
+              }
+          });
+      });
+  }
+
+  function bersihkanListenerNotifChat(listIdAktif) {
+      Object.keys(chatNotifListenerMap).forEach(id => {
+          if (!listIdAktif.includes(id)) {
+              chatNotifListenerMap[id]();
+              delete chatNotifListenerMap[id];
+              delete chatListenerInitializedMap[id];
+          }
+      });
+  }
+
 
   function escapeHTML(value) {
       if (value === undefined || value === null) return "";
@@ -429,6 +471,7 @@
           if (data.status !== "Selesai") {
               const kelasAktif = idDoc === activeChatOrderId ? "active" : "";
               htmlSidebar += `<div class="chat-user-badge ${kelasAktif}" onclick="bukaKamarObrolan('${idDoc}', '${escapeHTML(data.kodeAntrean)}')">Kode: ${escapeHTML(data.kodeAntrean)}</div>`;
+              pasangListenerNotifChat(idDoc);
           }
 
           renderKartuKeHTML(idDoc, data);
@@ -444,6 +487,7 @@
           badgeBaru.style.display = "none";
       }
 
+      bersihkanListenerNotifChat(snapshot.docs.map(d => d.id));
       renderDashboardUlasan();
       renderDashboardSelesaiBerdasarkanTanggal();
       tampilkanEmptyJikaKosong();
@@ -615,12 +659,33 @@
       wadahUlasan.innerHTML = html;
   }
 
-  window.resetTampilanUlasan = function() {
-      filterRatingAktif = "semua";
-      document.querySelectorAll('.review-filter-btn').forEach(btn => btn.classList.remove('active'));
-      const tombolSemua = document.querySelector('.review-filter-btn');
-      if (tombolSemua) tombolSemua.classList.add('active');
-      renderDashboardUlasan();
+  window.resetTampilanUlasan = async function() {
+      if (!confirm("Hapus seluruh ulasan customer?")) return;
+
+      try {
+          const semuaCard = semuaDataUlasan;
+
+          for (const item of semuaCard) {
+              const ref = doc(db, "pesanan", item.id);
+
+              await updateDoc(ref, {
+                  rating: 0,
+                  ulasan: "",
+                  waktuUlasan: null
+              });
+          }
+
+          filterRatingAktif = "semua";
+          document.querySelectorAll('.review-filter-btn').forEach(btn => btn.classList.remove('active'));
+          const tombolSemua = document.querySelector('.review-filter-btn');
+          if (tombolSemua) tombolSemua.classList.add('active');
+
+          alert("Semua ulasan berhasil dihapus.");
+
+      } catch (e) {
+          alert("Gagal menghapus ulasan.");
+          console.log(e);
+      }
   }
 
   window.filterUlasan = function(nilai, tombol) {
@@ -678,15 +743,7 @@
               areaHistori.innerHTML = `<div style="color:#94a3b8; text-align:center; margin-top:5px; font-size:12px;">Belum ada riwayat pesan. Silakan ketik di bawah untuk memulai chat.</div>`;
               return;
           }
-          chatSnapshot.docChanges().forEach(change => {
-              if (change.type === "added") {
-                  const msgData = change.doc.data();
-                  if (msgData.pengirim === "customer" && document.getElementById('tab-chat').classList.contains('active') === false) {
-                      chatNotifCount++;
-                      updateChatBadge();
-                  }
-              }
-          });
+
           chatSnapshot.forEach(msgDoc => {
               const msgData = msgDoc.data();
               const msgRow = document.createElement('div');
