@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Sistem Kasir - Kopi Setengah Empat</title>
     <style>
-        /* KEMBALI KE TAMPILAN GELAP SEMULA */
+        /* KEMBALI KE TAMPILAN GELAP ASLI ANDA */
         body {
             font-family: Arial, sans-serif;
             background-color: #202124;
@@ -39,12 +39,12 @@
             font-size: 18px;
         }
         
-        /* Warna Header Kolom Sesuai Kode Asli Anda */
+        /* Pewarnaan Header Kolom Sesuai Kode Semula */
         .column:nth-child(1) h2 { color: #f2a900; } /* Pesanan Baru */
         .column:nth-child(2) h2 { color: #3498db; } /* Proses Masak */
         .column:nth-child(3) h2 { color: #2ecc71; } /* Pesanan Selesai */
 
-        /* Gaya Kartu Pesanan Sesuai Kode Asli Anda */
+        /* Gaya Kartu Pesanan Sesuai Kode Semula */
         .order-card {
             background-color: #3a3a3a;
             border-radius: 6px;
@@ -150,18 +150,18 @@
 
     const q = query(collection(db, "pesanan"), orderBy("waktuLokal", "asc"));
     
-    // SISTEM PENGHAPUSAN REAL-TIME DENGAN DOC CHANGES
+    // DETEKSI REAL-TIME DENGAN METODE DOC CHANGES
     onSnapshot(q, (snapshot) => {
         snapshot.docChanges().forEach((change) => {
             const idDokumen = change.doc.id;
             const data = change.doc.data();
 
-            // 1. KETIKA PESANAN BARU MASUK
+            // 1. DATA BARU MASUK
             if (change.type === "added") {
                 renderCardPesananLama(idDokumen, data);
             } 
             
-            // 2. KETIKA KASIR KLIK TOMBOL PROSES (PINDAH KOLOM)
+            // 2. DATA DIUBAH STATUS OLEH KASIR (PINDAH KOLOM)
             else if (change.type === "modified") {
                 const elemenLama = document.getElementById(`kotak_pesanan_${idDokumen}`);
                 if (elemenLama) elemenLama.remove();
@@ -169,17 +169,17 @@
                 renderCardPesananLama(idDokumen, data);
             } 
             
-            // 3. FITUR TOTAL SINKRONISASI: OTOMATIS HILANG JIKA DI-CANCEL DARI WEBSITE 1
+            // 3. FITUR SINKRONISASI: JIKA DI-CANCEL WEB 1, KASIR OTOMATIS MENGHAPUSNYA DARI LAYAR
             else if (change.type === "removed") {
                 const elemenKotak = document.getElementById(`kotak_pesanan_${idDokumen}`);
                 if (elemenKotak) {
-                    elemenKotak.remove(); // Pesanan langsung lenyap dari layar monitor kasir seketika!
+                    elemenKotak.remove(); // Pesanan langsung hilang dari dashboard kasir seketika!
                 }
             }
         });
     });
 
-    // RENDER KARTU PESANAN DENGAN STYLE ASLI SEMULA
+    // FUNGSI MEMBUAT KARTU DENGAN TAMPILAN ASLI SEMULA
     function renderCardPesananLama(id, data) {
         if (document.getElementById(`kotak_pesanan_${id}`)) return;
 
@@ -196,7 +196,7 @@
 
         const card = document.createElement('div');
         card.className = "order-card";
-        card.id = `kotak_pesanan_${id}`; // ID Penanda wajib fitur pembatalan otomatis
+        card.id = `kotak_pesanan_${id}`; // ID penanda wajib agar sinkronisasi pembatalan bekerja
 
         card.innerHTML = `
             <div class="order-header">
@@ -211,7 +211,7 @@
             </div>
         `;
 
-        // MASUKKAN DATA KE CONTAINER KOLOM MASING-MASING
+        // DISTRIBUSI KE CONTAINER KOLOM ASLI ANDA
         if (data.status === "Menunggu Pembayaran") {
             document.getElementById('pesanan-baru-container').appendChild(card);
         } else if (data.status === "Dibayar") {
@@ -221,7 +221,7 @@
         }
     }
 
-    // SUSUNAN TOMBOL AKSI ASLI SEMULA
+    // STRUKTUR TOMBOL DAN WARNA ASLI SEMULA
     function buatTombolAksiLama(id, status) {
         if (status === "Menunggu Pembayaran") {
             return `<button class="btn-action btn-blue" onclick="ubahStatusKasir('${id}', 'Dibayar')">Konfirmasi Pembayaran</button>`;
