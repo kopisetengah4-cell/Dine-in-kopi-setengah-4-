@@ -60,7 +60,7 @@
         .track-dot { width: 8px; height: 8px; background: #f59e0b; border-radius: 50%; display: inline-block; margin-right: 5px; animation: kedip 1s infinite; }
         @keyframes kedip { 0%, 100% { opacity: 0.3; } 50% { opacity: 1; } }
 
-        /* TAMPILAN CONTAINER CHAT SAMA SEPERTI WEBSITE KASIR */
+        /* CHAT STYLE */
         .chat-container { display: flex; flex-direction: column; background: white; border-radius: 20px; border: 1px solid #e2e8f0; height: 68vh; overflow: hidden; margin-top: -5px; }
         .chat-sidebar { background: #f8fafc; border-bottom: 1px solid #e2e8f0; padding: 10px; display: flex; gap: 8px; overflow-x: auto; white-space: nowrap; flex-shrink: 0; min-height: 38px; }
         .chat-user-badge { background: #e2e8f0; color: #475569; padding: 8px 16px; border-radius: 50px; font-size: 13px; font-weight: bold; cursor: pointer; display: inline-block; }
@@ -69,13 +69,19 @@
         .chat-history-box { flex: 1; padding: 15px; overflow-y: auto; background: #f8fafc; display: flex; flex-direction: column; gap: 10px; box-sizing: border-box; scroll-behavior: smooth; }
         .bubble-msg { max-width: 75%; padding: 10px 14px; border-radius: 16px; font-size: 13.5px; line-height: 1.4; word-wrap: break-word; flex-shrink: 0; }
         
-        /* WARNA DISAMAKAN: Customer me (Kanan - Biru), Kasir staff (Kiri - Putih) */
         .bubble-customer { background: #0ea5e9; color: white; align-self: flex-end; border-top-right-radius: 4px; box-shadow: 0 2px 5px rgba(14,165,233,0.2); }
         .bubble-kasir { background: white; color: #1e293b; align-self: flex-start; border: 1px solid #e2e8f0; border-top-left-radius: 4px; box-shadow: 0 2px 5px rgba(0,0,0,0.02); }
         
         .chat-form-input { display: flex; padding: 10px; background: white; border-top: 1px solid #e2e8f0; gap: 8px; flex-shrink: 0; }
         .input-chat-txt { flex: 1; padding: 12px 18px; border-radius: 50px; border: 1px solid #cbd5e1; outline: none; font-size: 13.5px; }
         .btn-send-chat { background: #0ea5e9; color: white; border: none; padding: 0 20px; border-radius: 50px; font-weight: bold; font-size: 13.5px; cursor: pointer; }
+
+        /* STYLE RATING BINTANG */
+        .star-rating-area { margin: 15px 0 10px 0; display: flex; justify-content: center; gap: 8px; }
+        .star-btn { font-size: 32px; cursor: pointer; color: #cbd5e1; background: none; border: none; transition: color 0.2s; padding: 0; }
+        .star-btn.warna-kuning { color: #f59e0b; }
+        .textarea-ulasan { width: 100%; border-radius: 12px; border: 1px solid #cbd5e1; padding: 10px; font-size: 13px; font-family: inherit; resize: none; box-sizing: border-box; outline: none; background: #f8fafc; margin-top: 5px; }
+        .btn-kirim-ulasan { background: #10b981; color: white; border: none; padding: 8px 20px; border-radius: 50px; font-size: 13px; font-weight: bold; margin-top: 10px; cursor: pointer; width: 100%; box-shadow: 0 3px 8px rgba(16,185,129,0.2); }
     </style>
 </head>
 <body>
@@ -135,17 +141,11 @@
     <div class="popup-content">
         <div style="font-weight: bold; color: #0284c7; margin-bottom: 5px;">KOPI SETENGAH EMPAT</div>
         <div style="font-size: 11px; color: #64748b; margin-bottom: 5px;">Silakan Scan QRIS Di Bawah Ini</div>
-        
-        <div class="qris-img-container">
-            <img src="qris.jpg" class="qris-img-file" alt="QRIS Kopi Setengah Empat">
-        </div>
-        
+        <div class="qris-img-container"><img src="qris.jpg" class="qris-img-file" alt="QRIS"></div>
         <div style="font-size: 13px; color: #64748b; margin-top: 10px;">Total Tagihan:</div>
         <div style="font-size: 22px; font-weight: bold; color: #10b981; margin-bottom: 5px;">Rp <span id="popTotalHarga">0</span></div>
         <div class="status-badge status-waiting" id="txtStatusBayar">Menunggu pembayaran diterima</div>
-        
         <input type="hidden" id="currentPopupDocId" value="">
-        
         <button class="btn-action-popup btn-cancel" id="btnBatalPopup" onclick="batalDanEditPesanan()">Batal / Ubah Pesanan</button>
         <button class="btn-action-popup btn-success" id="btnTutupPopup" onclick="tutupLayarPopup()">Pantau Pesanan</button>
     </div>
@@ -153,7 +153,7 @@
 
 <script type="module">
   import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
-  import { getFirestore, collection, addDoc, doc, onSnapshot, deleteDoc, query, orderBy } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+  import { getFirestore, collection, addDoc, doc, updateDoc, onSnapshot, deleteDoc, query, orderBy } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
 
   const firebaseConfig = {
     apiKey: "AIzaSyA-w5zgpdjze0gaqVINUbM9KECN0gujqSc",
@@ -171,7 +171,6 @@
   let kodePesananAktif = "";
   let keranjangPesanan = {};
   let totalHargaGlobal = 0;
-  
   let listPesananAktifArray = [];
   let activeChatOrderId = "";
   let mapListenerStatus = {};
@@ -184,13 +183,10 @@
       const savedCart = localStorage.getItem('local_keranjang_customer');
       if(savedCart) { keranjangPesanan = JSON.parse(savedCart); }
 
-      let kategoriSekarang = ""; 
-      let gridElement = null;
-
+      let kategoriSekarang = ""; let gridElement = null;
       databaseMenu.forEach((menu, index) => {
           const idMenu = `menu_${index}`;
           if(!keranjangPesanan[idMenu]) { keranjangPesanan[idMenu] = { nama: menu.nama, harga: menu.harga, qty: 0 }; }
-          
           if (menu.kategori !== kategoriSekarang) {
               kategoriSekarang = menu.kategori;
               const sec = document.createElement('div'); sec.className = "category-section";
@@ -228,7 +224,6 @@
           const item = keranjangPesanan[id]; 
           const elementQty = document.getElementById(`qty_${id}`);
           if (elementQty) elementQty.innerText = item.qty;
-          
           if (item.qty > 0) {
               adaItem = true; totalQty += item.qty; totalHarga += (item.qty * item.harga);
               const row = document.createElement('div'); row.className = "rincian-item";
@@ -263,14 +258,13 @@
           simpanIdKeDaftarSesiLokal(docRef.id);
           localStorage.setItem('id_popup_menunggu_bayar', docRef.id);
           document.getElementById('currentPopupDocId').value = docRef.id;
-          
           document.getElementById('popTotalHarga').innerText = totalHargaGlobal.toLocaleString('id-ID');
           document.getElementById('layarPopup').style.display = 'flex';
           document.getElementById('btnBatalPopup').style.display = 'block';
           document.getElementById('btnTutupPopup').style.display = 'none';
 
           mulaiPemantauanMultiOrder();
-      } catch (e) { alert("Gagal memproses pembayaran. Periksa jaringan Anda."); }
+      } catch (e) { alert("Gagal memproses pembayaran."); }
   }
 
   function simpanIdKeDaftarSesiLokal(id) {
@@ -299,9 +293,8 @@
       mapListenerStatus = {};
       listPesananAktifArray = [];
 
-      const wadahListHTML = document.getElementById('status-list-container');
       if(arraySesi.length === 0) {
-          wadahListHTML.innerHTML = `<div class="status-card-full" id="boxStatusKosong"><p style="color: #64748b; font-size: 14px;">Belum ada riwayat pesanan aktif.</p></div>`;
+          document.getElementById('status-list-container').innerHTML = `<div class="status-card-full" id="boxStatusKosong"><p style="color: #64748b; font-size: 14px;">Belum ada riwayat pesanan aktif.</p></div>`;
           document.getElementById('trackerLive').style.display = "none";
           perbaruiSidebarKamarChat();
           return;
@@ -311,7 +304,6 @@
           mapListenerStatus[documentId] = onSnapshot(doc(db, "pesanan", documentId), (snapshot) => {
               if (snapshot.exists()) {
                   const data = snapshot.data();
-                  
                   const indeks = listPesananAktifArray.findIndex(item => item.id === documentId);
                   if(indeks !== -1) listPesananAktifArray[indeks].data = data;
                   else listPesananAktifArray.push({ id: documentId, data: data });
@@ -319,7 +311,6 @@
                   if (data.status === "Diproses") {
                       document.getElementById('layarPopup').style.display = 'none';
                       localStorage.removeItem('id_popup_menunggu_bayar');
-                      
                       window.gantiDashboard('status');
 
                       const currentActiveCode = localStorage.getItem('kode_antrean_aktif_saat_ini');
@@ -328,7 +319,6 @@
                           kodePesananAktif = kodeBaruLagi;
                           localStorage.setItem('kode_antrean_aktif_saat_ini', kodeBaruLagi);
                           document.getElementById('kodePesananTampil').innerText = kodeBaruLagi;
-                          
                           keranjangPesanan = {};
                           localStorage.removeItem('local_keranjang_customer');
                           document.getElementById('catatanPesanan').value = "";
@@ -336,39 +326,26 @@
                       }
                   }
 
+                  // 5 Menit Nota Hilang dari Status
                   if (data.status === "Selesai") {
                       document.getElementById('trackerLive').style.display = "none";
-
                       let limitWaktuSelesai = localStorage.getItem(`timer_clear_${documentId}`);
                       if (!limitWaktuSelesai) {
                           limitWaktuSelesai = Date.now() + (5 * 60 * 1000);
                           localStorage.setItem(`timer_clear_${documentId}`, limitWaktuSelesai);
                       }
-
-                      const sisaMilidetik = limitWaktuSelesai - Date.now();
-                      if (sisaMilidetik <= 0) {
+                      if (Date.now() >= limitWaktuSelesai) {
                           hapusIdDariSesiLokal(documentId);
                           localStorage.removeItem(`timer_clear_${documentId}`);
                           if(mapListenerStatus[documentId]) mapListenerStatus[documentId]();
                           mulaiPemantauanMultiOrder();
-                      } else {
-                          setTimeout(() => {
-                              hapusIdDariSesiLokal(documentId);
-                              localStorage.removeItem(`timer_clear_${documentId}`);
-                              if(mapListenerStatus[documentId]) mapListenerStatus[documentId]();
-                              mulaiPemantauanMultiOrder();
-                          }, sisaMilidetik);
+                          return;
                       }
                   }
 
                   renderUIRiwayatKartuStatus();
                   perbaruiSidebarKamarChat();
-
               } else {
-                  if(localStorage.getItem('id_popup_menunggu_bayar') === documentId) {
-                      document.getElementById('layarPopup').style.display = 'none';
-                      localStorage.removeItem('id_popup_menunggu_bayar');
-                  }
                   hapusIdDariSesiLokal(documentId);
                   localStorage.removeItem(`timer_clear_${documentId}`);
                   if(mapListenerStatus[documentId]) mapListenerStatus[documentId]();
@@ -381,94 +358,139 @@
   function renderUIRiwayatKartuStatus() {
       const wadahListHTML = document.getElementById('status-list-container');
       wadahListHTML.innerHTML = "";
-
       listPesananAktifArray.sort((a,b) => b.data.waktuLokal - a.data.waktuLokal);
 
       listPesananAktifArray.forEach((item, index) => {
-          const idDoc = item.id;
-          const data = item.data;
-          
-          let klsWarna = "bg-waiting";
-          let descTeks = "Mohon selesaikan pembayaran QRIS Anda.";
-          if(data.status === "Diproses") { klsWarna = "bg-dibayar"; descTeks = "Pembayaran sah! Barista sedang meracik menu."; }
-          else if(data.status === "Siap Diambil") { klsWarna = "bg-ready"; descTeks = "Pesanan selesai! Silakan ambil di meja bar."; }
-          else if(data.status === "Selesai") { klsWarna = "bg-ready"; descTeks = "Selesai! Terima kasih sudah mampir. (Nota hilang otomatis dalam 5 mnt)"; }
-
+          const idDoc = item.id; const data = item.data;
           const itemCard = document.createElement('div');
           itemCard.className = "status-card-full";
-          itemCard.innerHTML = `
-              <button class="btn-chat-shortcut" onclick="bukaChatRoomSpesifik('${idDoc}')">💬</button>
-              <h3 style="margin:0; color:#1e293b;">Status Transaksi</h3>
-              <div class="status-main-badge ${klsWarna}">${data.status === 'Diproses' ? 'Sedang Dibuat' : data.status}</div>
-              <div style="font-size: 24px; font-weight: bold; color: #0ea5e9; margin-bottom: 5px;">KODE: ${data.kodeAntrean}</div>
-              <p style="font-size: 13px; color: #64748b; margin: 0;">${descTeks}</p>
-          `;
-          wadahListHTML.appendChild(itemCard);
 
-          if(index === 0 && data.status !== "Selesai") {
-              const trkBar = document.getElementById('trackerLive');
-              trkBar.style.display = "flex";
-              document.getElementById('trackerKode').innerText = `KODE: ${data.kodeAntrean}`;
-              document.getElementById('trackerTxt').innerText = (data.status === 'Diproses' ? 'Sedang Dibuat' : data.status) + "...";
-              if(data.status === "Menunggu Pembayaran") document.getElementById('trackerDot').style.backgroundColor = "#f59e0b";
-              else if(data.status === "Diproses") document.getElementById('trackerDot').style.backgroundColor = "#0ea5e9";
-              else if(data.status === "Siap Diambil") document.getElementById('trackerDot').style.backgroundColor = "#10b981";
+          // JIKA STATUS SELESAI -> BERUBAH JADI INPUT RATING & ULASAN
+          if (data.status === "Selesai") {
+              const ratingSelesai = data.rating || 0;
+              const ulasanSelesai = data.ulasan || "";
+              
+              let htmlBintang = "";
+              for(let i=1; i<=5; i++) {
+                  const klsKuning = i <= ratingSelesai ? "warna-kuning" : "";
+                  htmlBintang += `<button class="star-btn ${klsKuning}" ${ratingSelesai > 0 ? 'disabled' : `onclick="window.pilihBintang('${idDoc}', ${i})"`}>★</button>`;
+              }
+
+              itemCard.innerHTML = `
+                  <h3 style="margin:0; color:#10b981;">Pesanan Selesai</h3>
+                  <div style="font-size: 16px; font-weight: bold; color: #64748b; margin-top:5px;">KODE: ${data.kodeAntrean}</div>
+                  <p style="font-size:12px; color:#64748b; margin:5px 0;">Bagaimana rasa kopi & pelayanan kami?</p>
+                  <div class="star-rating-area">${htmlBintang}</div>
+                  ${ratingSelesai > 0 && ulasanSelesai ? `
+                      <p style="font-size:13px; color:#1e293b; background:#f1f5f9; padding:8px; border-radius:8px; margin:5px 0;">"${ulasanSelesai}"</p>
+                  ` : `
+                      <textarea id="txtUlasan_${idDoc}" class="textarea-ulasan" placeholder="Berikan ulasan/masukan Anda..."></textarea>
+                      <button class="btn-kirim-ulasan" onclick="window.kirimUlasanKeFirebase('${idDoc}')">Kirim Ulasan</button>
+                  `}
+              `;
+          } else {
+              // JIKA BELUM SELESAI -> TAMPILAN JALAN NORMAL
+              let klsWarna = "bg-waiting"; let descTeks = "Mohon selesaikan pembayaran QRIS Anda.";
+              if(data.status === "Diproses") { klsWarna = "bg-dibayar"; descTeks = "Pembayaran sah! Barista sedang meracik menu."; }
+              else if(data.status === "Siap Diambil") { klsWarna = "bg-ready"; descTeks = "Pesanan selesai! Silakan ambil di meja bar."; }
+
+              itemCard.innerHTML = `
+                  <button class="btn-chat-shortcut" onclick="bukaChatRoomSpesifik('${idDoc}')">💬</button>
+                  <h3 style="margin:0; color:#1e293b;">Status Transaksi</h3>
+                  <div class="status-main-badge ${klsWarna}">${data.status === 'Diproses' ? 'Sedang Dibuat' : data.status}</div>
+                  <div style="font-size: 24px; font-weight: bold; color: #0ea5e9; margin-bottom: 5px;">KODE: ${data.kodeAntrean}</div>
+                  <p style="font-size: 13px; color: #64748b; margin: 0;">${descTeks}</p>
+              `;
+              
+              if(index === 0) {
+                  const trkBar = document.getElementById('trackerLive'); trkBar.style.display = "flex";
+                  document.getElementById('trackerKode').innerText = `KODE: ${data.kodeAntrean}`;
+                  document.getElementById('trackerTxt').innerText = (data.status === 'Diproses' ? 'Sedang Dibuat' : data.status) + "...";
+                  if(data.status === "Menunggu Pembayaran") document.getElementById('trackerDot').style.backgroundColor = "#f59e0b";
+                  else if(data.status === "Diproses") document.getElementById('trackerDot').style.backgroundColor = "#0ea5e9";
+                  else if(data.status === "Siap Diambil") document.getElementById('trackerDot').style.backgroundColor = "#10b981";
+              }
           }
+          wadahListHTML.appendChild(itemCard);
       });
   }
 
-  window.bukaChatRoomSpesifik = function(idDoc) {
-      activeChatOrderId = idDoc;
-      window.gantiDashboard('chat');
-      perbaruiSidebarKamarChat(); 
+  // LOGIKA AKSI KLIK BINTANG (CLIENT INTERACTIVE)
+  window.pilihBintang = function(idDoc, nilaiBintang) {
+      const kartu = document.getElementById(`txtUlasan_${idDoc}`).parentElement;
+      const tombolBintang = kartu.querySelectorAll('.star-btn');
+      tombolBintang.forEach((btn, idx) => {
+          if (idx < nilaiBintang) { btn.classList.add('warna-kuning'); } 
+          else { btn.classList.remove('warna-kuning'); }
+      });
+      kartu.setAttribute('data-rating-temp', nilaiBintang);
   }
 
-  // FUNGSI SINKRONISASI TOTAL: Disamakan persis dengan sistem render Website 2 Kasir
+  // KIRIM RATING & MASUKAN KE FIREBASE
+  window.kirimUlasanKeFirebase = async function(idDoc) {
+      const kartu = document.getElementById(`txtUlasan_${idDoc}`).parentElement;
+      const nilaiRating = kartu.getAttribute('data-rating-temp') || "0";
+      const teksUlasan = document.getElementById(`txtUlasan_${idDoc}`).value.trim();
+
+      if(nilaiRating === "0") { alert("Silakan klik salah satu bintang terlebih dahulu!"); return; }
+      if(!teksUlasan) { alert("Kolom masukan tidak boleh kosong!"); return; }
+
+      try {
+          await updateDoc(doc(db, "pesanan", idDoc), {
+              rating: parseInt(nilaiRating),
+              ulasan: teksUlasan
+          });
+          alert("Terima kasih atas penilaian Anda!");
+      } catch(e) { alert("Gagal mengirim ulasan."); }
+  }
+
+  window.bukaChatRoomSpesifik = function(idDoc) { activeChatOrderId = idDoc; window.gantiDashboard('chat'); perbaruiSidebarKamarChat(); }
+
+  // AUTOMATED 5 MINUTE CHAT HIDER 
   function perbaruiSidebarKamarChat() {
-      const barKamar = document.getElementById('room-list-sidebar');
-      barKamar.innerHTML = "";
+      const barKamar = document.getElementById('room-list-sidebar'); barKamar.innerHTML = "";
       
-      if(listPesananAktifArray.length === 0) {
-          document.getElementById('chatMessageField').disabled = true;
-          document.getElementById('btnKirimMsg').disabled = true;
+      // Filter list pesanan: Singkirkan yang sudah selesai lewat dari 5 menit
+      const listChatValid = listPesananAktifArray.filter(item => {
+          if(item.data.status === "Selesai") {
+              let limitWaktu = localStorage.getItem(`timer_clear_${item.id}`);
+              if(limitWaktu && Date.now() >= parseInt(limitWaktu)) { return false; }
+          }
+          return true;
+      });
+
+      if(listChatValid.length === 0) {
+          document.getElementById('chatMessageField').disabled = true; document.getElementById('btnKirimMsg').disabled = true;
           document.getElementById('chatMessageField').placeholder = "Pilih antrean...";
           document.getElementById('msg-history-area').innerHTML = `<div style="color:#94a3b8; text-align:center; margin-top:100px; font-size:14px;">Belum ada transaksi aktif untuk memulai chat.</div>`;
           return;
       }
 
-      listPesananAktifArray.forEach(item => {
+      listChatValid.forEach(item => {
           const badge = document.createElement('div');
-          badge.className = `chat-user-badge ${item.id === dapatkanIdChatSesuaiKonteks() ? 'active' : ''}`;
+          badge.className = `chat-user-badge ${item.id === dapatkanIdChatSesuaiKonteks(listChatValid) ? 'active' : ''}`;
           badge.innerText = `Kode: ${item.data.kodeAntrean}`;
-          badge.onclick = function() {
-              bukaKamarObrolanSama(item.id, item.data.kodeAntrean);
-          };
+          badge.onclick = function() { bukaKamarObrolanSama(item.id, item.data.kodeAntrean); };
           barKamar.appendChild(badge);
       });
 
-      const currentValidId = dapatkanIdChatSesuaiKonteks();
+      const currentValidId = dapatkanIdChatSesuaiKonteks(listChatValid);
       if (currentValidId && !activeChatOrderId) {
-          const antreanTerpilih = listPesananAktifArray.find(i => i.id === currentValidId);
+          const antreanTerpilih = listChatValid.find(i => i.id === currentValidId);
           bukaKamarObrolanSama(currentValidId, antreanTerpilih.data.kodeAntrean);
       }
   }
 
-  function dapatkanIdChatSesuaiKonteks() {
-      if(activeChatOrderId && listPesananAktifArray.some(i => i.id === activeChatOrderId)) {
-          return activeChatOrderId;
-      }
-      if(listPesananAktifArray.length > 0) {
-          return listPesananAktifArray[0].id;
-      }
+  function dapatkanIdChatSesuaiKonteks(listAman) {
+      if(activeChatOrderId && listAman.some(i => i.id === activeChatOrderId)) return activeChatOrderId;
+      if(listAman.length > 0) return listAman[0].id;
       return "";
   }
 
-  // LOGIKA CHAT DUA ARAH REAL-TIME SAMA SEPERTI KASIR (FIXED PESAN SEBELUMNYA HILANG)
   window.bukaKamarObrolanSama = function(idDoc, kodeAntrean) {
       activeChatOrderId = idDoc;
       document.querySelectorAll('.chat-user-badge').forEach(b => b.classList.toggle('active', b.innerText.includes(kodeAntrean)));
-      document.getElementById('chatMessageField').disabled = false;
-      document.getElementById('btnKirimMsg').disabled = false;
+      document.getElementById('chatMessageField').disabled = false; document.getElementById('btnKirimMsg').disabled = false;
       document.getElementById('chatMessageField').placeholder = `Kirim ke Kasir (Antrean ${kodeAntrean})...`;
 
       if (unregisterChatListener) unregisterChatListener();
@@ -479,78 +501,66 @@
           area.innerHTML = "";
           if (chatSnapshot.empty) { area.innerHTML = `<div style="color:#94a3b8; text-align:center; font-size:12px;">Mulai chat dengan kasir.</div>`; return; }
           chatSnapshot.forEach(msgDoc => {
-              const msgData = msgDoc.data();
-              const msgRow = document.createElement('div');
-              // SINKRONISASI IDENTITAS PENGIRIM: customer (me - kanan), kasir (staff - kiri)
+              const msgData = msgDoc.data(); const msgRow = document.createElement('div');
               msgRow.className = `bubble-msg ${msgData.pengirim === 'customer' ? 'bubble-customer' : 'bubble-kasir'}`;
-              msgRow.innerText = msgData.teks;
-              area.appendChild(msgRow);
+              msgRow.innerText = msgData.teks; area.appendChild(msgRow);
           });
-          
-          setTimeout(() => {
-              area.scrollTop = area.scrollHeight;
-          }, 30);
+          setTimeout(() => { area.scrollTop = area.scrollHeight; }, 30);
       });
   }
 
   document.getElementById('btnKirimMsg').addEventListener('click', eksekusiKirimPesanSama);
-  document.getElementById('chatMessageField').addEventListener('keypress', (e) => {
-      if(e.key === 'Enter') eksekusiKirimPesanSama();
-  });
+  document.getElementById('chatMessageField').addEventListener('keypress', (e) => { if(e.key === 'Enter') eksekusiKirimPesanSama(); });
 
   async function eksekusiKirimPesanSama() {
-      const inputFld = document.getElementById('chatMessageField');
-      const valTxt = inputFld.value.trim();
-      const targetIdRoom = dapatkanIdChatSesuaiKonteks();
-      
+      const inputFld = document.getElementById('chatMessageField'); const valTxt = inputFld.value.trim();
+      const targetIdRoom = activeChatOrderId || dapatkanIdChatSesuaiKonteks(listPesananAktifArray);
       if(!valTxt || !targetIdRoom) return;
-
       try {
-          await addDoc(collection(db, "pesanan", targetIdRoom, "percakapan"), {
-              pengirim: "customer",
-              teks: valTxt,
-              timestamp: Date.now()
-          });
-          inputFld.value = "";
-          inputFld.focus();
-      } catch(e) { console.error("Gagal mengirim pesan:", e); }
+          await addDoc(collection(db, "pesanan", targetIdRoom, "percakapan"), { pengirim: "customer", teks: valTxt, timestamp: Date.now() });
+          inputFld.value = ""; inputFld.focus();
+      } catch(e) { console.error(e); }
   }
 
   window.batalDanEditPesanan = async function() {
       if (confirm("Ingin membatalkan pesanan ini?")) {
           const targetIdRoom = document.getElementById('currentPopupDocId').value || localStorage.getItem('id_popup_menunggu_bayar');
-          
           if (targetIdRoom) {
               try { 
                   if(mapListenerStatus[targetIdRoom]) mapListenerStatus[targetIdRoom]();
                   await deleteDoc(doc(db, "pesanan", targetIdRoom)); 
                   hapusIdDariSesiLokal(targetIdRoom);
-                  if(localStorage.getItem('id_popup_menunggu_bayar') === targetIdRoom) localStorage.removeItem('id_popup_menunggu_bayar');
-                  document.getElementById('currentPopupDocId').value = "";
+                  localStorage.removeItem('id_popup_menunggu_bayar');
               } catch (e) { console.log(e); }
           }
-          
           document.getElementById('layarPopup').style.display = 'none';
-          mulaiPemantauanMultiOrder();
-          window.gantiDashboard('pesan');
+          mulaiPemantauanMultiOrder(); window.gantiDashboard('pesan');
       }
   }
 
-  window.tutupLayarPopup = function() {
-      document.getElementById('layarPopup').style.display = 'none';
-      window.gantiDashboard('status');
-  }
+  window.tutupLayarPopup = function() { document.getElementById('layarPopup').style.display = 'none'; window.gantiDashboard('status'); }
+
+  // Interval real-time check auto-delete agar sinkronisasi 5 menit berjalan responsif tanpa reload
+  setInterval(() => {
+      listPesananAktifArray.forEach(item => {
+          if (item.data.status === "Selesai") {
+              let limit = localStorage.getItem(`timer_clear_${item.id}`);
+              if (limit && Date.now() >= parseInt(limit)) {
+                  hapusIdDariSesiLokal(item.id);
+                  localStorage.removeItem(`timer_clear_${item.id}`);
+                  if(mapListenerStatus[item.id]) mapListenerStatus[item.id]();
+                  mulaiPemantauanMultiOrder();
+              }
+          }
+      });
+  }, 10000);
 
   function inisialisasiAwal() {
       const savedCode = localStorage.getItem('kode_antrean_aktif_saat_ini');
       if (savedCode) { kodePesananAktif = savedCode; } 
-      else {
-          kodePesananAktif = buatKodeAcak();
-          localStorage.setItem('kode_antrean_aktif_saat_ini', kodePesananAktif);
-      }
+      else { kodePesananAktif = buatKodeAcak(); localStorage.setItem('kode_antrean_aktif_saat_ini', kodePesananAktif); }
       document.getElementById('kodePesananTampil').innerText = kodePesananAktif;
-      tampilkanMenu(); updateUI();
-      mulaiPemantauanMultiOrder();
+      tampilkanMenu(); updateUI(); mulaiPemantauanMultiOrder();
   }
 
   const databaseMenu = [
@@ -615,24 +625,9 @@
         const orderMetaBox = document.getElementById('footer-order-meta');
         const mainBox = document.getElementById('mainLayarContent');
         
-        if (tabId === 'pesan') { 
-            orderMetaBox.style.display = "block"; 
-            mainBox.classList.add('body-padding-pesan');
-            mainBox.style.overflowY = "auto";
-        } else if (tabId === 'chat') {
-            orderMetaBox.style.display = "none";
-            mainBox.classList.remove('body-padding-pesan');
-            mainBox.style.overflowY = "hidden"; 
-            // Pemicu render ulang tata letak sidebar chat saat tab dibuka
-            setTimeout(() => {
-                const area = document.getElementById('msg-history-area');
-                area.scrollTop = area.scrollHeight;
-            }, 50);
-        } else { 
-            orderMetaBox.style.display = "none"; 
-            mainBox.classList.remove('body-padding-pesan');
-            mainBox.style.overflowY = "auto";
-        }
+        if (tabId === 'pesan') { orderMetaBox.style.display = "block"; mainBox.classList.add('body-padding-pesan'); mainBox.style.overflowY = "auto"; } 
+        else if (tabId === 'chat') { orderMetaBox.style.display = "none"; mainBox.classList.remove('body-padding-pesan'); mainBox.style.overflowY = "hidden"; setTimeout(() => { const area = document.getElementById('msg-history-area'); area.scrollTop = area.scrollHeight; }, 50); } 
+        else { orderMetaBox.style.display = "none"; mainBox.classList.remove('body-padding-pesan'); mainBox.style.overflowY = "auto"; }
     }
 </script>
 </body>
