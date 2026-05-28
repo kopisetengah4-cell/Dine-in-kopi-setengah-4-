@@ -57,18 +57,18 @@
         .track-dot { width: 8px; height: 8px; background: #f59e0b; border-radius: 50%; display: inline-block; margin-right: 5px; animation: kedip 1s infinite; }
         @keyframes kedip { 0%, 100% { opacity: 0.3; } 50% { opacity: 1; } }
 
-        /* ARSITEKTUR PANEL CHAT */
-        .full-chat-panel { background: white; border: 1px solid #e2e8f0; border-radius: 24px; display: flex; flex-direction: column; overflow: hidden; height: 52vh; box-shadow: 0 4px 12px rgba(0,0,0,0.02); margin-top: 10px; }
-        .chat-room-selector { display: flex; gap: 8px; padding: 10px; background: #f1f5f9; border-bottom: 1px solid #e2e8f0; overflow-x: auto; white-space: nowrap; }
-        .chat-token-badge { background: #e2e8f0; color: #64748b; padding: 6px 14px; border-radius: 50px; font-size: 11px; font-weight: bold; cursor: pointer; }
+        /* TAMPILAN FULL LAYAR PANEL CHAT CUSTOMER */
+        .full-chat-panel { background: white; border-radius: 0px; display: flex; flex-direction: column; overflow: hidden; height: 72vh; margin-top: -15px; margin-left: -15px; margin-right: -15px; }
+        .chat-room-selector { display: flex; gap: 8px; padding: 12px; background: #f1f5f9; border-bottom: 1px solid #e2e8f0; overflow-x: auto; white-space: nowrap; min-height: 25px; }
+        .chat-token-badge { background: #e2e8f0; color: #64748b; padding: 8px 16px; border-radius: 50px; font-size: 12px; font-weight: bold; cursor: pointer; }
         .chat-token-badge.active { background: #0ea5e9; color: white; }
-        .chat-body-scroller { flex: 1; padding: 15px; overflow-y: auto; background: #f8fafc; display: flex; flex-direction: column; gap: 8px; }
-        .chat-bubble { max-width: 78%; padding: 9px 14px; border-radius: 16px; font-size: 13px; line-height: 1.4; word-wrap: break-word; }
-        .chat-bubble.me { background: #0ea5e9; color: white; align-self: flex-end; border-top-right-radius: 4px; }
-        .chat-bubble.staff { background: white; color: #1e293b; align-self: flex-start; border: 1px solid #e2e8f0; border-top-left-radius: 4px; }
-        .chat-footer-sender { display: flex; padding: 10px; background: white; border-top: 1px solid #e2e8f0; gap: 8px; }
-        .chat-input-field { flex: 1; padding: 10px 16px; border-radius: 50px; border: 1px solid #cbd5e1; outline: none; font-size: 13px; }
-        .chat-send-btn { background: #0ea5e9; color: white; border: none; padding: 0 18px; border-radius: 50px; font-weight: bold; font-size: 13px; cursor: pointer; }
+        .chat-body-scroller { flex: 1; padding: 15px; overflow-y: auto; background: #f8fafc; display: flex; flex-direction: column; gap: 10px; }
+        .chat-bubble { max-width: 78%; padding: 10px 14px; border-radius: 16px; font-size: 13.5px; line-height: 1.4; word-wrap: break-word; }
+        .chat-bubble.me { background: #0ea5e9; color: white; align-self: flex-end; border-top-right-radius: 4px; box-shadow: 0 2px 5px rgba(14,165,233,0.2); }
+        .chat-bubble.staff { background: white; color: #1e293b; align-self: flex-start; border: 1px solid #e2e8f0; border-top-left-radius: 4px; box-shadow: 0 2px 5px rgba(0,0,0,0.02); }
+        .chat-footer-sender { display: flex; padding: 12px; background: white; border-top: 1px solid #e2e8f0; gap: 8px; box-sizing: border-box; }
+        .chat-input-field { flex: 1; padding: 12px 18px; border-radius: 50px; border: 1px solid #cbd5e1; outline: none; font-size: 13.5px; }
+        .chat-send-btn { background: #0ea5e9; color: white; border: none; padding: 0 22px; border-radius: 50px; font-weight: bold; font-size: 13.5px; cursor: pointer; }
     </style>
 </head>
 <body>
@@ -94,10 +94,10 @@
         <div class="full-chat-panel">
             <div class="chat-room-selector" id="chatRoomBar"></div>
             <div class="chat-body-scroller" id="chatScrollerArea">
-                <div style="color:#94a3b8; font-size:12px; text-align:center; margin-top:100px;" id="chatNoticeLabel">Belum ada transaksi aktif untuk memulai chat.</div>
+                <div style="color:#94a3b8; font-size:13px; text-align:center; margin-top:150px;" id="chatNoticeLabel">Belum ada transaksi aktif untuk memulai chat.</div>
             </div>
             <div class="chat-footer-sender">
-                <input type="text" id="chatMessageInput" class="chat-input-field" placeholder="Pilih ruangan chat di atas..." disabled>
+                <input type="text" id="chatMessageInput" class="chat-input-field" placeholder="Pilih nomor antrean di atas..." disabled>
                 <button class="chat-send-btn" id="chatSendButton" disabled>Kirim</button>
             </div>
         </div>
@@ -176,7 +176,7 @@
     { kategori: "Flavored Coffee", nama: "Kurma", harga: 26000 },
     { kategori: "Flavored Coffee", nama: "Hazelnut", harga: 26000 },
     { kategori: "Hot", nama: "Setengah Empat (Hot)", harga: 25000 },
-    { kategori: "Hot", nama: "Cappuccino (Hot)", fontDepth: 1, harga: 28000 },
+    { kategori: "Hot", nama: "Cappuccino (Hot)", harga: 28000 },
     { kategori: "Hot", nama: "Matcha Latte (Hot)", harga: 27000 },
     { kategori: "Hot", nama: "Belgian Coklat (Hot)", harga: 25000 },
     { kategori: "Hot", nama: "Americano (Hot)", harga: 24000 },
@@ -357,7 +357,8 @@
                   renderUIRiwayatKartuStatus();
                   perbaruiSidebarKamarChat();
                   
-                  if (data.status === "Dibayar") {
+                  // LOGIKA OTOMATIS: TUTUP POP-UP JIKA STATUS BERUBAH MENJADI DIPROSES (DITERIMA KASIR)
+                  if (data.status === "Diproses") {
                       document.getElementById('layarPopup').style.display = 'none';
                       window.gantiDashboard('status');
 
@@ -374,8 +375,37 @@
                           tampilkanMenu(); updateUI();
                       }
                   }
+
+                  // LOGIKA TIMER 5 MENIT: KETIKA KASIR SELESAIKAN ORDERAN, NOTA HILANG OTOMATIS DALAM 5 MENIT
+                  if (data.status === "Selesai") {
+                      // Ambil data cap waktu pemicu hapus dari database atau buat lokal aman
+                      let limitWaktuSelesai = localStorage.getItem(`timer_clear_${documentId}`);
+                      if (!limitWaktuSelesai) {
+                          limitWaktuSelesai = Date.now() + (5 * 60 * 1000); // 5 Menit dari sekarang
+                          localStorage.setItem(`timer_clear_${documentId}`, limitWaktuSelesai);
+                      }
+
+                      const sisaMilidetik = limitWaktuSelesai - Date.now();
+                      if (sisaMilidetik <= 0) {
+                          // Jika sudah lewat 5 menit, langsung hapus dari daftar layar dashboard
+                          hapusIdDariSesiLokal(documentId);
+                          localStorage.removeItem(`timer_clear_${documentId}`);
+                          if(mapListenerStatus[documentId]) mapListenerStatus[documentId]();
+                          mulaiPemantauanMultiOrder();
+                      } else {
+                          // Pasang fungsi penghitung mundur otomatis di latar belakang
+                          setTimeout(() => {
+                              hapusIdDariSesiLokal(documentId);
+                              localStorage.removeItem(`timer_clear_${documentId}`);
+                              if(mapListenerStatus[documentId]) mapListenerStatus[documentId]();
+                              mulaiPemantauanMultiOrder();
+                          }, sisaMilidetik);
+                      }
+                  }
+
               } else {
                   hapusIdDariSesiLokal(documentId);
+                  localStorage.removeItem(`timer_clear_${documentId}`);
                   if(mapListenerStatus[documentId]) mapListenerStatus[documentId]();
                   mulaiPemantauanMultiOrder();
               }
@@ -395,15 +425,16 @@
           
           let klsWarna = "bg-waiting";
           let descTeks = "Mohon selesaikan pembayaran QRIS Anda.";
-          if(data.status === "Dibayar") { klsWarna = "bg-dibayar"; descTeks = "Pembayaran sah! Barista sedang meracik menu."; }
-          else if(data.status === "Diproses") { klsWarna = "bg-ready"; descTeks = "Pesanan selesai! Ambil di bar."; }
+          if(data.status === "Diproses") { klsWarna = "bg-dibayar"; descTeks = "Pembayaran sah! Barista sedang meracik menu."; }
+          else if(data.status === "Siap Diambil") { klsWarna = "bg-ready"; descTeks = "Pesanan selesai! Silakan ambil di meja bar."; }
+          else if(data.status === "Selesai") { klsWarna = "bg-ready"; descTeks = "Selesai! Terima kasih sudah mampir. (Nota hilang otomatis dalam 5 mnt)"; }
 
           const itemCard = document.createElement('div');
           itemCard.className = "status-card-full";
           itemCard.innerHTML = `
               <button class="btn-chat-shortcut" onclick="bukaChatRoomSpesifik('${idDoc}')">💬</button>
               <h3 style="margin:0; color:#1e293b;">Status Transaksi</h3>
-              <div class="status-main-badge ${klsWarna}">${data.status}</div>
+              <div class="status-main-badge ${klsWarna}">${data.status === 'Diproses' ? 'Sedang Dibuat' : data.status}</div>
               <div style="font-size: 24px; font-weight: bold; color: #0ea5e9; margin-bottom: 5px;">KODE: ${data.kodeAntrean}</div>
               <p style="font-size: 13px; color: #64748b; margin: 0;">${descTeks}</p>
           `;
@@ -413,10 +444,10 @@
               const trkBar = document.getElementById('trackerLive');
               trkBar.style.display = "flex";
               document.getElementById('trackerKode').innerText = `KODE: ${data.kodeAntrean}`;
-              document.getElementById('trackerTxt').innerText = data.status + "...";
+              document.getElementById('trackerTxt').innerText = (data.status === 'Diproses' ? 'Sedang Dibuat' : data.status) + "...";
               if(data.status === "Menunggu Pembayaran") document.getElementById('trackerDot').style.backgroundColor = "#f59e0b";
-              else if(data.status === "Dibayar") document.getElementById('trackerDot').style.backgroundColor = "#0ea5e9";
-              else if(data.status === "Diproses") document.getElementById('trackerDot').style.backgroundColor = "#10b981";
+              else if(data.status === "Diproses") document.getElementById('trackerDot').style.backgroundColor = "#0ea5e9";
+              else if(data.status === "Siap Diambil" || data.status === "Selesai") document.getElementById('trackerDot').style.backgroundColor = "#10b981";
           }
       });
   }
@@ -424,7 +455,7 @@
   window.bukaChatRoomSpesifik = function(idDoc) {
       currentSelectedChatId = idDoc;
       window.gantiDashboard('chat');
-      perbaruiSidebarKamarChat(); // Refresh status active badge agar warna biru berpindah
+      perbaruiSidebarKamarChat(); 
       sambungkanObrolanChatMasingMasing(idDoc);
   }
 
@@ -442,7 +473,7 @@
 
       listPesananAktifArray.forEach(item => {
           const badge = document.createElement('div');
-          badge.className = `chat-token-badge ${item.id === currentSelectedChatId ? 'active' : ''}`;
+          badge.className = `chat-token-badge ${item.id === dapatkanIdChatSesuaiKonteks() ? 'active' : ''}`;
           badge.innerText = `KODE: ${item.data.kodeAntrean}`;
           badge.onclick = function() {
               currentSelectedChatId = item.id;
@@ -452,15 +483,28 @@
           barKamar.appendChild(badge);
       });
 
-      if(currentSelectedChatId === "" || !listPesananAktifArray.some(i => i.id === currentSelectedChatId)) {
-          currentSelectedChatId = listPesananAktifArray[0].id;
-          perbaruiSidebarKamarChat();
-          sambungkanObrolanChatMasingMasing(currentSelectedChatId);
+      const currentValidId = dapatkanIdChatSesuaiKonteks();
+      if (currentValidId) {
+          sambungkanObrolanChatMasingMasing(currentValidId);
       }
   }
 
+  // Fungsi pengaman mengembalikan ID kamar chat yang valid agar tidak meleset/kosong
+  function dapatkanIdChatSesuaiKonteks() {
+      if(currentSelectedChatId && listPesananAktifArray.some(i => i.id === currentSelectedChatId)) {
+          return currentSelectedChatId;
+      }
+      if(listPesananAktifArray.length > 0) {
+          currentSelectedChatId = listPesananAktifArray[0].id;
+          return currentSelectedChatId;
+      }
+      return "";
+  }
+
   function sambungkanObrolanChatMasingMasing(idDoc) {
-      if(unregisterChatMessages) unregisterChatMessages();
+      if(!idDoc || unregisterChatMessages && currentSelectedChatId !== idDoc) {
+          if(unregisterChatMessages) unregisterChatMessages();
+      }
 
       const scroller = document.getElementById('chatScrollerArea');
       document.getElementById('chatMessageInput').disabled = false;
@@ -486,7 +530,6 @@
       });
   }
 
-  // LOGIKA AMAN: MENGGUNAKAN VARIABEL KAMAR YANG SEDANG AKTIF SAAT INI (Pasti Muncul)
   document.getElementById('chatSendButton').addEventListener('click', eksekusiKirimPesan);
   document.getElementById('chatMessageInput').addEventListener('keypress', (e) => {
       if(e.key === 'Enter') eksekusiKirimPesan();
@@ -495,12 +538,12 @@
   async function eksekusiKirimPesan() {
       const inputFld = document.getElementById('chatMessageInput');
       const valTxt = inputFld.value.trim();
+      const targetIdRoom = dapatkanIdChatSesuaiKonteks();
       
-      // Mengikat langsung id chat room yang sedang terbuka di layar customer saat tombol kirim ditekan
-      if(!valTxt || !currentSelectedChatId) return;
+      if(!valTxt || !targetIdRoom) return;
 
       try {
-          await addDoc(collection(db, "pesanan", currentSelectedChatId, "percakapan"), {
+          await addDoc(collection(db, "pesanan", targetIdRoom, "percakapan"), {
               pengirim: "customer",
               teks: valTxt,
               timestamp: Date.now()
@@ -512,10 +555,11 @@
 
   window.batalDanEditPesanan = async function() {
       if (confirm("Ingin membatalkan pesanan ini?")) {
-          if (currentSelectedChatId) {
+          const targetIdRoom = dapatkanIdChatSesuaiKonteks();
+          if (targetIdRoom) {
               try { 
-                  await deleteDoc(doc(db, "pesanan", currentSelectedChatId)); 
-                  hapusIdDariSesiLokal(currentSelectedChatId);
+                  await deleteDoc(doc(db, "pesanan", targetIdRoom)); 
+                  hapusIdDariSesiLokal(targetIdRoom);
               } catch (e) { console.log(e); }
           }
           document.getElementById('layarPopup').style.display = 'none';
