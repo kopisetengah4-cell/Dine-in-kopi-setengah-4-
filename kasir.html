@@ -90,7 +90,108 @@
             cursor: pointer;
         }
         .btn-orange { background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%); color: white; }
+        .btn-blue { background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%); color: white; }
         .btn-green { background: linear-gradient(135deg, #10b981 0%, #059669 100%); color: white; }
+        .btn-red { background: linear-gradient(135deg, #ef4444 0%, #b91c1c 100%); color: white; }
+
+        /* Wadah Khusus Tombol Berdampingan Kiri-Kanan */
+        .split-buttons {
+            display: flex;
+            gap: 10px;
+        }
+        .split-buttons .btn-action {
+            padding: 12px 6px;
+            font-size: 13px;
+        }
+
+        /* STRUKTUR TAMPILAN DASHBOARD CHAT BARU */
+        .chat-container {
+            display: flex;
+            flex-direction: column;
+            background: white;
+            border-radius: 20px;
+            border: 1px solid #e2e8f0;
+            height: 68vh;
+            overflow: hidden;
+        }
+        .chat-sidebar {
+            background: #f8fafc;
+            border-bottom: 1px solid #e2e8f0;
+            padding: 10px;
+            display: flex;
+            gap: 8px;
+            overflow-x: auto;
+            white-space: nowrap;
+        }
+        .chat-user-badge {
+            background: #e2e8f0;
+            color: #475569;
+            padding: 8px 16px;
+            border-radius: 50px;
+            font-size: 13px;
+            font-weight: bold;
+            cursor: pointer;
+            display: inline-block;
+        }
+        .chat-user-badge.active {
+            background: #0ea5e9;
+            color: white;
+        }
+        .chat-history-box {
+            flex: 1;
+            padding: 15px;
+            overflow-y: auto;
+            background: #f8fafc;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+        .bubble-msg {
+            max-width: 75%;
+            padding: 10px 14px;
+            border-radius: 16px;
+            font-size: 13.5px;
+            line-height: 1.4;
+            word-wrap: break-word;
+        }
+        .bubble-customer {
+            background: white;
+            color: #1e293b;
+            align-self: flex-start;
+            border: 1px solid #e2e8f0;
+            border-top-left-radius: 4px;
+        }
+        .bubble-kasir {
+            background: #0ea5e9;
+            color: white;
+            align-self: flex-end;
+            border-top-right-radius: 4px;
+        }
+        .chat-form-input {
+            display: flex;
+            padding: 10px;
+            background: white;
+            border-top: 1px solid #e2e8f0;
+            gap: 8px;
+        }
+        .input-chat-txt {
+            flex: 1;
+            padding: 12px 18px;
+            border-radius: 50px;
+            border: 1px solid #cbd5e1;
+            outline: none;
+            font-size: 13.5px;
+        }
+        .btn-send-chat {
+            background: #0ea5e9;
+            color: white;
+            border: none;
+            padding: 0 20px;
+            border-radius: 50px;
+            font-weight: bold;
+            font-size: 13.5px;
+            cursor: pointer;
+        }
 
         /* Tampilan Khusus Menu Omset */
         .omset-box {
@@ -133,7 +234,7 @@
             flex-direction: column;
             align-items: center;
             cursor: pointer;
-            width: 23%;
+            width: 18%;
             position: relative;
         }
         .nav-item.active { color: #0284c7; }
@@ -172,6 +273,21 @@
         <div id="list-selesai"></div>
     </div>
 
+    <div id="tab-chat" class="tab-panel">
+        <div class="chat-container">
+            <div class="chat-sidebar" id="room-list-sidebar">
+                <div style="color:#94a3b8; padding: 8px 10px; font-size:13px;">Belum ada customer aktif</div>
+            </div>
+            <div class="chat-history-box" id="msg-history-area">
+                <div style="color:#94a3b8; text-align:center; margin-top:100px; font-size:14px;">Silakan pilih nomor antrean customer di atas untuk memulai obrolan</div>
+            </div>
+            <div class="chat-form-input">
+                <input type="text" id="chatMessageField" class="input-chat-txt" placeholder="Tulis balasan pesan untuk customer..." disabled>
+                <button class="btn-send-chat" id="btnKirimMsg" onclick="kirimBalasanKasir()" disabled>Kirim</button>
+            </div>
+        </div>
+    </div>
+
     <div id="tab-omset" class="tab-panel">
         <div class="omset-box">
             <div style="font-size: 14px; opacity: 0.9;">Total Omset Hari Ini</div>
@@ -203,6 +319,9 @@
     <button class="nav-item" onclick="gantiTab('selesai', this)">
         <span>Selesai</span>
     </button>
+    <button class="nav-item" onclick="gantiTab('chat', this)">
+        <span>Chat</span>
+    </button>
     <button class="nav-item" onclick="gantiTab('omset', this)">
         <span>Omset</span>
     </button>
@@ -210,7 +329,7 @@
 
 <script type="module">
   import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
-  import { getFirestore, collection, query, orderBy, onSnapshot, doc, updateDoc } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+  import { getFirestore, collection, query, orderBy, onSnapshot, doc, updateDoc, deleteDoc, addDoc } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
 
   const firebaseConfig = {
     apiKey: "AIzaSyA-w5zgpdjze0gaqVINUbM9KECN0gujqSc",
@@ -225,22 +344,26 @@
   const app = initializeApp(firebaseConfig);
   const db = getFirestore(app);
 
-  // PERBAIKAN UTAMA: Mengurutkan menggunakan "waktuLokal" sesuai data yang dikirim Website 1
+  let activeChatOrderId = "";
+  let unregisterChatListener = null;
+
   const q = query(collection(db, "pesanan"), orderBy("waktuLokal", "desc"));
   
   onSnapshot(q, (snapshot) => {
       const containerBaru = document.getElementById('list-baru');
       const containerSiap = document.getElementById('list-siap');
       const containerSelesai = document.getElementById('list-selesai');
+      const sidebarChat = document.getElementById('room-list-sidebar');
 
       let countBaru = 0;
       let totalOmsetHariIni = 0;
       let totalCupTerjual = 0;
       let totalTransaksiSukses = 0;
+      let htmlSidebar = "";
 
-      // Kalkulasi nilai akumulasi omset
       snapshot.docs.forEach((docSnapshot) => {
           const data = docSnapshot.data();
+          const idDoc = docSnapshot.id;
           let totalCupDiNotaIni = 0;
           if(data.daftarMenu && Array.isArray(data.daftarMenu)) {
               data.daftarMenu.forEach(item => {
@@ -248,16 +371,31 @@
               });
           }
 
-          if (data.status === "Menunggu Pembayaran") {
+          if (data.status === "Menunggu Pembayaran" || data.status === "Dibayar") {
               countBaru++;
-          } else if (data.status === "Diproses" || data.status === "Selesai") {
+          }
+          
+          if (data.status === "Diproses" || data.status === "Selesai") {
               totalOmsetHariIni += (data.totalBayar || 0);
               totalCupTerjual += totalCupDiNotaIni;
               totalTransaksiSukses++;
           }
+
+          // Kumpulkan data pesanan aktif untuk masuk daftar sidebar Chat room
+          if (data.status !== "Selesai") {
+              const kelasAktif = idDoc === activeChatOrderId ? "active" : "";
+              htmlSidebar += `<div class="chat-user-badge ${kelasAktif}" onclick="bukaKamarObrolan('${idDoc}', '${data.kodeAntrean}')">Kode: ${data.kodeAntrean}</div>`;
+          }
       });
 
-      // Sinkronisasi docChanges untuk pemrosesan tambah, ubah, dan hapus real-time
+      // Render Baris User Sidebar Chat
+      if (htmlSidebar !== "") {
+          sidebarChat.innerHTML = htmlSidebar;
+      } else {
+          sidebarChat.innerHTML = `<div style="color:#94a3b8; padding: 8px 10px; font-size:13px;">Belum ada customer aktif</div>`;
+      }
+
+      // Deteksi manipulasi kartu secara real-time
       snapshot.docChanges().forEach((change) => {
           const idDokumen = change.doc.id;
           const data = change.doc.data();
@@ -274,17 +412,18 @@
           else if (change.type === "removed") {
               const elemenKotak = document.getElementById(`card_${idDokumen}`);
               if (elemenKotak) {
-                  elemenKotak.remove(); // Otomatis hilang saat Website 1 membatalkan pesanan
+                  elemenKotak.remove();
+              }
+              if (idDokumen === activeChatOrderId) {
+                  resetSistemChatLayar();
               }
           }
       });
 
-      // Render info ke panel omset
       document.getElementById('omset-total').innerText = "Rp " + totalOmsetHariIni.toLocaleString('id-ID');
       document.getElementById('omset-cup').innerText = totalCupTerjual + " Cup";
       document.getElementById('omset-transaksi').innerText = totalTransaksiSukses + " Nota";
 
-      // Atur notifikasi badge pesanan baru
       const badgeBaru = document.getElementById('notif-baru-badge');
       if (countBaru > 0) {
           badgeBaru.innerText = countBaru;
@@ -309,7 +448,6 @@
           htmlCatatan = `<div class="order-note"><b>Catatan:</b> "${data.catatan}"</div>`;
       }
 
-      // Format waktu berbasis milidetik waktuLokal
       let formatWaktu = "...";
       if (data.waktuLokal) {
           formatWaktu = new Date(data.waktuLokal).toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' });
@@ -319,6 +457,7 @@
       card.className = "order-card";
       card.id = `card_${idDokumen}`;
 
+      // 1. DASHBOARD PESANAN BARU
       if (data.status === "Menunggu Pembayaran") {
           card.innerHTML = `
               <div class="order-header">
@@ -328,9 +467,26 @@
               <div class="order-items">${htmlMenuRows}</div>
               ${htmlCatatan}
               <div class="order-total">Total: Rp ${(data.totalBayar || 0).toLocaleString('id-ID')}</div>
-              <button class="btn-action btn-orange" onclick="ubahStatusPesanan('${idDokumen}', 'Diproses')">Konfirmasi Pembayaran</button>`;
+              <div class="split-buttons">
+                  <button class="btn-action btn-red" onclick="tolakPesananCustomer('${idDokumen}')">Tolak</button>
+                  <button class="btn-action btn-blue" onclick="ubahStatusPesanan('${idDokumen}', 'Dibayar')">Terima</button>
+              </div>`;
           document.getElementById('list-baru').appendChild(card);
       } 
+      else if (data.status === "Dibayar") {
+          card.innerHTML = `
+              <div class="order-header">
+                  <span class="kode-antrean" style="background:#3b82f6;">Kode: ${data.kodeAntrean}</span>
+                  <span style="font-size: 12px; color: #3b82f6; font-weight:bold;">Lunas</span>
+              </div>
+              <div class="order-items">${htmlMenuRows}</div>
+              ${htmlCatatan}
+              <div class="order-total">Total: Rp ${(data.totalBayar || 0).toLocaleString('id-ID')}</div>
+              <button class="btn-action btn-blue" onclick="ubahStatusPesanan('${idDokumen}', 'Diproses')">Pesanan Siap</button>`;
+          document.getElementById('list-baru').appendChild(card); 
+      } 
+      
+      // 2. DASHBOARD SIAP DIAMBIL
       else if (data.status === "Diproses") {
           card.innerHTML = `
               <div class="order-header">
@@ -339,9 +495,11 @@
               </div>
               <div class="order-items">${htmlMenuRows}</div>
               ${htmlCatatan}
-              <button class="btn-action btn-green" onclick="ubahStatusPesanan('${idDokumen}', 'Selesai')">Siap Diambil</button>`;
+              <button class="btn-action btn-green" onclick="ubahStatusPesanan('${idDokumen}', 'Selesai')">Selesai</button>`;
           document.getElementById('list-siap').appendChild(card);
       } 
+      
+      // 3. DASHBOARD SELESAI
       else if (data.status === "Selesai") {
           card.innerHTML = `
               <div class="order-header">
@@ -358,9 +516,83 @@
       try {
           const docRef = doc(db, "pesanan", idDokumen);
           await updateDoc(docRef, { status: statusBaru });
-      } catch (e) {
-          alert("Gagal memperbarui status.");
+      } catch (e) { alert("Gagal memperbarui status."); }
+  }
+
+  // FUNGSI AKSI TOMBOL TOLAK PEMBAYARAN
+  window.tolakPesananCustomer = async function(idDokumen) {
+      if (confirm("Apakah Anda yakin ingin menolak transaksi ini? Data pesanan customer akan otomatis dihapus.")) {
+          try {
+              await deleteDoc(doc(db, "pesanan", idDokumen));
+          } catch (e) { alert("Gagal menolak pesanan."); }
       }
+  }
+
+  // MANAJEMEN SISTEM REALTIME CHAT ROOM
+  window.bukaKamarObrolan = function(idDoc, kodeAntrean) {
+      activeChatOrderId = idDoc;
+      
+      // Highlight badge terpilih di sidebar
+      const semuaBadges = document.querySelectorAll('.chat-user-badge');
+      semuaBadges.forEach(b => {
+          b.classList.remove('active');
+          if (b.innerText.includes(kodeAntrean)) b.classList.add('active');
+      });
+
+      // Aktifkan area input formulir tulis pesan
+      document.getElementById('chatMessageField').disabled = false;
+      document.getElementById('btnKirimMsg').disabled = false;
+      document.getElementById('chatMessageField').placeholder = `Kirim pesan ke Antrean ${kodeAntrean}...`;
+
+      if (unregisterChatListener) unregisterChatListener();
+
+      const areaHistori = document.getElementById('msg-history-area');
+      
+      // Mengikat real-time data sub-collection percakapan chat dari dokumen terkait
+      const chatQuery = query(collection(db, "pesanan", idDoc, "percakapan"), orderBy("timestamp", "asc"));
+      
+      unregisterChatListener = onSnapshot(chatQuery, (chatSnapshot) => {
+          areaHistori.innerHTML = "";
+          if (chatSnapshot.empty) {
+              areaHistori.innerHTML = `<div style="color:#94a3b8; text-align:center; margin-top:5px; font-size:12px;">Belum ada riwayat pesan. Silakan ketik di bawah untuk memulai chat.</div>`;
+              return;
+          }
+          chatSnapshot.forEach(msgDoc => {
+              const msgData = msgDoc.data();
+              const msgRow = document.createElement('div');
+              msgRow.className = `bubble-msg ${msgData.pengirim === 'kasir' ? 'bubble-kasir' : 'bubble-customer'}`;
+              msgRow.innerText = msgData.teks;
+              areaHistori.appendChild(msgRow);
+          });
+          areaHistori.scrollTop = areaHistori.scrollHeight; // Auto-scroll ke paling bawah
+      });
+  }
+
+  window.kirimBalasanKasir = async function() {
+      const inputFld = document.getElementById('chatMessageField');
+      const teksPesan = inputFld.value.trim();
+      if (!teksPesan || !activeChatOrderId) return;
+
+      try {
+          // Tambahkan pesan balasan kasir ke sub-collection di dalam dokumen pesanan tersebut
+          await addDoc(collection(db, "pesanan", activeChatOrderId, "percakapan"), {
+              pengirim: "kasir",
+              teks: teksPesan,
+              timestamp: Date.now()
+          });
+          inputFld.value = "";
+          inputFld.focus();
+      } catch (e) { alert("Pesan gagal dikirim."); }
+  }
+
+  function resetSistemChatLayar() {
+      activeChatOrderId = "";
+      if (unregisterChatListener) unregisterChatListener();
+      document.getElementById('chatMessageField').value = "";
+      document.getElementById('chatMessageField').disabled = true;
+      document.getElementById('btnKirimMsg').disabled = true;
+      document.getElementById('chatMessageField').placeholder = "Silakan pilih nomor antrean customer di atas...";
+      document.getElementById('msg-history-area').innerHTML = `<div style="color:#94a3b8; text-align:center; margin-top:100px; font-size:14px;">Silakan pilih nomor antrean customer di atas untuk memulai obrolan</div>`;
   }
 </script>
 
