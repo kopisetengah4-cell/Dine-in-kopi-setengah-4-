@@ -57,6 +57,7 @@
         .track-dot { width: 8px; height: 8px; background: #f59e0b; border-radius: 50%; display: inline-block; margin-right: 5px; animation: kedip 1s infinite; }
         @keyframes kedip { 0%, 100% { opacity: 0.3; } 50% { opacity: 1; } }
 
+        /* ARSITEKTUR PANEL CHAT */
         .full-chat-panel { background: white; border-radius: 0px; display: flex; flex-direction: column; overflow: hidden; height: 72vh; margin-top: -15px; margin-left: -15px; margin-right: -15px; }
         .chat-room-selector { display: flex; gap: 8px; padding: 12px; background: #f1f5f9; border-bottom: 1px solid #e2e8f0; overflow-x: auto; white-space: nowrap; min-height: 25px; }
         .chat-token-badge { background: #e2e8f0; color: #64748b; padding: 8px 16px; border-radius: 50px; font-size: 12px; font-weight: bold; cursor: pointer; }
@@ -251,6 +252,9 @@
           });
           
           simpanIdKeDaftarSesiLokal(docRef.id);
+          
+          // RE-FIX: Ikat tanda kode antrean lokal agar popup bisa melacak statusnya secara akurat
+          localStorage.setItem('id_popup_menunggu_bayar', docRef.id);
           document.getElementById('currentPopupDocId').value = docRef.id;
           
           document.getElementById('popTotalHarga').innerText = totalHargaGlobal.toLocaleString('id-ID');
@@ -308,11 +312,12 @@
                   renderUIRiwayatKartuStatus();
                   perbaruiSidebarKamarChat();
                   
-                  // FITUR FIX 1: POP-UP QRIS OTOMATIS TERTUTUP SAAT KASIR KLIK TERIMA (STATUS DIPROSES)
+                  // PERBAIKAN STRUKTUR PRIORITAS: Jendela QRIS dipaksa langsung tutup duluan tanpa jeda
                   if (data.status === "Diproses") {
-                      const currentPopupDocId = document.getElementById('currentPopupDocId').value;
-                      if (currentPopupDocId === documentId) {
+                      const idPopupAktif = localStorage.getItem('id_popup_menunggu_bayar') || document.getElementById('currentPopupDocId').value;
+                      if (idPopupAktif === documentId) {
                           document.getElementById('layarPopup').style.display = 'none';
+                          localStorage.removeItem('id_popup_menunggu_bayar');
                           document.getElementById('currentPopupDocId').value = "";
                       }
                       
@@ -356,6 +361,11 @@
                   }
 
               } else {
+                  // Re-fix penanganan pembatalan aman
+                  if(localStorage.getItem('id_popup_menunggu_bayar') === documentId) {
+                      document.getElementById('layarPopup').style.display = 'none';
+                      localStorage.removeItem('id_popup_menunggu_bayar');
+                  }
                   hapusIdDariSesiLokal(documentId);
                   localStorage.removeItem(`timer_clear_${documentId}`);
                   if(mapListenerStatus[documentId]) mapListenerStatus[documentId]();
@@ -369,8 +379,6 @@
       const wadahListHTML = document.getElementById('status-list-container');
       wadahListHTML.innerHTML = "";
 
-      // Mengeluarkan atau memfilter daftar yang berstatus 'Menunggu Pembayaran' jika itu adalah intensitas batal di luar QRIS, 
-      // namun di sini kita urutkan secara normal sesuai pesanan aktif yang valid.
       listPesananAktifArray.sort((a,b) => b.data.waktuLokal - a.data.waktuLokal);
 
       listPesananAktifArray.forEach((item, index) => {
@@ -502,29 +510,21 @@
       } catch(e) { console.error("Gagal mengirim pesan chat:", e); }
   }
 
-  // FITUR FIX 2: KETIKA CUSTOMER BATALKAN PESANAN, DATA DIHAPUS DARI DATABASE & LOKAL (JADI TIDAK MASUK TAB STATUS)
   window.batalDanEditPesanan = async function() {
       if (confirm("Ingin membatalkan pesanan ini?")) {
-          // Ambil ID dokumen yang sedang aktif di pop-up screen saat ini
-          const targetIdRoom = document.getElementById('currentPopupDocId').value;
+          const targetIdRoom = document.getElementById('currentPopupDocId').value || localStorage.getItem('id_popup_menunggu_bayar');
           
           if (targetIdRoom) {
               try { 
-                  // Matikan dulu listener snapshot-nya agar tidak bentrok saat dihapus
                   if(mapListenerStatus[targetIdRoom]) mapListenerStatus[targetIdRoom]();
-                  
-                  // Hapus dokumen permanen dari Firebase Firestore
                   await deleteDoc(doc(db, "pesanan", targetIdRoom)); 
-                  
-                  // Bersihkan ID dari daftar tracking penyimpanan local pelanggan
                   hapusIdDariSesiLokal(targetIdRoom);
+                  if(localStorage.getItem('id_popup_menunggu_bayar') === targetIdRoom) localStorage.removeItem('id_popup_menunggu_bayar');
                   document.getElementById('currentPopupDocId').value = "";
-              } catch (e) { console.log("Gagal menghapus data saat pembatalan:", e); }
+              } catch (e) { console.log(e); }
           }
           
           document.getElementById('layarPopup').style.display = 'none';
-          
-          // Me-refresh ulang pemantauan agar dashboard kembali bersih semula
           mulaiPemantauanMultiOrder();
           window.gantiDashboard('pesan');
       }
@@ -572,7 +572,7 @@
     { kategori: "Hot", nama: "Americano (Hot)", harga: 24000 },
     { kategori: "Milk", nama: "Belgian Coklat", harga: 25000 },
     { kategori: "Milk", nama: "Matcha Latte", harga: 27000 },
-    { kategori: "Milk", nama: "Creamy Latte", height: 22000, harga: 22000 },
+    { kategori: "Milk", nama: "Creamy Latte", harga: 22000 },
     { kategori: "Tea", nama: "Teh Tarik", harga: 22000 },
     { kategori: "Tea", nama: "Teh Susu Legit", harga: 21000 },
     { kategori: "Tea", nama: "Teh Remon", harga: 20000 },
