@@ -60,20 +60,22 @@
         .track-dot { width: 8px; height: 8px; background: #f59e0b; border-radius: 50%; display: inline-block; margin-right: 5px; animation: kedip 1s infinite; }
         @keyframes kedip { 0%, 100% { opacity: 0.3; } 50% { opacity: 1; } }
 
-        /* ARSITEKTUR PANEL CHAT FULLSCREEN */
-        .full-chat-panel { background: white; display: flex; flex-direction: column; overflow: hidden; height: calc(100vh - 160px); margin-top: -15px; margin-left: -15px; margin-right: -15px; position: relative; }
-        .chat-room-selector { display: flex; gap: 8px; padding: 12px; background: #f1f5f9; border-bottom: 1px solid #e2e8f0; overflow-x: auto; white-space: nowrap; min-height: 38px; flex-shrink: 0; }
-        .chat-token-badge { background: #e2e8f0; color: #64748b; padding: 8px 16px; border-radius: 50px; font-size: 12px; font-weight: bold; cursor: pointer; }
-        .chat-token-badge.active { background: #0ea5e9; color: white; }
+        /* TAMPILAN CONTAINER CHAT SAMA SEPERTI WEBSITE KASIR */
+        .chat-container { display: flex; flex-direction: column; background: white; border-radius: 20px; border: 1px solid #e2e8f0; height: 68vh; overflow: hidden; margin-top: -5px; }
+        .chat-sidebar { background: #f8fafc; border-bottom: 1px solid #e2e8f0; padding: 10px; display: flex; gap: 8px; overflow-x: auto; white-space: nowrap; flex-shrink: 0; min-height: 38px; }
+        .chat-user-badge { background: #e2e8f0; color: #475569; padding: 8px 16px; border-radius: 50px; font-size: 13px; font-weight: bold; cursor: pointer; display: inline-block; }
+        .chat-user-badge.active { background: #0ea5e9; color: white; }
         
-        .chat-footer-sender { display: flex; padding: 12px; background: #ffffff; border-bottom: 1px solid #e2e8f0; gap: 8px; box-sizing: border-box; flex-shrink: 0; }
-        .chat-input-field { flex: 1; padding: 12px 18px; border-radius: 50px; border: 1px solid #cbd5e1; outline: none; font-size: 13.5px; }
-        .chat-send-btn { background: #0ea5e9; color: white; border: none; padding: 0 22px; border-radius: 50px; font-weight: bold; font-size: 13.5px; cursor: pointer; }
-
-        .chat-body-scroller { flex: 1; padding: 15px; overflow-y: auto; background: #f8fafc; display: flex; flex-direction: column; gap: 10px; box-sizing: border-box; scroll-behavior: smooth; }
-        .chat-bubble { max-width: 78%; padding: 10px 14px; border-radius: 16px; font-size: 13.5px; line-height: 1.4; word-wrap: break-word; flex-shrink: 0; }
-        .chat-bubble.me { background: #0ea5e9; color: white; align-self: flex-end; border-top-right-radius: 4px; box-shadow: 0 2px 5px rgba(14,165,233,0.2); }
-        .chat-bubble.staff { background: white; color: #1e293b; align-self: flex-start; border: 1px solid #e2e8f0; border-top-left-radius: 4px; box-shadow: 0 2px 5px rgba(0,0,0,0.02); }
+        .chat-history-box { flex: 1; padding: 15px; overflow-y: auto; background: #f8fafc; display: flex; flex-direction: column; gap: 10px; box-sizing: border-box; scroll-behavior: smooth; }
+        .bubble-msg { max-width: 75%; padding: 10px 14px; border-radius: 16px; font-size: 13.5px; line-height: 1.4; word-wrap: break-word; flex-shrink: 0; }
+        
+        /* WARNA DISAMAKAN: Customer me (Kanan - Biru), Kasir staff (Kiri - Putih) */
+        .bubble-customer { background: #0ea5e9; color: white; align-self: flex-end; border-top-right-radius: 4px; box-shadow: 0 2px 5px rgba(14,165,233,0.2); }
+        .bubble-kasir { background: white; color: #1e293b; align-self: flex-start; border: 1px solid #e2e8f0; border-top-left-radius: 4px; box-shadow: 0 2px 5px rgba(0,0,0,0.02); }
+        
+        .chat-form-input { display: flex; padding: 10px; background: white; border-top: 1px solid #e2e8f0; gap: 8px; flex-shrink: 0; }
+        .input-chat-txt { flex: 1; padding: 12px 18px; border-radius: 50px; border: 1px solid #cbd5e1; outline: none; font-size: 13.5px; }
+        .btn-send-chat { background: #0ea5e9; color: white; border: none; padding: 0 20px; border-radius: 50px; font-weight: bold; font-size: 13.5px; cursor: pointer; }
     </style>
 </head>
 <body>
@@ -96,16 +98,16 @@
     </div>
 
     <div id="panel-chat" class="tab-content">
-        <div class="full-chat-panel">
-            <div class="chat-room-selector" id="chatRoomBar"></div>
-            
-            <div class="chat-footer-sender">
-                <input type="text" id="chatMessageInput" class="chat-input-field" placeholder="Pilih nomor antrean di atas..." disabled>
-                <button class="chat-send-btn" id="chatSendButton" disabled>Kirim</button>
+        <div class="chat-container">
+            <div class="chat-sidebar" id="room-list-sidebar">
+                <div style="color:#94a3b8; padding: 8px 10px; font-size:13px;">Belum ada transaksi aktif</div>
             </div>
-
-            <div class="chat-body-scroller" id="chatScrollerArea">
-                <div style="color:#94a3b8; font-size:13px; text-align:center; margin-top:150px;" id="chatNoticeLabel">Belum ada transaksi aktif untuk memulai chat.</div>
+            <div class="chat-history-box" id="msg-history-area">
+                <div style="color:#94a3b8; text-align:center; margin-top:100px; font-size:14px;">Pilih nomor antrean di atas untuk memulai chat</div>
+            </div>
+            <div class="chat-form-input">
+                <input type="text" id="chatMessageField" class="input-chat-txt" placeholder="Pilih antrean..." disabled>
+                <button class="btn-send-chat" id="btnKirimMsg" disabled>Kirim</button>
             </div>
         </div>
     </div>
@@ -150,7 +152,6 @@
 </div>
 
 <script type="module">
-  // PERBAIKAN FATAL: Memasukkan kembali query, orderBy agar logika pembacaan data tersambung sempurna!
   import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
   import { getFirestore, collection, addDoc, doc, onSnapshot, deleteDoc, query, orderBy } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
 
@@ -172,9 +173,9 @@
   let totalHargaGlobal = 0;
   
   let listPesananAktifArray = [];
-  let currentSelectedChatId = "";
+  let activeChatOrderId = "";
   let mapListenerStatus = {};
-  let unregisterChatMessages = null;
+  let unregisterChatListener = null;
 
   function buatKodeAcak() { return String(Math.floor(Math.random() * 900) + 100); }
 
@@ -417,90 +418,88 @@
   }
 
   window.bukaChatRoomSpesifik = function(idDoc) {
-      currentSelectedChatId = idDoc;
+      activeChatOrderId = idDoc;
       window.gantiDashboard('chat');
       perbaruiSidebarKamarChat(); 
   }
 
+  // FUNGSI SINKRONISASI TOTAL: Disamakan persis dengan sistem render Website 2 Kasir
   function perbaruiSidebarKamarChat() {
-      const barKamar = document.getElementById('chatRoomBar');
+      const barKamar = document.getElementById('room-list-sidebar');
       barKamar.innerHTML = "";
       
       if(listPesananAktifArray.length === 0) {
-          document.getElementById('chatMessageInput').disabled = true;
-          document.getElementById('chatSendButton').disabled = true;
-          document.getElementById('chatNoticeLabel').style.display = "block";
-          document.getElementById('chatScrollerArea').innerHTML = `<div style="color:#94a3b8; font-size:12px; text-align:center; margin-top:100px;">Belum ada transaksi aktif untuk memulai chat.</div>`;
+          document.getElementById('chatMessageField').disabled = true;
+          document.getElementById('btnKirimMsg').disabled = true;
+          document.getElementById('chatMessageField').placeholder = "Pilih antrean...";
+          document.getElementById('msg-history-area').innerHTML = `<div style="color:#94a3b8; text-align:center; margin-top:100px; font-size:14px;">Belum ada transaksi aktif untuk memulai chat.</div>`;
           return;
       }
 
       listPesananAktifArray.forEach(item => {
           const badge = document.createElement('div');
-          badge.className = `chat-token-badge ${item.id === dapatkanIdChatSesuaiKonteks() ? 'active' : ''}`;
-          badge.innerText = `KODE: ${item.data.kodeAntrean}`;
+          badge.className = `chat-user-badge ${item.id === dapatkanIdChatSesuaiKonteks() ? 'active' : ''}`;
+          badge.innerText = `Kode: ${item.data.kodeAntrean}`;
           badge.onclick = function() {
-              currentSelectedChatId = item.id;
-              perbaruiSidebarKamarChat();
+              bukaKamarObrolanSama(item.id, item.data.kodeAntrean);
           };
           barKamar.appendChild(badge);
       });
 
       const currentValidId = dapatkanIdChatSesuaiKonteks();
-      if (currentValidId) {
-          sambungkanObrolanChatMasingMasing(currentValidId);
+      if (currentValidId && !activeChatOrderId) {
+          const antreanTerpilih = listPesananAktifArray.find(i => i.id === currentValidId);
+          bukaKamarObrolanSama(currentValidId, antreanTerpilih.data.kodeAntrean);
       }
   }
 
   function dapatkanIdChatSesuaiKonteks() {
-      if(currentSelectedChatId && listPesananAktifArray.some(i => i.id === currentSelectedChatId)) {
-          return currentSelectedChatId;
+      if(activeChatOrderId && listPesananAktifArray.some(i => i.id === activeChatOrderId)) {
+          return activeChatOrderId;
       }
       if(listPesananAktifArray.length > 0) {
-          currentSelectedChatId = listPesananAktifArray[0].id;
-          return currentSelectedChatId;
+          return listPesananAktifArray[0].id;
       }
       return "";
   }
 
-  function sambungkanObrolanChatMasingMasing(idDoc) {
-      if(unregisterChatMessages) unregisterChatMessages();
+  // LOGIKA CHAT DUA ARAH REAL-TIME SAMA SEPERTI KASIR (FIXED PESAN SEBELUMNYA HILANG)
+  window.bukaKamarObrolanSama = function(idDoc, kodeAntrean) {
+      activeChatOrderId = idDoc;
+      document.querySelectorAll('.chat-user-badge').forEach(b => b.classList.toggle('active', b.innerText.includes(kodeAntrean)));
+      document.getElementById('chatMessageField').disabled = false;
+      document.getElementById('btnKirimMsg').disabled = false;
+      document.getElementById('chatMessageField').placeholder = `Kirim ke Kasir (Antrean ${kodeAntrean})...`;
 
-      const scroller = document.getElementById('chatScrollerArea');
-      document.getElementById('chatMessageInput').disabled = false;
-      document.getElementById('chatSendButton').disabled = false;
-      document.getElementById('chatNoticeLabel').style.display = "none";
-
-      // PANGGILAN DATABASE UTAMA: Logika query & orderBy berjalan normal melacak riwayat obrolan
+      if (unregisterChatListener) unregisterChatListener();
+      const area = document.getElementById('msg-history-area');
       const chatQuery = query(collection(db, "pesanan", idDoc, "percakapan"), orderBy("timestamp", "asc"));
       
-      unregisterChatMessages = onSnapshot(chatQuery, (snapshot) => {
-          scroller.innerHTML = "";
-          if(snapshot.empty) {
-              scroller.innerHTML = `<div style="color:#94a3b8; font-size:12px; text-align:center; margin-top:100px;">Ketik pesan Anda ke kasir di atas.</div>`;
-              return;
-          }
-          snapshot.forEach(msgDoc => {
+      unregisterChatListener = onSnapshot(chatQuery, (chatSnapshot) => {
+          area.innerHTML = "";
+          if (chatSnapshot.empty) { area.innerHTML = `<div style="color:#94a3b8; text-align:center; font-size:12px;">Mulai chat dengan kasir.</div>`; return; }
+          chatSnapshot.forEach(msgDoc => {
               const msgData = msgDoc.data();
-              const bbl = document.createElement('div');
-              bbl.className = `chat-bubble ${msgData.pengirim === 'customer' ? 'me' : 'staff'}`;
-              bbl.innerText = msgData.teks;
-              scroller.appendChild(bbl);
+              const msgRow = document.createElement('div');
+              // SINKRONISASI IDENTITAS PENGIRIM: customer (me - kanan), kasir (staff - kiri)
+              msgRow.className = `bubble-msg ${msgData.pengirim === 'customer' ? 'bubble-customer' : 'bubble-kasir'}`;
+              msgRow.innerText = msgData.teks;
+              area.appendChild(msgRow);
           });
           
-          // AUTO SCROLL: Meluncur ke bagian bawah riwayat chat secara otomatis
           setTimeout(() => {
-              scroller.scrollTop = scroller.scrollHeight;
-          }, 50);
+              area.scrollTop = area.scrollHeight;
+          }, 30);
       });
   }
 
-  document.getElementById('chatSendButton').addEventListener('click', eksekusiKirimPesan);
-  document.getElementById('chatMessageInput').addEventListener('keypress', (e) => {
-      if(e.key === 'Enter') eksekusiKirimPesan();
+  document.getElementById('btnKirimMsg').addEventListener('click', eksekusiKirimPesanSama);
+  document.getElementById('chatMessageField').addEventListener('keypress', (e) => {
+      if(e.key === 'Enter') eksekusiKirimPesanSama();
   });
 
-  async function eksekusiKirimPesan() {
-      const inputFld = document.getElementById('chatMessageInput');
+  async function eksekusiKirimPesanSama() {
+      const inputFld = document.getElementById('chatMessageField');
       const valTxt = inputFld.value.trim();
       const targetIdRoom = dapatkanIdChatSesuaiKonteks();
       
@@ -567,7 +566,7 @@
     { kategori: "Signature Coffee", nama: "Caramel Machiato", harga: 27000 },
     { kategori: "Flavored Coffee", nama: "Rum", harga: 26000 },
     { kategori: "Flavored Coffee", nama: "Vanilla", harga: 26000 },
-    { kategori: "Flavored Coffee", nama: "Caramel", harga: 26000 },
+    { kategori: "Caramel", nama: "Caramel", harga: 26000 },
     { kategori: "Flavored Coffee", nama: "Salted Caramel", harga: 26000 },
     { kategori: "Flavored Coffee", nama: "Pandan", harga: 26000 },
     { kategori: "Flavored Coffee", nama: "Kurma", harga: 26000 },
@@ -599,7 +598,7 @@
     { kategori: "1 Liter", nama: "Botol 1L Belgian Coklat", harga: 100000 },
     { kategori: "Additional Topping", nama: "Upsize Gelas", harga: 5000 },
     { kategori: "Additional Topping", nama: "Extra Cream", harga: 5000 },
-    { kategori: "Additional Topping", stroke: 1, nama: "Extra Shot", harga: 5000 },
+    { kategori: "Additional Topping", nama: "Extra Shot", harga: 5000 },
     { kategori: "Additional Topping", nama: "Extra Jelly", harga: 5000 }
   ];
 
@@ -624,6 +623,11 @@
             orderMetaBox.style.display = "none";
             mainBox.classList.remove('body-padding-pesan');
             mainBox.style.overflowY = "hidden"; 
+            // Pemicu render ulang tata letak sidebar chat saat tab dibuka
+            setTimeout(() => {
+                const area = document.getElementById('msg-history-area');
+                area.scrollTop = area.scrollHeight;
+            }, 50);
         } else { 
             orderMetaBox.style.display = "none"; 
             mainBox.classList.remove('body-padding-pesan');
