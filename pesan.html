@@ -156,6 +156,35 @@
   const app = initializeApp(firebaseConfig);
   const db = getFirestore(app);
 
+  // MODE QR / SCAN BARU:
+  // Buat QR code menuju link website dengan tambahan: ?scan=1
+  // Contoh: https://domain-anda.github.io/nama-folder/?scan=1
+  // Setiap customer scan QR tersebut, halaman akan dibuka dalam kondisi kosong tanpa bekas transaksi sebelumnya.
+  function bersihkanSesiJikaDariScanQR() {
+      const params = new URLSearchParams(window.location.search);
+      const dariScan = params.get("scan") === "1" || params.get("fresh") === "1" || params.get("qris") === "1";
+
+      if (!dariScan) return;
+
+      Object.keys(localStorage).forEach(key => {
+          if (
+              key.startsWith("local_keranjang_customer") ||
+              key.startsWith("multi_id_pesanan_customer") ||
+              key.startsWith("id_popup_menunggu_bayar") ||
+              key.startsWith("kode_antrean_aktif_saat_ini") ||
+              key.startsWith("timer_clear_")
+          ) {
+              localStorage.removeItem(key);
+          }
+      });
+
+      const cleanUrl = window.location.origin + window.location.pathname;
+      window.history.replaceState({}, document.title, cleanUrl);
+  }
+
+  bersihkanSesiJikaDariScanQR();
+
+
   let kodePesananAktif = "";
   let keranjangPesanan = {};
   let totalHargaGlobal = 0;
