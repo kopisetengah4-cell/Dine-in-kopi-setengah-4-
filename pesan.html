@@ -76,6 +76,12 @@
         .star-btn.warna-kuning { color: #f59e0b; }
         .textarea-ulasan { width: 100%; border-radius: 12px; border: 1px solid #cbd5e1; padding: 10px; font-size: 13px; font-family: inherit; resize: none; box-sizing: border-box; outline: none; background: #f8fafc; margin-top: 5px; }
         .btn-kirim-ulasan { background: #10b981; color: white; border: none; padding: 8px 20px; border-radius: 50px; font-size: 13px; font-weight: bold; margin-top: 10px; cursor: pointer; width: 100%; box-shadow: 0 3px 8px rgba(16,185,129,0.2); }
+
+        .chat-nav-wrap { position: relative; display: inline-block; }
+        .notif-chat-badge { display: none; position: absolute; top: -9px; right: -16px; background: #ef4444; color: white; min-width: 18px; height: 18px; padding: 0 5px; border-radius: 999px; font-size: 10px; line-height: 18px; text-align: center; font-weight: bold; box-shadow: 0 2px 6px rgba(239,68,68,.35); }
+        .chat-user-badge.has-new { background: #fee2e2; color: #b91c1c; border: 1px solid #fecaca; }
+        .chat-user-badge.has-new::after { content: " • Baru"; font-size: 11px; color: #ef4444; }
+        .chat-alert-top { display:none; background:#eff6ff; color:#1d4ed8; border:1px solid #bfdbfe; border-radius:14px; padding:8px 12px; margin-bottom:8px; font-size:12px; font-weight:700; text-align:center; }
     
         @media (min-width: 520px) {
             .menu-grid { grid-template-columns: repeat(3, 1fr); }
@@ -102,6 +108,7 @@
     </div>
 
     <div id="panel-chat" class="tab-content">
+        <div id="chatAlertTop" class="chat-alert-top">Ada pesan baru dari kasir</div>
         <div class="chat-container">
             <div class="chat-sidebar" id="room-list-sidebar">
                 <div style="color:#94a3b8; padding: 8px 10px; font-size:13px;">Belum ada transaksi aktif</div>
@@ -127,7 +134,7 @@
     <div class="nav-tabs-bottom">
         <button class="nav-btn active" id="btn-tab-pesan" onclick="gantiDashboard('pesan')">Pesan</button>
         <button class="nav-btn" id="btn-tab-status" onclick="gantiDashboard('status')">Status</button>
-        <button class="nav-btn" id="btn-tab-chat" onclick="gantiDashboard('chat')">Chat</button>
+        <button class="nav-btn" id="btn-tab-chat" onclick="gantiDashboard('chat')"><span class="chat-nav-wrap">Chat<span class="notif-chat-badge" id="notifChatBadge">0</span></span></button>
     </div>
 </div>
 
@@ -197,8 +204,16 @@
   let activeChatOrderId = "";
   let mapListenerStatus = {};
   let unregisterChatListener = null;
+  let mapListenerChatNotif = {};
+  let chatNotifByOrder = {};
+  let lastSeenKasirChat = JSON.parse(localStorage.getItem("last_seen_kasir_chat") || "{}");
+  let customerSessionId = localStorage.getItem("customer_session_id") || "";
+  if (!customerSessionId) {
+      customerSessionId = "cust_" + Date.now() + "_" + Math.random().toString(36).slice(2, 9);
+      localStorage.setItem("customer_session_id", customerSessionId);
+  }
 
-  function buatKodeAcak() { return String(Math.floor(Math.random() * 900) + 100); }
+  function buatKodeAcak() { return String(Date.now()).slice(-4) + String(Math.floor(Math.random() * 90) + 10); }
 
   const gambarMenuMap = {
   "Setengah Empat": "setengah-empat.png",
@@ -394,7 +409,8 @@
               catatan: catatanInput,
               totalBayar: totalHargaGlobal,
               status: "Menunggu Pembayaran",
-              waktuLokal: Date.now()
+              waktuLokal: Date.now(),
+              customerSessionId: customerSessionId
           });
 
           simpanIdKeDaftarSesiLokal(docRef.id);
@@ -452,6 +468,78 @@
       }
   }
 
+
+  function kosongkanStatusDanChatCustomer() {
+      listPesananAktifArray = [];
+      activeChatOrderId = "";
+
+      document.getElementById('layarPopup').style.display = 'none';
+      localStorage.removeItem('id_popup_menunggu_bayar');
+
+      document.getElementById('status-list-container').innerHTML = `
+          <div class="status-card-full" id="boxStatusKosong">
+              <p style="color: #64748b; font-size: 14px;">Belum ada riwayat pesanan aktif.</p>
+              <p style="color: #94a3b8; font-size: 12px;">Silakan pilih menu di tab Pesan terlebih dahulu.</p>
+          </div>
+      `;
+
+      document.getElementById('room-list-sidebar').innerHTML = `<div style="color:#94a3b8; padding: 8px 10px; font-size:13px;">Belum ada transaksi aktif</div>`;
+      document.getElementById('msg-history-area').innerHTML = `<div style="color:#94a3b8; text-align:center; margin-top:100px; font-size:14px;">Belum ada transaksi aktif untuk memulai chat.</div>`;
+      document.getElementById('chatMessageField').disabled = true;
+      document.getElementById('btnKirimMsg').disabled = true;
+      document.getElementById('chatMessageField').placeholder = "Pilih antrean...";
+      updateBadgeNotifChat();
+  }
+
+  function updateBadgeNotifChat() {
+      const total = Object.values(chatNotifByOrder).reduce((a,b) => a + (b || 0), 0);
+      const badge = document.getElementById('notifChatBadge');
+      const alertTop = document.getElementById('chatAlertTop');
+
+      if (badge) {
+          badge.innerText = total > 99 ? "99+" : total;
+          badge.style.display = total > 0 ? "inline-block" : "none";
+      }
+
+      if (alertTop) {
+          alertTop.style.display = total > 0 ? "block" : "none";
+          alertTop.innerText = total > 0 ? `Ada ${total} pesan baru dari kasir` : "";
+      }
+  }
+
+  function mulaiListenerNotifChatUntukOrder(idDoc) {
+      if (mapListenerChatNotif[idDoc]) return;
+
+      const chatQuery = query(collection(db, "pesanan", idDoc, "percakapan"), orderBy("timestamp", "asc"));
+      mapListenerChatNotif[idDoc] = onSnapshot(chatQuery, (chatSnapshot) => {
+          let countBaru = 0;
+          let lastTs = lastSeenKasirChat[idDoc] || 0;
+
+          chatSnapshot.forEach(msgDoc => {
+              const msgData = msgDoc.data();
+              if (msgData.pengirim === "kasir" && (msgData.timestamp || 0) > lastTs) {
+                  countBaru++;
+              }
+          });
+
+          chatNotifByOrder[idDoc] = countBaru;
+          updateBadgeNotifChat();
+          perbaruiSidebarKamarChat();
+      });
+  }
+
+  function stopListenerNotifChatUntukOrder(idDoc) {
+      if (mapListenerChatNotif[idDoc]) {
+          mapListenerChatNotif[idDoc]();
+          delete mapListenerChatNotif[idDoc];
+      }
+      delete chatNotifByOrder[idDoc];
+      delete lastSeenKasirChat[idDoc];
+      localStorage.setItem("last_seen_kasir_chat", JSON.stringify(lastSeenKasirChat));
+      updateBadgeNotifChat();
+  }
+
+
   window.mulaiPemantauanMultiOrder = function() {
       const savedSesi = localStorage.getItem('multi_id_pesanan_customer');
       if(!savedSesi) return;
@@ -466,6 +554,7 @@
       listPesananAktifArray = [];
 
       if(arraySesi.length === 0) {
+          Object.keys(mapListenerChatNotif).forEach(stopListenerNotifChatUntukOrder);
           document.getElementById('status-list-container').innerHTML = `
               <div class="status-card-full" id="boxStatusKosong">
                   <p style="color: #64748b; font-size: 14px;">Belum ada riwayat pesanan aktif.</p>
@@ -486,6 +575,12 @@
 
                   if(indeks !== -1) listPesananAktifArray[indeks].data = data;
                   else listPesananAktifArray.push({ id: documentId, data: data });
+
+                  if (data.status !== "Selesai") {
+                      mulaiListenerNotifChatUntukOrder(documentId);
+                  } else {
+                      stopListenerNotifChatUntukOrder(documentId);
+                  }
 
                   if (data.status === "Diproses") {
                       document.getElementById('layarPopup').style.display = 'none';
@@ -520,10 +615,19 @@
                   perbaruiSidebarKamarChat();
 
               } else {
+                  const idPopup = localStorage.getItem('id_popup_menunggu_bayar') || document.getElementById('currentPopupDocId').value;
+
                   hapusIdDariSesiLokal(documentId);
                   localStorage.removeItem(`timer_clear_${documentId}`);
+                  stopListenerNotifChatUntukOrder(documentId);
 
                   if(mapListenerStatus[documentId]) mapListenerStatus[documentId]();
+
+                  if (idPopup === documentId) {
+                      alert("Pesanan dibatalkan/ditolak oleh kasir.");
+                      kosongkanStatusDanChatCustomer();
+                      window.gantiDashboard('pesan');
+                  }
 
                   mulaiPemantauanMultiOrder();
               }
@@ -637,6 +741,7 @@
             mapListenerStatus[idDoc]();
             delete mapListenerStatus[idDoc];
         }
+        stopListenerNotifChatUntukOrder(idDoc);
 
         listPesananAktifArray = listPesananAktifArray.filter(item => item.id !== idDoc);
         activeChatOrderId = "";
@@ -684,7 +789,8 @@
 
       listChatValid.forEach(item => {
           const badge = document.createElement('div');
-          badge.className = `chat-user-badge ${item.id === dapatkanIdChatSesuaiKonteks(listChatValid) ? 'active' : ''}`;
+          const punyaNotif = (chatNotifByOrder[item.id] || 0) > 0;
+          badge.className = `chat-user-badge ${item.id === dapatkanIdChatSesuaiKonteks(listChatValid) ? 'active' : ''} ${punyaNotif ? 'has-new' : ''}`;
           badge.innerText = `Kode: ${item.data.kodeAntrean}`;
           badge.onclick = function() {
               bukaKamarObrolanSama(item.id, item.data.kodeAntrean);
@@ -715,6 +821,11 @@
       document.getElementById('btnKirimMsg').disabled = false;
       document.getElementById('chatMessageField').placeholder = `Kirim ke Kasir (Antrean ${kodeAntrean})...`;
 
+      chatNotifByOrder[idDoc] = 0;
+      lastSeenKasirChat[idDoc] = Date.now();
+      localStorage.setItem("last_seen_kasir_chat", JSON.stringify(lastSeenKasirChat));
+      updateBadgeNotifChat();
+
       if (unregisterChatListener) unregisterChatListener();
 
       const area = document.getElementById('msg-history-area');
@@ -728,6 +839,7 @@
               return;
           }
 
+          let latestKasirTimestamp = lastSeenKasirChat[idDoc] || 0;
           chatSnapshot.forEach(msgDoc => {
               const msgData = msgDoc.data();
               const msgRow = document.createElement('div');
@@ -735,8 +847,17 @@
               msgRow.className = `bubble-msg ${msgData.pengirim === 'customer' ? 'bubble-customer' : 'bubble-kasir'}`;
               msgRow.innerText = msgData.teks;
 
+              if (msgData.pengirim === "kasir" && (msgData.timestamp || 0) > latestKasirTimestamp) {
+                  latestKasirTimestamp = msgData.timestamp || Date.now();
+              }
+
               area.appendChild(msgRow);
           });
+
+          lastSeenKasirChat[idDoc] = latestKasirTimestamp;
+          chatNotifByOrder[idDoc] = 0;
+          localStorage.setItem("last_seen_kasir_chat", JSON.stringify(lastSeenKasirChat));
+          updateBadgeNotifChat();
 
           setTimeout(() => { area.scrollTop = area.scrollHeight; }, 30);
       });
