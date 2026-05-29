@@ -538,6 +538,50 @@
       kartu.setAttribute('data-rating-temp', nilaiBintang);
   }
 
+
+  function kosongkanStatusDanChatCustomer(idDoc) {
+      hapusIdDariSesiLokal(idDoc);
+      localStorage.removeItem(`timer_clear_${idDoc}`);
+
+      if (mapListenerStatus[idDoc]) {
+          mapListenerStatus[idDoc]();
+          delete mapListenerStatus[idDoc];
+      }
+
+      if (activeChatOrderId === idDoc) {
+          activeChatOrderId = "";
+      }
+
+      if (unregisterChatListener) {
+          unregisterChatListener();
+          unregisterChatListener = null;
+      }
+
+      listPesananAktifArray = listPesananAktifArray.filter(item => item.id !== idDoc);
+
+      document.getElementById('status-list-container').innerHTML = `
+          <div class="status-card-full" id="boxStatusKosong">
+              <p style="color: #64748b; font-size: 14px;">Belum ada riwayat pesanan aktif.</p>
+              <p style="color: #94a3b8; font-size: 12px;">Silakan pilih menu di tab Pesan terlebih dahulu.</p>
+          </div>
+      `;
+
+      document.getElementById('room-list-sidebar').innerHTML = `
+          <div style="color:#94a3b8; padding: 8px 10px; font-size:13px;">Belum ada transaksi aktif</div>
+      `;
+
+      document.getElementById('msg-history-area').innerHTML = `
+          <div style="color:#94a3b8; text-align:center; margin-top:100px; font-size:14px;">Belum ada transaksi aktif untuk memulai chat.</div>
+      `;
+
+      document.getElementById('chatMessageField').value = "";
+      document.getElementById('chatMessageField').disabled = true;
+      document.getElementById('btnKirimMsg').disabled = true;
+      document.getElementById('chatMessageField').placeholder = "Pilih antrean...";
+
+      window.gantiDashboard('pesan');
+  }
+
   window.kirimUlasanKeFirebase = async function(idDoc) {
       const kartu = document.getElementById(`txtUlasan_${idDoc}`).parentElement;
       const nilaiRating = kartu.getAttribute('data-rating-temp') || "0";
@@ -561,6 +605,7 @@
           });
 
           alert("Terima kasih atas penilaian Anda!");
+          kosongkanStatusDanChatCustomer(idDoc);
 
       } catch(e) {
           alert("Gagal mengirim ulasan.");
