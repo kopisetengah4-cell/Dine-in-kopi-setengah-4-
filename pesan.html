@@ -563,7 +563,7 @@
                   ${ratingSelesai > 0 && ulasanSelesai ? `
                       <p style="font-size:13px; color:#1e293b; background:#f1f5f9; padding:8px; border-radius:8px; margin:5px 0;">"${ulasanSelesai}"</p>
                   ` : `
-                      <textarea id="txtUlasan_${idDoc}" class="textarea-ulasan" placeholder="Berikan ulasan/masukan Anda..."></textarea>
+                      <textarea id="txtUlasan_${idDoc}" class="textarea-ulasan" placeholder="Ulasan opsional..."></textarea>
                       <button class="btn-kirim-ulasan" onclick="window.kirimUlasanKeFirebase('${idDoc}')">Kirim Ulasan</button>
                   `}
               `;
@@ -610,33 +610,52 @@
   }
 
   window.kirimUlasanKeFirebase = async function(idDoc) {
-      const kartu = document.getElementById(`txtUlasan_${idDoc}`).parentElement;
-      const nilaiRating = kartu.getAttribute('data-rating-temp') || "0";
-      const teksUlasan = document.getElementById(`txtUlasan_${idDoc}`).value.trim();
+    const kartu = document.getElementById(`txtUlasan_${idDoc}`).parentElement;
+    const nilaiRating = kartu.getAttribute('data-rating-temp') || "0";
+    const teksUlasan = document.getElementById(`txtUlasan_${idDoc}`).value.trim();
 
-      if(nilaiRating === "0") {
-          alert("Silakan klik salah satu bintang terlebih dahulu!");
-          return;
-      }
+    if(nilaiRating === "0") { 
+        alert("Silakan klik salah satu bintang terlebih dahulu!"); 
+        return; 
+    }
 
-      if(!teksUlasan) {
-          alert("Kolom masukan tidak boleh kosong!");
-          return;
-      }
+    try {
+        await updateDoc(doc(db, "pesanan", idDoc), {
+            rating: parseInt(nilaiRating),
+            ulasan: teksUlasan || "",
+            selesaiRating: true,
+            waktuRating: Date.now()
+        });
 
-      try {
-          await updateDoc(doc(db, "pesanan", idDoc), {
-              rating: parseInt(nilaiRating),
-              ulasan: teksUlasan,
-              waktuUlasan: Date.now()
-          });
+        alert("Terima kasih atas penilaian Anda!");
 
-          alert("Terima kasih atas penilaian Anda!");
+        // Hapus pesanan dari status & chat customer setelah rating
+        hapusIdDariSesiLokal(idDoc);
+        localStorage.removeItem(`timer_clear_${idDoc}`);
 
-      } catch(e) {
-          alert("Gagal mengirim ulasan.");
-      }
-  }
+        if(mapListenerStatus[idDoc]) {
+            mapListenerStatus[idDoc]();
+            delete mapListenerStatus[idDoc];
+        }
+
+        listPesananAktifArray = listPesananAktifArray.filter(item => item.id !== idDoc);
+        activeChatOrderId = "";
+
+        document.getElementById('status-list-container').innerHTML = `
+            <div class="status-card-full" id="boxStatusKosong">
+                <p style="color: #64748b; font-size: 14px;">Belum ada riwayat pesanan aktif.</p>
+                <p style="color: #94a3b8; font-size: 12px;">Silakan pilih menu di tab Pesan terlebih dahulu.</p>
+            </div>
+        `;
+
+        document.getElementById('trackerLive').style.display = "none";
+        perbaruiSidebarKamarChat();
+        window.gantiDashboard('pesan');
+
+    } catch(e) { 
+        alert("Gagal mengirim ulasan."); 
+    }
+}
 
   window.bukaChatRoomSpesifik = function(idDoc) {
       activeChatOrderId = idDoc;
