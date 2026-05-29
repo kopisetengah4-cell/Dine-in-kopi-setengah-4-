@@ -548,15 +548,14 @@
       const barKamar = document.getElementById('room-list-sidebar');
       barKamar.innerHTML = "";
 
-      const listChatValid = listPesananAktifArray.filter(item => {
-          if(item.data.status === "Selesai") {
-              let limitWaktu = localStorage.getItem(`timer_clear_${item.id}`);
-              if(limitWaktu && Date.now() >= parseInt(limitWaktu)) return false;
-          }
-          return true;
-      });
+      const listChatValid = listPesananAktifArray.filter(item => item.data.status !== "Selesai");
 
       if(listChatValid.length === 0) {
+          activeChatOrderId = "";
+          if (unregisterChatListener) {
+              unregisterChatListener();
+              unregisterChatListener = null;
+          }
           document.getElementById('chatMessageField').disabled = true;
           document.getElementById('btnKirimMsg').disabled = true;
           document.getElementById('chatMessageField').placeholder = "Pilih antrean...";
@@ -576,7 +575,7 @@
 
       const currentValidId = dapatkanIdChatSesuaiKonteks(listChatValid);
 
-      if (currentValidId && !activeChatOrderId) {
+      if (currentValidId && (!activeChatOrderId || !listChatValid.some(i => i.id === activeChatOrderId))) {
           const antreanTerpilih = listChatValid.find(i => i.id === currentValidId);
           bukaKamarObrolanSama(currentValidId, antreanTerpilih.data.kodeAntrean);
       }
