@@ -350,6 +350,7 @@
   let unregisterChatListener = null;
   let semuaDataUlasan = [];
   let semuaPesananSelesai = [];
+  let semuaPesananAktifChat = [];
   let filterRatingAktif = "semua";
   let chatNotifCount = 0;
   let chatNotifListenerMap = {};
@@ -388,7 +389,7 @@
       }
   }
 
-  function pasangListenerNotifChat(idDoc) {
+  function pasangListenerNotifChat(idDoc, kodeAntrean) {
       if (chatNotifListenerMap[idDoc]) return;
 
       const chatQuery = query(collection(db, "pesanan", idDoc, "percakapan"), orderBy("timestamp", "asc"));
@@ -411,6 +412,10 @@
                   if (!tabChatSedangDibuka || !sedangRoomYangSama) {
                       chatNotifCount++;
                       updateChatBadge();
+                  }
+
+                  if (tabChatSedangDibuka && !sedangRoomYangSama) {
+                      bukaKamarObrolan(idDoc, kodeAntrean);
                   }
               }
           });
@@ -450,6 +455,7 @@
 
       semuaDataUlasan = [];
       semuaPesananSelesai = [];
+      semuaPesananAktifChat = [];
 
       let countBaru = 0;
       let htmlSidebar = "";
@@ -469,15 +475,31 @@
           }
 
           if (data.status !== "Selesai") {
+              semuaPesananAktifChat.push({ id: idDoc, data });
               const kelasAktif = idDoc === activeChatOrderId ? "active" : "";
               htmlSidebar += `<div class="chat-user-badge ${kelasAktif}" onclick="bukaKamarObrolan('${idDoc}', '${escapeHTML(data.kodeAntrean)}')">Kode: ${escapeHTML(data.kodeAntrean)}</div>`;
-              pasangListenerNotifChat(idDoc);
+              pasangListenerNotifChat(idDoc, data.kodeAntrean);
           }
 
           renderKartuKeHTML(idDoc, data);
       });
 
       document.getElementById('room-list-sidebar').innerHTML = htmlSidebar || `<div style="color:#94a3b8; padding: 8px 10px; font-size:13px;">Belum ada customer aktif</div>`;
+
+      const chatMasihAktif = activeChatOrderId && semuaPesananAktifChat.some(item => item.id === activeChatOrderId);
+
+      if (activeChatOrderId && !chatMasihAktif) {
+          resetSistemChatLayar("Chat pesanan selesai sudah ditutup.");
+      }
+
+      if (!activeChatOrderId && semuaPesananAktifChat.length > 0) {
+          const pesananTerbaru = semuaPesananAktifChat[0];
+          bukaKamarObrolan(pesananTerbaru.id, pesananTerbaru.data.kodeAntrean);
+      }
+
+      if (semuaPesananAktifChat.length === 0) {
+          resetSistemChatLayar("Belum ada customer aktif untuk chat.");
+      }
 
       const badgeBaru = document.getElementById('notif-baru-badge');
       if (countBaru > 0) {
@@ -487,7 +509,7 @@
           badgeBaru.style.display = "none";
       }
 
-      bersihkanListenerNotifChat(snapshot.docs.map(d => d.id));
+      bersihkanListenerNotifChat(semuaPesananAktifChat.map(item => item.id));
       renderDashboardUlasan();
       renderDashboardSelesaiBerdasarkanTanggal();
       tampilkanEmptyJikaKosong();
@@ -716,6 +738,22 @@
               alert("Gagal menolak pesanan.");
           }
       }
+  }
+
+  function resetSistemChatLayar(pesan = "Silakan pilih nomor antrean customer di atas untuk memulai obrolan") {
+      activeChatOrderId = "";
+
+      if (unregisterChatListener) {
+          unregisterChatListener();
+          unregisterChatListener = null;
+      }
+
+      document.getElementById('chatMessageField').value = "";
+      document.getElementById('chatMessageField').disabled = true;
+      document.getElementById('btnKirimMsg').disabled = true;
+      document.getElementById('chatMessageField').placeholder = "Pilih antrean...";
+      document.getElementById('msg-history-area').innerHTML = `<div style="color:#94a3b8; text-align:center; margin-top:100px; font-size:14px;">${pesan}</div>`;
+      document.querySelectorAll('.chat-user-badge').forEach(b => b.classList.remove('active'));
   }
 
   window.bukaKamarObrolan = function(idDoc, kodeAntrean) {
