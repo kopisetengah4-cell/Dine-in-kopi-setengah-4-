@@ -92,7 +92,7 @@
 
 <div class="header-fixed">
     <h2>Kopi Setengah Empat</h2>
-    <div class="info-bubble">KODE ANTREAN: <span id="kodePesananTampil">...</span></div>
+    <div class="info-bubble">KODE PESANAN: <span id="kodePesananTampil">...</span></div>
 </div>
 
 <div class="content-scrollable body-padding-pesan" id="mainLayarContent">
@@ -213,7 +213,7 @@
       localStorage.setItem("customer_session_id", customerSessionId);
   }
 
-  function buatKodeAcak() { return String(Date.now()).slice(-4) + String(Math.floor(Math.random() * 90) + 10); }
+  function buatKodeAcak() { return String(Math.floor(Math.random() * 900) + 100); }
 
   const gambarMenuMap = {
   "Setengah Empat": "setengah-empat.png",
@@ -582,6 +582,12 @@
                       stopListenerNotifChatUntukOrder(documentId);
                   }
 
+                  if (data.status === "Ditolak" || data.status === "Dibatalkan" || data.status === "Batal") {
+                      kosongkanStatusDanChatCustomer(documentId);
+                      window.gantiDashboard('pesan');
+                      return;
+                  }
+
                   if (data.status === "Diproses") {
                       document.getElementById('layarPopup').style.display = 'none';
                       localStorage.removeItem('id_popup_menunggu_bayar');
@@ -661,10 +667,10 @@
 
               itemCard.innerHTML = `
                   <h3 style="margin:0; color:#10b981;">Pesanan Selesai</h3>
-                  <div style="font-size: 16px; font-weight: bold; color: #64748b; margin-top:5px;">KODE: ${data.kodeAntrean}</div>
+                  <div style="font-size: 16px; font-weight: bold; color: #64748b; margin-top:5px;">KODE PESANAN: ${data.kodeAntrean}</div>
                   <p style="font-size:12px; color:#64748b; margin:5px 0;">Bagaimana rasa kopi & pelayanan kami?</p>
                   <div class="star-rating-area">${htmlBintang}</div>
-                  ${ratingSelesai > 0 && ulasanSelesai ? `
+                  ${ratingSelesai > 0 ? `
                       <p style="font-size:13px; color:#1e293b; background:#f1f5f9; padding:8px; border-radius:8px; margin:5px 0;">"${ulasanSelesai}"</p>
                   ` : `
                       <textarea id="txtUlasan_${idDoc}" class="textarea-ulasan" placeholder="Ulasan opsional..."></textarea>
@@ -690,7 +696,7 @@
                   <button class="btn-chat-shortcut" onclick="bukaChatRoomSpesifik('${idDoc}')">💬</button>
                   <h3 style="margin:0; color:#1e293b;">Status Transaksi</h3>
                   <div class="status-main-badge ${klsWarna}">${teksStatus}</div>
-                  <div style="font-size: 24px; font-weight: bold; color: #0ea5e9; margin-bottom: 5px;">KODE: ${data.kodeAntrean}</div>
+                  <div style="font-size: 24px; font-weight: bold; color: #0ea5e9; margin-bottom: 5px;">KODE PESANAN: ${data.kodeAntrean}</div>
                   <p style="font-size: 13px; color: #64748b; margin: 0;">${descTeks}</p>
               `;
 
@@ -714,53 +720,48 @@
   }
 
   window.kirimUlasanKeFirebase = async function(idDoc) {
-    const kartu = document.getElementById(`txtUlasan_${idDoc}`).parentElement;
-    const nilaiRating = kartu.getAttribute('data-rating-temp') || "0";
-    const teksUlasan = document.getElementById(`txtUlasan_${idDoc}`).value.trim();
+      const textarea = document.getElementById(`txtUlasan_${idDoc}`);
+      const kartu = textarea ? textarea.parentElement : null;
+      const nilaiRating = kartu ? (kartu.getAttribute('data-rating-temp') || "0") : "0";
+      const teksUlasan = textarea ? textarea.value.trim() : "";
 
-    if(nilaiRating === "0") { 
-        alert("Silakan klik salah satu bintang terlebih dahulu!"); 
-        return; 
-    }
+      if (nilaiRating === "0") {
+          alert("Silakan klik salah satu bintang terlebih dahulu!");
+          return;
+      }
 
-    try {
-        await updateDoc(doc(db, "pesanan", idDoc), {
-            rating: parseInt(nilaiRating),
-            ulasan: teksUlasan || "",
-            selesaiRating: true,
-            waktuRating: Date.now()
-        });
+      try {
+          await updateDoc(doc(db, "pesanan", idDoc), {
+              rating: parseInt(nilaiRating),
+              ulasan: teksUlasan,
+              selesaiRating: true,
+              waktuRating: Date.now(),
+              waktuUlasan: Date.now()
+          });
 
-        
+          // Setelah rating terkirim, langsung kosongkan status & chat customer tanpa popup tambahan
+          kosongkanStatusDanChatCustomer(idDoc);
+          window.gantiDashboard('pesan');
 
-        // Hapus pesanan dari status & chat customer setelah rating
-        hapusIdDariSesiLokal(idDoc);
-        localStorage.removeItem(`timer_clear_${idDoc}`);
+      } catch(e) {
+          console.error("Gagal mengirim rating:", e);
 
-        if(mapListenerStatus[idDoc]) {
-            mapListenerStatus[idDoc]();
-            delete mapListenerStatus[idDoc];
-        }
-        stopListenerNotifChatUntukOrder(idDoc);
+          // Fallback: tetap coba kirim data minimal jika ada field yang ditolak rules lama
+          try {
+              await updateDoc(doc(db, "pesanan", idDoc), {
+                  rating: parseInt(nilaiRating),
+                  ulasan: teksUlasan
+              });
 
-        listPesananAktifArray = listPesananAktifArray.filter(item => item.id !== idDoc);
-        activeChatOrderId = "";
+              kosongkanStatusDanChatCustomer(idDoc);
+              window.gantiDashboard('pesan');
 
-        document.getElementById('status-list-container').innerHTML = `
-            <div class="status-card-full" id="boxStatusKosong">
-                <p style="color: #64748b; font-size: 14px;">Belum ada riwayat pesanan aktif.</p>
-                <p style="color: #94a3b8; font-size: 12px;">Silakan pilih menu di tab Pesan terlebih dahulu.</p>
-            </div>
-        `;
-
-        document.getElementById('trackerLive').style.display = "none";
-        perbaruiSidebarKamarChat();
-        window.gantiDashboard('pesan');
-
-    } catch(e) { 
-        alert("Gagal mengirim ulasan."); 
-    }
-}
+          } catch(err) {
+              console.error("Gagal mengirim rating fallback:", err);
+              alert("Gagal mengirim ulasan. Coba lagi atau hubungi kasir.");
+          }
+      }
+  }
 
   window.bukaChatRoomSpesifik = function(idDoc) {
       activeChatOrderId = idDoc;
@@ -1025,6 +1026,7 @@
             mainBox.classList.add('body-padding-pesan');
             mainBox.style.overflowY = "auto";
         } else if (tabId === 'chat') {
+            if (typeof sembunyikanNotifChatCustomer === 'function') sembunyikanNotifChatCustomer();
             orderMetaBox.style.display = "none";
             mainBox.classList.remove('body-padding-pesan');
             mainBox.style.overflowY = "hidden";
