@@ -76,9 +76,6 @@
         .star-btn.warna-kuning { color: #f59e0b; }
         .textarea-ulasan { width: 100%; border-radius: 12px; border: 1px solid #cbd5e1; padding: 10px; font-size: 13px; font-family: inherit; resize: none; box-sizing: border-box; outline: none; background: #f8fafc; margin-top: 5px; }
         .btn-kirim-ulasan { background: #10b981; color: white; border: none; padding: 8px 20px; border-radius: 50px; font-size: 13px; font-weight: bold; margin-top: 10px; cursor: pointer; width: 100%; box-shadow: 0 3px 8px rgba(16,185,129,0.2); }
-
-        .chat-nav-wrap { position: relative; display: inline-block; }
-        .notif-chat-badge { display: none; position: absolute; top: -9px; right: -16px; background: #ef4444; color: white; min-width: 18px; height: 18px; padding: 0 5px; border-radius: 999px; font-size: 10px; line-height: 18px; text-align: center; font-weight: bold; box-shadow: 0 2px 6px rgba(239,68,68,.35); }
         .chat-user-badge.has-new { background: #fee2e2; color: #b91c1c; border: 1px solid #fecaca; }
         .chat-user-badge.has-new::after { content: " • Baru"; font-size: 11px; color: #ef4444; }
         .chat-alert-top { display:none; background:#eff6ff; color:#1d4ed8; border:1px solid #bfdbfe; border-radius:14px; padding:8px 12px; margin-bottom:8px; font-size:12px; font-weight:700; text-align:center; }
@@ -86,6 +83,47 @@
         @media (min-width: 520px) {
             .menu-grid { grid-template-columns: repeat(3, 1fr); }
         }
+        
+        .chat-nav-wrap { position: relative; display: inline-block; }
+        .notif-chat-badge {
+            display: none;
+            position: absolute;
+            top: -8px;
+            right: -10px;
+            width: 10px;
+            height: 10px;
+            min-width: 10px;
+            padding: 0;
+            border-radius: 50%;
+            background: #ef4444;
+            color: transparent;
+            font-size: 0;
+            line-height: 0;
+            box-shadow: 0 0 0 2px white;
+        }
+        .qris-status-card {
+            margin-top: 14px;
+            background: #f8fafc;
+            border: 1px solid #e2e8f0;
+            border-radius: 18px;
+            padding: 14px;
+        }
+        .qris-status-card .qris-img-container {
+            width: 220px;
+            height: 220px;
+        }
+        .btn-qris-status {
+            width: 100%;
+            border: none;
+            border-radius: 50px;
+            padding: 12px;
+            font-weight: 700;
+            margin-top: 10px;
+            cursor: pointer;
+        }
+        .btn-qris-blue { background: #0ea5e9; color: white; }
+        .btn-qris-gray { background: #e2e8f0; color: #334155; }
+
         </style>
 </head>
 <body>
@@ -134,7 +172,9 @@
     <div class="nav-tabs-bottom">
         <button class="nav-btn active" id="btn-tab-pesan" onclick="gantiDashboard('pesan')">Pesan</button>
         <button class="nav-btn" id="btn-tab-status" onclick="gantiDashboard('status')">Status</button>
-        <button class="nav-btn" id="btn-tab-chat" onclick="gantiDashboard('chat')"><span class="chat-nav-wrap">Chat<span class="notif-chat-badge" id="notifChatBadge">0</span></span></button>
+        <button class="nav-btn" id="btn-tab-chat" onclick="gantiDashboard('chat')">
+            <span class="chat-nav-wrap">Chat<span class="notif-chat-badge" id="notifChatBadge"></span></span>
+        </button>
     </div>
 </div>
 
@@ -148,6 +188,7 @@
         <div class="status-badge status-waiting" id="txtStatusBayar">Menunggu pembayaran diterima</div>
         <input type="hidden" id="currentPopupDocId" value="">
         <button class="btn-action-popup btn-cancel" id="btnBatalPopup" onclick="batalDanEditPesanan()">Batal / Ubah Pesanan</button>
+        <button class="btn-action-popup btn-qris-gray" onclick="tutupPopupQRISKeStatus()">Tutup QRIS / Lihat Status</button>
     </div>
 </div>
 
@@ -408,7 +449,7 @@
               daftarMenu: listOrder,
               catatan: catatanInput,
               totalBayar: totalHargaGlobal,
-              status: "Menunggu Pembayaran",
+              status: "Belum Bayar",
               waktuLokal: Date.now(),
               customerSessionId: customerSessionId
           });
@@ -419,8 +460,8 @@
           document.getElementById('currentPopupDocId').value = docRef.id;
           document.getElementById('popTotalHarga').innerText = totalHargaGlobal.toLocaleString('id-ID');
           document.getElementById('layarPopup').style.display = 'flex';
-
           mulaiPemantauanMultiOrder();
+          window.gantiDashboard('status');
 
       } catch (e) {
           alert("Gagal memproses pembayaran.");
@@ -497,7 +538,6 @@
       const alertTop = document.getElementById('chatAlertTop');
 
       if (badge) {
-          badge.innerText = total > 99 ? "99+" : total;
           badge.style.display = total > 0 ? "inline-block" : "none";
       }
 
@@ -539,6 +579,24 @@
       updateBadgeNotifChat();
   }
 
+
+
+  function bukaPopupQRISUntukPesanan(idDoc, totalBayar) {
+      document.getElementById('currentPopupDocId').value = idDoc || localStorage.getItem('id_popup_menunggu_bayar') || "";
+      document.getElementById('popTotalHarga').innerText = (totalBayar || totalHargaGlobal || 0).toLocaleString('id-ID');
+      document.getElementById('layarPopup').style.display = 'flex';
+  }
+
+  window.tutupPopupQRISKeStatus = function() {
+      document.getElementById('layarPopup').style.display = 'none';
+      window.gantiDashboard('status');
+  }
+
+  window.bukaQRISDariStatus = function(idDoc) {
+      const order = listPesananAktifArray.find(item => item.id === idDoc);
+      const total = order ? (order.data.totalBayar || 0) : totalHargaGlobal;
+      bukaPopupQRISUntukPesanan(idDoc, total);
+  }
 
   window.mulaiPemantauanMultiOrder = function() {
       const savedSesi = localStorage.getItem('multi_id_pesanan_customer');
@@ -588,6 +646,22 @@
                       return;
                   }
 
+
+                  if (data.status === "Dibayar" || data.status === "Pembayaran Diterima") {
+                      document.getElementById('layarPopup').style.display = 'none';
+                      localStorage.removeItem('id_popup_menunggu_bayar');
+                      window.gantiDashboard('status');
+
+                      // Setelah kasir klik Terima, tampil sebentar Pembayaran Diterima lalu otomatis menjadi Diproses
+                      setTimeout(async () => {
+                          try {
+                              await updateDoc(doc(db, "pesanan", documentId), { status: "Diproses" });
+                          } catch(e) {
+                              console.log("Gagal auto ubah ke Diproses:", e);
+                          }
+                      }, 900);
+                  }
+
                   if (data.status === "Diproses") {
                       document.getElementById('layarPopup').style.display = 'none';
                       localStorage.removeItem('id_popup_menunggu_bayar');
@@ -630,7 +704,6 @@
                   if(mapListenerStatus[documentId]) mapListenerStatus[documentId]();
 
                   if (idPopup === documentId) {
-                      alert("Pesanan dibatalkan/ditolak oleh kasir.");
                       kosongkanStatusDanChatCustomer();
                       window.gantiDashboard('pesan');
                   }
@@ -680,9 +753,17 @@
           } else {
               let klsWarna = "bg-waiting";
               let teksStatus = data.status;
-              let descTeks = "Mohon selesaikan pembayaran QRIS Anda.";
+              let descTeks = "Silakan scan QRIS untuk membayar pesanan Anda.";
 
-              if(data.status === "Diproses") {
+              if(data.status === "Belum Bayar" || data.status === "Menunggu Pembayaran") {
+                  klsWarna = "bg-waiting";
+                  teksStatus = "Belum Bayar";
+                  descTeks = "Silakan scan QRIS untuk membayar. Jika QRIS ditutup, tekan tombol Bayar untuk melihat QRIS lagi.";
+              } else if(data.status === "Dibayar" || data.status === "Pembayaran Diterima") {
+                  klsWarna = "bg-process";
+                  teksStatus = "Pembayaran Diterima";
+                  descTeks = "Pembayaran diterima. Pesanan akan segera diproses.";
+              } else if(data.status === "Diproses") {
                   klsWarna = "bg-process";
                   teksStatus = "Sedang Diproses";
                   descTeks = "Pembayaran diterima. Barista sedang menyiapkan pesanan Anda.";
@@ -698,6 +779,14 @@
                   <div class="status-main-badge ${klsWarna}">${teksStatus}</div>
                   <div style="font-size: 24px; font-weight: bold; color: #0ea5e9; margin-bottom: 5px;">KODE PESANAN: ${data.kodeAntrean}</div>
                   <p style="font-size: 13px; color: #64748b; margin: 0;">${descTeks}</p>
+                  ${(data.status === "Belum Bayar" || data.status === "Menunggu Pembayaran") ? `
+                      <div class="qris-status-card">
+                          <div style="font-weight:700; color:#0284c7; margin-bottom:6px;">QRIS PEMBAYARAN</div>
+                          <div class="qris-img-container"><img src="qris.jpg" class="qris-img-file" alt="QRIS"></div>
+                          <button class="btn-qris-status btn-qris-blue" onclick="bukaQRISDariStatus('${idDoc}')">Bayar / Tampilkan QRIS</button>
+                          <button class="btn-qris-status btn-qris-gray" onclick="tutupPopupQRISKeStatus()">Tutup QRIS</button>
+                      </div>
+                  ` : ""}
               `;
 
               if(index === 0) {              }
@@ -730,36 +819,41 @@
           return;
       }
 
+      const order = listPesananAktifArray.find(item => item.id === idDoc);
+      const dataOrder = order ? order.data : {};
+
       try {
           await updateDoc(doc(db, "pesanan", idDoc), {
               rating: parseInt(nilaiRating),
-              ulasan: teksUlasan,
+              ulasan: teksUlasan || "",
               selesaiRating: true,
+              sudahUlasan: true,
               waktuRating: Date.now(),
               waktuUlasan: Date.now()
           });
 
-          // Setelah rating terkirim, langsung kosongkan status & chat customer tanpa popup tambahan
+          // Backup agar dashboard kasir bisa membaca ulasan walau memakai koleksi ulasan
+          try {
+              await addDoc(collection(db, "ulasan"), {
+                  pesananId: idDoc,
+                  kodeAntrean: dataOrder.kodeAntrean || kodePesananAktif,
+                  rating: parseInt(nilaiRating),
+                  ulasan: teksUlasan || "",
+                  totalBayar: dataOrder.totalBayar || 0,
+                  daftarMenu: dataOrder.daftarMenu || [],
+                  waktuUlasan: Date.now(),
+                  sumber: "customer"
+              });
+          } catch(e2) {
+              console.log("Backup ulasan tidak tersimpan, tapi rating pesanan sudah tersimpan:", e2);
+          }
+
           kosongkanStatusDanChatCustomer(idDoc);
           window.gantiDashboard('pesan');
 
       } catch(e) {
           console.error("Gagal mengirim rating:", e);
-
-          // Fallback: tetap coba kirim data minimal jika ada field yang ditolak rules lama
-          try {
-              await updateDoc(doc(db, "pesanan", idDoc), {
-                  rating: parseInt(nilaiRating),
-                  ulasan: teksUlasan
-              });
-
-              kosongkanStatusDanChatCustomer(idDoc);
-              window.gantiDashboard('pesan');
-
-          } catch(err) {
-              console.error("Gagal mengirim rating fallback:", err);
-              alert("Gagal mengirim ulasan. Coba lagi atau hubungi kasir.");
-          }
+          alert("Gagal mengirim ulasan. Coba lagi atau hubungi kasir.");
       }
   }
 
